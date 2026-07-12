@@ -1,208 +1,141 @@
-const SiteAssets = require('../models/SiteAssets');
+const path = require('path');
+const fs = require('fs');
+const { SiteAssets, SlideshowItem } = require('../models/index');
 
-// Get all site assets
+const buildImageUrl = (req, imagePath) => {
+  if (!imagePath) return null;
+  return `${req.protocol}://${req.get('host')}/${imagePath}`;
+};
+
+const deleteImageFile = (imagePath) => {
+  if (!imagePath) return;
+  const full = path.join(__dirname, '..', imagePath);
+  if (fs.existsSync(full)) fs.unlinkSync(full);
+};
+
+// Helper: get or create the single site assets row
+const getOrCreateAssets = async () => {
+  let assets = await SiteAssets.findOne();
+  if (!assets) {
+    assets = await SiteAssets.create({ siteName: 'Bihar Ka Swaad', tagline: 'Authentic Flavors from Bihar' });
+  }
+  return assets;
+};
+
+// ── GET Site Assets ───────────────────────────────────────────────────────────
 exports.getSiteAssets = async (req, res) => {
   try {
-    console.log('📥 Fetching site assets');
+    const assets = await getOrCreateAssets();
+    const slideshow = await SlideshowItem.findAll({ where: { active: true }, order: [['orderNum', 'ASC']] });
 
-    let assets = await SiteAssets.findOne();
-
-    // Create default if doesn't exist
-    if (!assets) {
-      assets = await SiteAssets.create({
-        siteName: 'Bihar Ka Swaad',
-        tagline: 'Authentic Flavors from Bihar',
-        slideshow: []
-      });
-    }
-
-    const assetsData = assets.toObject();
-
-    // Convert logo to base64
-    if (assetsData.logo && assetsData.logo.data) {
-      assetsData.logoUrl = `data:${assetsData.logo.contentType};base64,${assetsData.logo.data.toString('base64')}`;
-      delete assetsData.logo;
-    }
-
-    // Convert slideshow images to base64
-    if (assetsData.slideshow) {
-      assetsData.slideshow = assetsData.slideshow.map(slide => {
-        if (slide.image && slide.image.data) {
-          slide.imageUrl = `data:${slide.image.contentType};base64,${slide.image.data.toString('base64')}`;
-          delete slide.image;
-        }
-        return slide;
-      }).sort((a, b) => a.order - b.order);
-    }
+    const obj = assets.toJSON();
+    obj.logoUrl = buildImageUrl(req, obj.logoPath);
+    obj.slideshow = slideshow.map((s) => {
+      const so = s.toJSON();
+      so.imageUrl = buildImageUrl(req, so.imagePath);
+      return so;
+    });
 
     console.log('✅ Site assets sent');
-    res.status(200).json({ status: 'success', data: assetsData });
+    res.status(200).json({ status: 'success', data: obj });
   } catch (error) {
     console.error('❌ Error fetching site assets:', error);
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
-// Upload/Update Logo (Admin only)
+// ── UPLOAD Logo (Admin) ───────────────────────────────────────────────────────
 exports.uploadLogo = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Please upload a logo image (JPG only)'
-      });
+      return res.status(400).json({ status: 'error', message: 'Please upload a logo image' });
     }
 
-    console.log('📸 Logo uploaded:', req.file.originalname);
+    const assets = await getOrCreateAssets();
 
-    let assets = await SiteAssets.findOne();
+    // Delete old logo file
+    deleteImageFile(assets.logoPath);
 
-    if (!assets) {
-      assets = await SiteAssets.create({
-        siteName: 'Bihar Ka Swaad',
-        tagline: 'Authentic Flavors from Bihar'
-      });
-    }
-
-    assets.logo = {
-      data: req.file.buffer,
-      contentType: req.file.mimetype,
-      uploadedAt: new Date()
-    };
-
+    assets.logoPath = req.file.path.replace(/\\/g, '/');
+    assets.logoContentType = req.file.mimetype;
     await assets.save();
 
-    const assetsData = assets.toObject();
-    if (assetsData.logo && assetsData.logo.data) {
-      assetsData.logoUrl = `data:${assetsData.logo.contentType};base64,${assetsData.logo.data.toString('base64')}`;
-      delete assetsData.logo;
-    }
+    const obj = assets.toJSON();
+    obj.logoUrl = buildImageUrl(req, obj.logoPath);
 
     console.log('✅ Logo updated');
-    res.status(200).json({
-      status: 'success',
-      message: 'Logo updated successfully',
-      data: assetsData
-    });
+    res.status(200).json({ status: 'success', message: 'Logo updated successfully', data: obj });
   } catch (error) {
     console.error('❌ Error uploading logo:', error);
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
-// Add Slideshow Image (Admin only)
+// ── ADD Slideshow Image (Admin) ───────────────────────────────────────────────
 exports.addSlideshow = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Please upload a slideshow image (JPG only)'
-      });
+      return res.status(400).json({ status: 'error', message: 'Please upload a slideshow image' });
     }
 
     const { title, subtitle, buttonText, buttonLink, order } = req.body;
+    const count = await SlideshowItem.count();
 
-    console.log('📸 Slideshow image uploaded:', req.file.originalname);
-
-    let assets = await SiteAssets.findOne();
-
-    if (!assets) {
-      assets = await SiteAssets.create({
-        siteName: 'Bihar Ka Swaad',
-        tagline: 'Authentic Flavors from Bihar',
-        slideshow: []
-      });
-    }
-
-    const newSlide = {
+    const slide = await SlideshowItem.create({
       title: title || 'Welcome to Bihar Ka Swaad',
       subtitle: subtitle || '',
       buttonText: buttonText || 'Shop Now',
       buttonLink: buttonLink || '/products',
-      order: parseInt(order) || assets.slideshow.length,
-      image: {
-        data: req.file.buffer,
-        contentType: req.file.mimetype
-      },
-      uploadedAt: new Date()
-    };
-
-    assets.slideshow.push(newSlide);
-    await assets.save();
-
-    const assetsData = assets.toObject();
-    assetsData.slideshow = assetsData.slideshow.map(slide => {
-      if (slide.image && slide.image.data) {
-        slide.imageUrl = `data:${slide.image.contentType};base64,${slide.image.data.toString('base64')}`;
-        delete slide.image;
-      }
-      return slide;
+      imagePath: req.file.path.replace(/\\/g, '/'),
+      imageContentType: req.file.mimetype,
+      orderNum: parseInt(order) || count,
+      uploadedAt: new Date(),
     });
+
+    const obj = slide.toJSON();
+    obj.imageUrl = buildImageUrl(req, obj.imagePath);
 
     console.log('✅ Slideshow added');
-    res.status(200).json({
-      status: 'success',
-      message: 'Slideshow image added successfully',
-      data: assetsData
-    });
+    res.status(200).json({ status: 'success', message: 'Slideshow image added successfully', data: obj });
   } catch (error) {
     console.error('❌ Error adding slideshow:', error);
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
-// Delete Slideshow Image (Admin only)
+// ── DELETE Slideshow Image (Admin) ────────────────────────────────────────────
 exports.deleteSlideshow = async (req, res) => {
   try {
     const { slideId } = req.params;
+    const slide = await SlideshowItem.findByPk(slideId);
 
-    let assets = await SiteAssets.findOne();
-
-    if (!assets) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Site assets not found'
-      });
+    if (!slide) {
+      return res.status(404).json({ status: 'error', message: 'Slideshow item not found' });
     }
 
-    assets.slideshow = assets.slideshow.filter(
-      slide => slide._id.toString() !== slideId
-    );
-
-    await assets.save();
+    deleteImageFile(slide.imagePath);
+    await slide.destroy();
 
     console.log('🗑️ Slideshow deleted');
-    res.status(200).json({
-      status: 'success',
-      message: 'Slideshow image deleted successfully'
-    });
+    res.status(200).json({ status: 'success', message: 'Slideshow image deleted successfully' });
   } catch (error) {
     console.error('❌ Error deleting slideshow:', error);
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
-// Update Site Settings (Admin only)
+// ── UPDATE Site Settings (Admin) ──────────────────────────────────────────────
 exports.updateSiteSettings = async (req, res) => {
   try {
     const { siteName, tagline } = req.body;
+    const assets = await getOrCreateAssets();
 
-    let assets = await SiteAssets.findOne();
-
-    if (!assets) {
-      assets = await SiteAssets.create({ siteName, tagline });
-    } else {
-      if (siteName) assets.siteName = siteName;
-      if (tagline) assets.tagline = tagline;
-      await assets.save();
-    }
+    if (siteName) assets.siteName = siteName;
+    if (tagline) assets.tagline = tagline;
+    await assets.save();
 
     console.log('✅ Site settings updated');
-    res.status(200).json({
-      status: 'success',
-      message: 'Site settings updated successfully',
-      data: assets
-    });
+    res.status(200).json({ status: 'success', message: 'Site settings updated successfully', data: assets });
   } catch (error) {
     console.error('❌ Error updating site settings:', error);
     res.status(500).json({ status: 'error', message: error.message });

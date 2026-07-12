@@ -1,7 +1,7 @@
 {
   "name": "ecommerce-mern-backend",
   "version": "1.0.0",
-  "description": "MERN Stack E-commerce Backend API — biharkaswaad.com",
+  "description": "MERN Stack E-commerce Backend API — biharkaswaad.com (MySQL)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -11,7 +11,8 @@
   "keywords": [
     "nodejs",
     "express",
-    "mongodb",
+    "mysql",
+    "sequelize",
     "ecommerce",
     "api",
     "mern"
@@ -28,10 +29,11 @@
     "express-rate-limit": "^6.10.0",
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^7.5.0",
-    "multer": "^2.0.2",
+    "multer": "^2.2.0",
+    "mysql2": "^3.22.6",
     "nodemailer": "^7.0.9",
     "razorpay": "^2.9.6",
+    "sequelize": "^6.37.8",
     "validator": "^13.11.0",
     "xss": "^1.0.14"
   },

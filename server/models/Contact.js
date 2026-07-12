@@ -1,58 +1,27 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
-const contactSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'Name is required'],
-    trim: true
-  },
-  email: {
-    type: String,
-    required: [true, 'Email is required'],
-    lowercase: true,
-    trim: true
-  },
-  phone: {
-    type: String,
-    trim: true
-  },
-  subject: {
-    type: String,
-    required: [true, 'Subject is required'],
-    trim: true
-  },
-  message: {
-    type: String,
-    required: [true, 'Message is required']
-  },
-  status: {
-    type: String,
-    enum: ['new', 'in-progress', 'resolved', 'closed'],
-    default: 'new'
-  },
-  priority: {
-    type: String,
-    enum: ['low', 'medium', 'high', 'urgent'],
-    default: 'medium'
-  },
-  assignedTo: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  notes: [{
-    text: String,
-    addedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
+const Contact = sequelize.define(
+  'Contact',
+  {
+    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    name: { type: DataTypes.STRING(255) },
+    email: { type: DataTypes.STRING(255) },
+    phone: { type: DataTypes.STRING(20) },
+    subject: { type: DataTypes.STRING(500) },
+    message: { type: DataTypes.TEXT },
+    status: {
+      type: DataTypes.ENUM('new', 'in-progress', 'resolved', 'closed'),
+      defaultValue: 'new',
     },
-    addedAt: {
-      type: Date,
-      default: Date.now
-    }
-  }],
-  resolvedAt: Date
-}, {
-  timestamps: true
-});
+    priority: {
+      type: DataTypes.ENUM('low', 'medium', 'high', 'urgent'),
+      defaultValue: 'medium',
+    },
+    assignedTo: { type: DataTypes.INTEGER, allowNull: true },
+    resolvedAt: { type: DataTypes.DATE, allowNull: true },
+  },
+  { tableName: 'contacts' }
+);
 
-module.exports = mongoose.model('Contact', contactSchema);
+module.exports = Contact;

@@ -1,27 +1,19 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
-const wishlistSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+const Wishlist = sequelize.define(
+  'Wishlist',
+  {
+    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    userId: { type: DataTypes.INTEGER, allowNull: false },
+    productId: { type: DataTypes.INTEGER, allowNull: false },
+    addedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   },
-  products: [{
-    product: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product',
-      required: true
-    },
-    addedAt: {
-      type: Date,
-      default: Date.now
-    }
-  }]
-}, {
-  timestamps: true
-});
+  {
+    tableName: 'wishlist_items',
+    timestamps: false,
+    indexes: [{ unique: true, fields: ['userId', 'productId'] }],
+  }
+);
 
-// Ensure one wishlist per user
-wishlistSchema.index({ user: 1 }, { unique: true });
-
-module.exports = mongoose.model('Wishlist', wishlistSchema);
+module.exports = Wishlist;

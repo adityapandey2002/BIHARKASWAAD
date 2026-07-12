@@ -39,3 +39,7 @@ Thumbs.db
 # Misc
 .cache/
 .temp/
+
+# Uploaded user files (images) — preserve directory structure via .gitkeep
+server/uploads/**/*
+!server/uploads/**/.gitkeep

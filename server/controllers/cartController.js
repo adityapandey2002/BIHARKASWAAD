@@ -1,136 +1,151 @@
-const Cart = require('../models/Cart');
-const Product = require('../models/Product');
+const { Cart, CartItem, Product } = require('../models/index');
 
+// Helper: build image URL
+const buildImageUrl = (req, imagePath) => {
+  if (!imagePath) return null;
+  return `${req.protocol}://${req.get('host')}/${imagePath}`;
+};
+
+// Helper: format cart with image URLs
+const formatCart = (cart, req) => {
+  const obj = cart.toJSON ? cart.toJSON() : cart;
+  if (obj.items) {
+    obj.items = obj.items.map((item) => {
+      if (item.product) {
+        item.product.imageUrl = buildImageUrl(req, item.product.imagePath);
+      }
+      return item;
+    });
+  }
+  return obj;
+};
+
+// ── GET Cart ──────────────────────────────────────────────────────────────────
 exports.getCart = async (req, res) => {
   try {
-    const cart = await Cart.findOne({ user: req.user._id }).populate('items.product');
+    const cart = await Cart.findOne({
+      where: { userId: req.user.id },
+      include: [{ model: CartItem, as: 'items', include: [{ model: Product, as: 'product' }] }],
+    });
+
     if (!cart) {
       return res.status(200).json({ status: 'success', data: { items: [], totalAmount: 0 } });
     }
 
-    // Convert image buffer to base64 for each product in cart items
-    const cartWithImages = cart.toObject();
-    cartWithImages.items = cartWithImages.items.map(item => {
-      if (item.product && item.product.image && item.product.image.data) {
-        item.product.imageUrl = `data:${item.product.image.contentType};base64,${item.product.image.data.toString('base64')}`;
-        delete item.product.image;
-      }
-      return item;
-    });
-
-    res.status(200).json({ status: 'success', data: cartWithImages });
+    res.status(200).json({ status: 'success', data: formatCart(cart, req) });
   } catch (error) {
     res.status(400).json({ status: 'error', message: error.message });
   }
 };
 
+// ── ADD to Cart ───────────────────────────────────────────────────────────────
 exports.addToCart = async (req, res) => {
   try {
     const { productId, quantity = 1 } = req.body;
 
-    const product = await Product.findById(productId);
+    const product = await Product.findByPk(productId);
     if (!product) return res.status(404).json({ status: 'error', message: 'Product not found' });
 
-    let cart = await Cart.findOne({ user: req.user._id });
-    if (!cart) cart = new Cart({ user: req.user._id, items: [] });
+    // Find or create cart
+    let [cart] = await Cart.findOrCreate({ where: { userId: req.user.id }, defaults: { totalAmount: 0 } });
 
-    const idx = cart.items.findIndex(i => i.product.toString() === productId);
-    if (idx > -1) {
-      cart.items[idx].quantity += quantity;
-      cart.items[idx].price = product.price;
+    // Find or create cart item
+    const existingItem = await CartItem.findOne({ where: { cartId: cart.id, productId } });
+
+    if (existingItem) {
+      existingItem.quantity += quantity;
+      existingItem.price = product.price;
+      await existingItem.save();
     } else {
-      cart.items.push({ product: product._id, quantity, price: product.price });
+      await CartItem.create({ cartId: cart.id, productId, quantity, price: product.price });
     }
 
+    // Recalculate total
+    const allItems = await CartItem.findAll({ where: { cartId: cart.id } });
+    cart.totalAmount = allItems.reduce((sum, i) => sum + parseFloat(i.price) * i.quantity, 0);
     await cart.save();
-    await cart.populate('items.product');
 
-    // Convert image buffer to base64 for each product in cart items
-    const cartWithImages = cart.toObject();
-    cartWithImages.items = cartWithImages.items.map(item => {
-      if (item.product && item.product.image && item.product.image.data) {
-        item.product.imageUrl = `data:${item.product.image.contentType};base64,${item.product.image.data.toString('base64')}`;
-        delete item.product.image;
-      }
-      return item;
+    // Re-fetch with associations
+    cart = await Cart.findOne({
+      where: { id: cart.id },
+      include: [{ model: CartItem, as: 'items', include: [{ model: Product, as: 'product' }] }],
     });
 
-    res.status(200).json({ status: 'success', data: cartWithImages });
+    res.status(200).json({ status: 'success', data: formatCart(cart, req) });
   } catch (error) {
     res.status(400).json({ status: 'error', message: error.message });
   }
 };
 
+// ── UPDATE Item Quantity ──────────────────────────────────────────────────────
 exports.updateItemQuantity = async (req, res) => {
   try {
     const { productId, quantity } = req.body;
     if (quantity < 1) return res.status(400).json({ status: 'error', message: 'Quantity must be >= 1' });
 
-    const cart = await Cart.findOne({ user: req.user._id });
+    const cart = await Cart.findOne({ where: { userId: req.user.id } });
     if (!cart) return res.status(404).json({ status: 'error', message: 'Cart not found' });
 
-    const idx = cart.items.findIndex(i => i.product.toString() === productId);
-    if (idx === -1) return res.status(404).json({ status: 'error', message: 'Item not in cart' });
+    const item = await CartItem.findOne({ where: { cartId: cart.id, productId } });
+    if (!item) return res.status(404).json({ status: 'error', message: 'Item not in cart' });
 
-    cart.items[idx].quantity = quantity;
+    item.quantity = quantity;
+    await item.save();
+
+    // Recalculate total
+    const allItems = await CartItem.findAll({ where: { cartId: cart.id } });
+    cart.totalAmount = allItems.reduce((sum, i) => sum + parseFloat(i.price) * i.quantity, 0);
     await cart.save();
-    await cart.populate('items.product');
 
-    // Convert image buffer to base64 for each product in cart items
-    const cartWithImages = cart.toObject();
-    cartWithImages.items = cartWithImages.items.map(item => {
-      if (item.product && item.product.image && item.product.image.data) {
-        item.product.imageUrl = `data:${item.product.image.contentType};base64,${item.product.image.data.toString('base64')}`;
-        delete item.product.image;
-      }
-      return item;
+    const updatedCart = await Cart.findOne({
+      where: { id: cart.id },
+      include: [{ model: CartItem, as: 'items', include: [{ model: Product, as: 'product' }] }],
     });
 
-    res.status(200).json({ status: 'success', data: cartWithImages });
+    res.status(200).json({ status: 'success', data: formatCart(updatedCart, req) });
   } catch (error) {
     res.status(400).json({ status: 'error', message: error.message });
   }
 };
 
+// ── REMOVE Item ───────────────────────────────────────────────────────────────
 exports.removeItem = async (req, res) => {
   try {
     const { productId } = req.params;
-    const cart = await Cart.findOne({ user: req.user._id });
+
+    const cart = await Cart.findOne({ where: { userId: req.user.id } });
     if (!cart) return res.status(404).json({ status: 'error', message: 'Cart not found' });
 
-    const before = cart.items.length;
-    cart.items = cart.items.filter(i => i.product.toString() !== productId);
+    const deleted = await CartItem.destroy({ where: { cartId: cart.id, productId } });
+    if (!deleted) return res.status(404).json({ status: 'error', message: 'Item not in cart' });
 
-    if (cart.items.length === before) return res.status(404).json({ status: 'error', message: 'Item not in cart' });
-
+    // Recalculate total
+    const allItems = await CartItem.findAll({ where: { cartId: cart.id } });
+    cart.totalAmount = allItems.reduce((sum, i) => sum + parseFloat(i.price) * i.quantity, 0);
     await cart.save();
-    await cart.populate('items.product');
 
-    // Convert image buffer to base64 for each product in cart items
-    const cartWithImages = cart.toObject();
-    cartWithImages.items = cartWithImages.items.map(item => {
-      if (item.product && item.product.image && item.product.image.data) {
-        item.product.imageUrl = `data:${item.product.image.contentType};base64,${item.product.image.data.toString('base64')}`;
-        delete item.product.image;
-      }
-      return item;
+    const updatedCart = await Cart.findOne({
+      where: { id: cart.id },
+      include: [{ model: CartItem, as: 'items', include: [{ model: Product, as: 'product' }] }],
     });
 
-    res.status(200).json({ status: 'success', data: cartWithImages });
+    res.status(200).json({ status: 'success', data: formatCart(updatedCart, req) });
   } catch (error) {
     res.status(400).json({ status: 'error', message: error.message });
   }
 };
 
+// ── CLEAR Cart ────────────────────────────────────────────────────────────────
 exports.clearCart = async (req, res) => {
   try {
-    const cart = await Cart.findOne({ user: req.user._id });
+    const cart = await Cart.findOne({ where: { userId: req.user.id } });
     if (!cart) return res.status(404).json({ status: 'error', message: 'Cart not found' });
 
-    cart.items = [];
+    await CartItem.destroy({ where: { cartId: cart.id } });
+    cart.totalAmount = 0;
     await cart.save();
 
-    res.status(200).json({ status: 'success', data: cart });
+    res.status(200).json({ status: 'success', data: { items: [], totalAmount: 0 } });
   } catch (error) {
     res.status(400).json({ status: 'error', message: error.message });
   }

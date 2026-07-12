@@ -1,38 +1,30 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
-const blogSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-    trim: true
+const Blog = sequelize.define(
+  'Blog',
+  {
+    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    title: { type: DataTypes.STRING(500), allowNull: false },
+    excerpt: { type: DataTypes.TEXT, allowNull: false },
+    content: { type: DataTypes.TEXT('long'), allowNull: false },
+    author: { type: DataTypes.STRING(255), allowNull: false },
+    category: {
+      type: DataTypes.ENUM(
+        'Traditional Recipes',
+        'Food Culture',
+        'Health & Wellness',
+        'Festivals',
+        'Sustainability',
+        'Heritage'
+      ),
+      allowNull: false,
+    },
+    imagePath: { type: DataTypes.STRING(500), allowNull: true },
+    imageContentType: { type: DataTypes.STRING(100), allowNull: true },
+    published: { type: DataTypes.BOOLEAN, defaultValue: true },
   },
-  excerpt: {
-    type: String,
-    required: true
-  },
-  content: {
-    type: String,
-    required: true
-  },
-  author: {
-    type: String,
-    required: true
-  },
-  category: {
-    type: String,
-    required: true,
-    enum: ['Traditional Recipes', 'Food Culture', 'Health & Wellness', 'Festivals', 'Sustainability', 'Heritage']
-  },
-  image: {
-    data: Buffer,        // Store actual image binary data
-    contentType: String  // Store MIME type (image/jpeg)
-  },
-  published: {
-    type: Boolean,
-    default: true
-  }
-}, {
-  timestamps: true
-});
+  { tableName: 'blogs' }
+);
 
-module.exports = mongoose.model('Blog', blogSchema);
+module.exports = Blog;

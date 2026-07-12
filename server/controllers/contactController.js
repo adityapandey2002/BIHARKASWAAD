@@ -1,233 +1,159 @@
-const Contact = require('../models/Contact');
-const User = require('../models/User');
+const { Op } = require('sequelize');
+const { Contact, ContactNote, User } = require('../models/index');
 const { sendContactNotification, sendCustomerConfirmation } = require('../services/emailService');
 
-// Submit contact form
+// ── SUBMIT Contact Form ───────────────────────────────────────────────────────
 exports.submitContact = async (req, res) => {
   try {
     const { name, email, phone, subject, message } = req.body;
 
-    // Create contact inquiry
-    const contact = await Contact.create({
-      name,
-      email,
-      phone,
-      subject,
-      message,
-      status: 'new'
-    });
+    const contact = await Contact.create({ name, email, phone, subject, message, status: 'new' });
 
-    console.log('✅ Contact inquiry created:', contact._id);
+    console.log('✅ Contact inquiry created:', contact.id);
 
-    // Get admin and support staff emails
-    const adminsAndSupport = await User.find({
-      role: { $in: ['admin', 'support'] }
-    }).select('email');
+    // Notify admins and support staff
+    const staff = await User.findAll({ where: { role: { [Op.in]: ['admin', 'support'] } } });
+    const recipients = staff.map((u) => u.email);
 
-    const recipients = adminsAndSupport.map(user => user.email);
-
-    // Send notifications
     if (recipients.length > 0) {
-      await sendContactNotification({
-        name,
-        email,
-        phone,
-        subject,
-        message
-      }, recipients);
+      await sendContactNotification({ name, email, phone, subject, message }, recipients);
     }
-
-    // Send confirmation to customer
     await sendCustomerConfirmation({ name, email, subject, message });
 
     res.status(201).json({
       status: 'success',
       message: 'Your message has been sent successfully. We will get back to you soon!',
-      data: contact
+      data: contact,
     });
   } catch (error) {
     console.error('❌ Error submitting contact:', error);
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    });
+    res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
-// Get all contacts (Admin/Support only)
+// ── GET All Contacts (Admin/Support) ─────────────────────────────────────────
 exports.getAllContacts = async (req, res) => {
   try {
     const { status, priority } = req.query;
+    const where = {};
+    if (status) where.status = status;
+    if (priority) where.priority = priority;
 
-    const filter = {};
-    if (status) filter.status = status;
-    if (priority) filter.priority = priority;
-
-    // If support staff, show only assigned to them or unassigned
     if (req.user.role === 'support') {
-      filter.$or = [
-        { assignedTo: req.user._id },
-        { assignedTo: null }
-      ];
+      where[Op.or] = [{ assignedTo: req.user.id }, { assignedTo: null }];
     }
 
-    const contacts = await Contact.find(filter)
-      .populate('assignedTo', 'name email')
-      .populate('notes.addedBy', 'name')
-      .sort({ createdAt: -1 });
-
-    res.status(200).json({
-      status: 'success',
-      results: contacts.length,
-      data: contacts
+    const contacts = await Contact.findAll({
+      where,
+      include: [
+        { model: User, as: 'assignee', attributes: ['id', 'name', 'email'] },
+        {
+          model: ContactNote,
+          as: 'notes',
+          include: [{ model: User, as: 'addedByUser', attributes: ['id', 'name'] }],
+        },
+      ],
+      order: [['createdAt', 'DESC']],
     });
+
+    res.status(200).json({ status: 'success', results: contacts.length, data: contacts });
   } catch (error) {
     console.error('❌ Error fetching contacts:', error);
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    });
+    res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
-// Get single contact
+// ── GET Single Contact ────────────────────────────────────────────────────────
 exports.getContact = async (req, res) => {
   try {
-    const contact = await Contact.findById(req.params.id)
-      .populate('assignedTo', 'name email')
-      .populate('notes.addedBy', 'name');
-
-    if (!contact) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Contact not found'
-      });
-    }
-
-    // Check permission
-    if (req.user.role === 'support' && 
-        contact.assignedTo && 
-        contact.assignedTo._id.toString() !== req.user._id.toString()) {
-      return res.status(403).json({
-        status: 'error',
-        message: 'Not authorized'
-      });
-    }
-
-    res.status(200).json({
-      status: 'success',
-      data: contact
+    const contact = await Contact.findByPk(req.params.id, {
+      include: [
+        { model: User, as: 'assignee', attributes: ['id', 'name', 'email'] },
+        {
+          model: ContactNote,
+          as: 'notes',
+          include: [{ model: User, as: 'addedByUser', attributes: ['id', 'name'] }],
+        },
+      ],
     });
+
+    if (!contact) return res.status(404).json({ status: 'error', message: 'Contact not found' });
+
+    if (req.user.role === 'support' && contact.assignedTo && contact.assignedTo !== req.user.id) {
+      return res.status(403).json({ status: 'error', message: 'Not authorized' });
+    }
+
+    res.status(200).json({ status: 'success', data: contact });
   } catch (error) {
     console.error('❌ Error fetching contact:', error);
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    });
+    res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
-// Update contact status
+// ── UPDATE Contact ────────────────────────────────────────────────────────────
 exports.updateContact = async (req, res) => {
   try {
     const { status, priority, assignedTo } = req.body;
 
-    const contact = await Contact.findById(req.params.id);
-
-    if (!contact) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Contact not found'
-      });
-    }
+    const contact = await Contact.findByPk(req.params.id);
+    if (!contact) return res.status(404).json({ status: 'error', message: 'Contact not found' });
 
     if (status) contact.status = status;
     if (priority) contact.priority = priority;
-    if (assignedTo !== undefined) contact.assignedTo = assignedTo;
-
-    if (status === 'resolved' && !contact.resolvedAt) {
-      contact.resolvedAt = new Date();
-    }
+    if (assignedTo !== undefined) contact.assignedTo = assignedTo || null;
+    if (status === 'resolved' && !contact.resolvedAt) contact.resolvedAt = new Date();
 
     await contact.save();
 
-    console.log('✅ Contact updated:', contact._id);
-
-    res.status(200).json({
-      status: 'success',
-      data: contact
-    });
+    console.log('✅ Contact updated:', contact.id);
+    res.status(200).json({ status: 'success', data: contact });
   } catch (error) {
     console.error('❌ Error updating contact:', error);
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    });
+    res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
-// Add note to contact
+// ── ADD Note to Contact ───────────────────────────────────────────────────────
 exports.addNote = async (req, res) => {
   try {
     const { text } = req.body;
 
-    const contact = await Contact.findById(req.params.id);
+    const contact = await Contact.findByPk(req.params.id);
+    if (!contact) return res.status(404).json({ status: 'error', message: 'Contact not found' });
 
-    if (!contact) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Contact not found'
-      });
-    }
+    await ContactNote.create({ contactId: contact.id, text, addedBy: req.user.id, addedAt: new Date() });
 
-    contact.notes.push({
-      text,
-      addedBy: req.user._id,
-      addedAt: new Date()
+    const updatedContact = await Contact.findByPk(req.params.id, {
+      include: [
+        { model: User, as: 'assignee', attributes: ['id', 'name', 'email'] },
+        {
+          model: ContactNote,
+          as: 'notes',
+          include: [{ model: User, as: 'addedByUser', attributes: ['id', 'name'] }],
+        },
+      ],
     });
 
-    await contact.save();
-
-    const updatedContact = await Contact.findById(req.params.id)
-      .populate('assignedTo', 'name email')
-      .populate('notes.addedBy', 'name');
-
-    res.status(200).json({
-      status: 'success',
-      data: updatedContact
-    });
+    res.status(200).json({ status: 'success', data: updatedContact });
   } catch (error) {
     console.error('❌ Error adding note:', error);
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    });
+    res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
-// Delete contact (Admin only)
+// ── DELETE Contact (Admin) ────────────────────────────────────────────────────
 exports.deleteContact = async (req, res) => {
   try {
-    const contact = await Contact.findByIdAndDelete(req.params.id);
+    const contact = await Contact.findByPk(req.params.id);
+    if (!contact) return res.status(404).json({ status: 'error', message: 'Contact not found' });
 
-    if (!contact) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Contact not found'
-      });
-    }
+    await ContactNote.destroy({ where: { contactId: contact.id } });
+    await contact.destroy();
 
     console.log('🗑️ Contact deleted:', req.params.id);
-
-    res.status(200).json({
-      status: 'success',
-      message: 'Contact deleted successfully'
-    });
+    res.status(200).json({ status: 'success', message: 'Contact deleted successfully' });
   } catch (error) {
     console.error('❌ Error deleting contact:', error);
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    });
+    res.status(500).json({ status: 'error', message: error.message });
   }
 };
