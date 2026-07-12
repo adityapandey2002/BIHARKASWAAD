@@ -1,0 +1,41 @@
+# Node modules
+node_modules/
+**/node_modules/
+
+# Environment files — NEVER commit these
+.env
+.env.*
+**/.env
+**/.env.*
+*.env
+server/config/config.env
+
+# Production env example IS safe to commit (no real secrets)
+!.env.production.example
+!**/.env.production.example
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Build outputs
+dist/
+build/
+**/dist/
+**/build/
+server/public/
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Misc
+.cache/
+.temp/

@@ -1,0 +1,17 @@
+{
+  "name": "biharkaswaad-ecommerce",
+  "version": "1.0.0",
+  "description": "Bihar Ka Swaad — MERN E-commerce App",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "build": "cd client && npm run build && node scripts/copy-build.js",
+    "start": "cd server && node server.js",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm start"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}
