@@ -1,9 +1,9 @@
 const { Cart, CartItem, Product } = require('../models/index');
 
-// Helper: build image URL
+// Helper: build image URL (must match productController — include /api/)
 const buildImageUrl = (req, imagePath) => {
   if (!imagePath) return null;
-  return `${req.protocol}://${req.get('host')}/${imagePath}`;
+  return `${req.protocol}://${req.get('host')}/api/${imagePath.replace(/^\\/, '').replace(/^\//, '')}`;
 };
 
 // Helper: format cart with image URLs

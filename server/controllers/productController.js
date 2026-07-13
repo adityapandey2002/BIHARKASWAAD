@@ -6,7 +6,9 @@ const { Product } = require('../models/index');
 // Helper: build public URL for an image
 const buildImageUrl = (req, imagePath) => {
   if (!imagePath) return null;
-  return `${req.protocol}://${req.get('host')}/api/${imagePath.replace(/^\\/, '').replace(/^\\/, '')}`;
+  // Normalize path: replace backslashes → forward slashes, strip leading slash
+  const cleanPath = imagePath.replace(/\\/g, '/').replace(/^\//, '');
+  return `${req.protocol}://${req.get('host')}/api/${cleanPath}`;
 };
 
 // Helper: safely map images array
@@ -120,10 +122,10 @@ exports.createProduct = async (req, res) => {
     console.log('✅ Product created:', product.id);
     res.status(201).json({ status: 'success', data: obj });
   } catch (error) {
-    // Clean up uploaded file on error
+    // Clean up uploaded files on error
     if (req.files) req.files.forEach(f => deleteImageFile(f.path));
-    console.error('❌ Error creating product:', error);
-    res.status(400).json({ status: 'error', message: error.message });
+    console.error('❌ Error creating product:', error.message, error);
+    res.status(500).json({ status: 'error', message: error.message });
   }
 };
 

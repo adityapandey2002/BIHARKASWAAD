@@ -38,7 +38,7 @@ app.use(
 
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: process.env.NODE_ENV === 'production' ? 500 : 100,
   standardHeaders: true,
   legacyHeaders: false,
   message: { status: 'error', message: 'Too many requests, please try again after 15 minutes.' },
@@ -168,8 +168,10 @@ sequelize
   .authenticate()
   .then(() => {
     console.log('✅ MySQL connected successfully');
-    // sync({ alter: true }) updates existing tables to match models without dropping data
-    return sequelize.sync({ alter: true });
+    // In development: alter=true keeps schema in sync automatically
+    // In production: use migrate.js to make schema changes safely
+    const syncOpts = process.env.NODE_ENV === 'production' ? {} : { alter: true };
+    return sequelize.sync(syncOpts);
   })
   .then(() => {
     console.log('✅ All MySQL tables synced');
