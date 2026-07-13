@@ -22,7 +22,7 @@ const Checkout = () => {
     pincode: ''
   });
 
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
   const RAZORPAY_KEY = process.env.REACT_APP_RAZORPAY_KEY_ID || 'rzp_test_your_key_here';
 
   const handleChange = (e) => {

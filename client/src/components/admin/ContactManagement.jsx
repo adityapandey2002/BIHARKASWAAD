@@ -8,7 +8,7 @@ const ContactManagement = () => {
   const [selectedContact, setSelectedContact] = useState(null);
   const [noteText, setNoteText] = useState('');
 
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
 
   const fetchContacts = async () => {
     try {

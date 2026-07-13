@@ -14,7 +14,7 @@ const HomeSection = () => {
   // Dynamic Festival Timer
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
-  const API_BASE = (process.env.REACT_APP_API_URL || 'http://localhost:5000/api').replace('/api', '');
+  const API_BASE = (process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api').replace('/api', '');
 
   useEffect(() => {
     dispatch(fetchProducts());

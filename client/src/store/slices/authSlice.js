@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API = `${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/auth`;
+const API = `${process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api'}/auth`;
 
 export const loginUser = createAsyncThunk(
   'auth/login',

@@ -12,7 +12,7 @@ const BlogSection = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const isAdmin = isAuthenticated && user?.role === 'admin';
 
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
 
   const categories = [
     'All',

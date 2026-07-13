@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API = `${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/cart`;
+const API = `${process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api'}/cart`;
 
 // Backend-synced cart operations
 export const getCart = createAsyncThunk('cart/get', async (_, { getState, rejectWithValue }) => {

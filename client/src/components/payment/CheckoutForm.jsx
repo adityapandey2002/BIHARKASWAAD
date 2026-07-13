@@ -24,7 +24,7 @@ const CheckoutForm = ({ totalAmount, onSuccess }) => {
     try {
       // Create payment intent
       const { data } = await axios.post(
-        'http://localhost:5000/api/payment/create-payment-intent',
+        'https://biharkaswaad.in/api/payment/create-payment-intent',
         { amount: totalAmount },
         {
           headers: {

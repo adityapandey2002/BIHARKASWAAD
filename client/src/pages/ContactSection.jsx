@@ -13,7 +13,7 @@ const ContactSection = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
 
   const handleChange = (e) => {
     setFormData({

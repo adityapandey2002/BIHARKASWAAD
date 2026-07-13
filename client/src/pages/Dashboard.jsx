@@ -10,7 +10,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('products'); // 'products', 'site-assets', 'contacts', 'blogs'
 
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
 
   const fetchProducts = async () => {
     try {

@@ -10,7 +10,7 @@ const Cart = () => {
   const { items, totalAmount, isLoading, error } = useSelector((state) => state.cart);
   const { isAuthenticated } = useSelector((state) => state.auth);
 
-  const API_BASE = (process.env.REACT_APP_API_URL || 'http://localhost:5000/api').replace('/api', '');
+  const API_BASE = (process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api').replace('/api', '');
 
   useEffect(() => {
     if (isAuthenticated) {
