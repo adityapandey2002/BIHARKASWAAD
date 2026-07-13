@@ -2,10 +2,17 @@ const crypto = require('crypto');
 const Razorpay = require('razorpay');
 const { Order, OrderItem } = require('../models/index');
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+let razorpay;
+try {
+  if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+    razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+  }
+} catch (e) {
+  console.warn("⚠️ Razorpay disabled:", e.message);
+}
 
 // ── Create Razorpay Order ─────────────────────────────────────────────────────
 exports.createOrder = async (req, res) => {
@@ -22,6 +29,10 @@ exports.createOrder = async (req, res) => {
       receipt: `receipt_${Date.now()}`,
       notes: { userId: req.user.id.toString(), userEmail: req.user.email },
     };
+
+    if (!razorpay) {
+      return res.status(503).json({ status: 'error', message: 'Razorpay is not configured on the server. Please add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to the environment variables.' });
+    }
 
     const razorpayOrder = await razorpay.orders.create(options);
 

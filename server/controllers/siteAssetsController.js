@@ -4,7 +4,7 @@ const { SiteAssets, SlideshowItem } = require('../models/index');
 
 const buildImageUrl = (req, imagePath) => {
   if (!imagePath) return null;
-  return `${req.protocol}://${req.get('host')}/${imagePath}`;
+  return `${req.protocol}://${req.get('host')}/api/${imagePath.replace(/^\\/, '')}`;
 };
 
 const deleteImageFile = (imagePath) => {

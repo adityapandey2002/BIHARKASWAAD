@@ -82,8 +82,8 @@ app.use(cookieParser());
 app.use(mongoSanitize());
 
 // ─── Serve Uploaded Files as Static ──────────────────────────────────────────
-// This makes images accessible at: /uploads/products/filename.jpg
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// This makes images accessible at: /api/uploads/products/filename.jpg
+app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ─── API Health Check ─────────────────────────────────────────────────────────
 app.get('/api/test', (req, res) => {

@@ -6,7 +6,7 @@ const { Product } = require('../models/index');
 // Helper: build public URL for an image
 const buildImageUrl = (req, imagePath) => {
   if (!imagePath) return null;
-  return `${req.protocol}://${req.get('host')}/${imagePath}`;
+  return `${req.protocol}://${req.get('host')}/api/${imagePath.replace(/^\\/, '').replace(/^\\/, '')}`;
 };
 
 // Helper: delete old image file from disk
