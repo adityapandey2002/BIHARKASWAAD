@@ -25,6 +25,16 @@ const safeMapImages = (images, req) => {
   return Array.isArray(parsed) ? parsed.map(img => buildImageUrl(req, img)) : [];
 };
 
+// Helper: safely parse JSON field (MySQL sometimes returns JSON columns as strings)
+const safeParseJSON = (val, fallback = []) => {
+  if (!val) return fallback;
+  if (Array.isArray(val) || (typeof val === 'object' && val !== null)) return val;
+  if (typeof val === 'string') {
+    try { return JSON.parse(val); } catch (e) { return fallback; }
+  }
+  return fallback;
+};
+
 // Helper: delete old image file from disk
 const deleteImageFile = (imagePath) => {
   if (!imagePath) return;
@@ -54,6 +64,7 @@ exports.getAllProducts = async (req, res) => {
       const obj = p.toJSON();
       obj.imageUrl = buildImageUrl(req, obj.imagePath);
       obj.images = safeMapImages(obj.images, req);
+      obj.variants = safeParseJSON(obj.variants, []);
       return obj;
     });
 
@@ -77,6 +88,7 @@ exports.getProductById = async (req, res) => {
     const obj = product.toJSON();
     obj.imageUrl = buildImageUrl(req, obj.imagePath);
     obj.images = safeMapImages(obj.images, req);
+    obj.variants = safeParseJSON(obj.variants, []);
 
     res.status(200).json({ status: 'success', data: obj });
   } catch (error) {
@@ -118,6 +130,7 @@ exports.createProduct = async (req, res) => {
     const obj = product.toJSON();
     obj.imageUrl = buildImageUrl(req, obj.imagePath);
     obj.images = safeMapImages(obj.images, req);
+    obj.variants = safeParseJSON(obj.variants, []);
 
     console.log('✅ Product created:', product.id);
     res.status(201).json({ status: 'success', data: obj });
@@ -170,6 +183,7 @@ exports.updateProduct = async (req, res) => {
     const obj = product.toJSON();
     obj.imageUrl = buildImageUrl(req, obj.imagePath);
     obj.images = safeMapImages(obj.images, req);
+    obj.variants = safeParseJSON(obj.variants, []);
 
     console.log('✅ Product updated:', product.id);
     res.status(200).json({ status: 'success', data: obj });
