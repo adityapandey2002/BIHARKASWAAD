@@ -11,6 +11,7 @@ import Layout from './components/Layout';
 import HomeSection from './components/sections/HomeSection';
 import AboutSection from './components/sections/AboutSection';
 import ContactSection from './components/sections/ContactSection';
+import Contact from './pages/Contact';
 import BlogSection from './components/sections/BlogSection';
 import TrackOrderSection from './components/sections/TrackOrderSection';
 
@@ -48,7 +49,7 @@ function App() {
               {/* Home Page Sections */}
               <Route index element={<HomeSection />} />
               <Route path="about" element={<AboutSection />} />
-              <Route path="contact" element={<ContactSection />} />
+              <Route path="contact" element={<Contact />} />
               <Route path="blog" element={<BlogSection />} />
               <Route path="track-order" element={<TrackOrderSection />} />
 

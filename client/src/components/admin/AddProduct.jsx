@@ -9,7 +9,7 @@ const AddProduct = ({ onProductAdded }) => {
     name: '',
     description: '',
     price: '',
-    category: 'Snacks',
+    category: 'Thekua',
     stock: '',
     featured: false,
     image: null
@@ -17,7 +17,7 @@ const AddProduct = ({ onProductAdded }) => {
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-  const categories = ['Snacks', 'Sweets', 'Spices', 'Beverages', 'Meals', 'Pickles'];
+  const categories = ['Thekua', 'Sattu', 'Tilkut', 'Achaar', 'Honey', 'Bhuja Mix', 'Gift Hampers', 'Murabba', 'Chura', 'Khaja', 'Balushahi', 'Laai'];
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -99,7 +99,7 @@ const AddProduct = ({ onProductAdded }) => {
         name: '',
         description: '',
         price: '',
-        category: 'Snacks',
+        category: 'Thekua',
         stock: '',
         featured: false,
         image: null
@@ -372,7 +372,7 @@ const AddProduct = ({ onProductAdded }) => {
                   name: '',
                   description: '',
                   price: '',
-                  category: 'Snacks',
+                  category: 'Thekua',
                   stock: '',
                   featured: false,
                   image: null
