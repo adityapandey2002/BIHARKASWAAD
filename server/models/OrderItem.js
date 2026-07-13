@@ -10,6 +10,7 @@ const OrderItem = sequelize.define(
     productName: { type: DataTypes.STRING(255) }, // snapshot of name at order time
     quantity: { type: DataTypes.INTEGER, allowNull: false },
     price: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+    variantWeight: { type: DataTypes.STRING(100), allowNull: true },
   },
   { tableName: 'order_items', updatedAt: false }
 );

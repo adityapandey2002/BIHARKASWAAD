@@ -53,9 +53,10 @@ const Checkout = () => {
 
       // Prepare cart items
       const cartItems = items.map(item => ({
-        product: item.product._id,
+        productId: item.productId || item.product?.id || item.product?._id,
         quantity: item.quantity,
-        price: item.product.price
+        price: item.price || item.product?.price,
+        variantWeight: item.variantWeight || null
       }));
 
       // Create order
@@ -250,19 +251,19 @@ const Checkout = () => {
             <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
             <div className="space-y-4">
               {items.map((item) => (
-                <div key={item.product._id} className="flex items-center gap-4 pb-4 border-b">
-                  {item.product.imageUrl && (
+                <div key={item.id || item.productId} className="flex items-center gap-4 pb-4 border-b">
+                  {(item.product?.imageUrl) && (
                     <img
                       src={item.product.imageUrl}
-                      alt={item.product.name}
+                      alt={item.product?.name}
                       className="w-16 h-16 object-cover rounded"
                     />
                   )}
                   <div className="flex-1">
-                    <h3 className="font-medium">{item.product.name}</h3>
+                    <h3 className="font-medium">{item.product?.name} {item.variantWeight ? `(${item.variantWeight})` : ''}</h3>
                     <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                   </div>
-                  <p className="font-semibold">₹{item.product.price * item.quantity}</p>
+                  <p className="font-semibold">₹{(item.price || item.product?.price) * item.quantity}</p>
                 </div>
               ))}
 

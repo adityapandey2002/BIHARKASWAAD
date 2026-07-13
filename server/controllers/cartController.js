@@ -41,7 +41,7 @@ exports.getCart = async (req, res) => {
 // ── ADD to Cart ───────────────────────────────────────────────────────────────
 exports.addToCart = async (req, res) => {
   try {
-    const { productId, quantity = 1 } = req.body;
+    const { productId, quantity = 1, variantWeight = null } = req.body;
 
     const product = await Product.findByPk(productId);
     if (!product) return res.status(404).json({ status: 'error', message: 'Product not found' });
@@ -49,15 +49,21 @@ exports.addToCart = async (req, res) => {
     // Find or create cart
     let [cart] = await Cart.findOrCreate({ where: { userId: req.user.id }, defaults: { totalAmount: 0 } });
 
+    let itemPrice = parseFloat(product.price);
+    if (variantWeight && product.variants && product.variants.length > 0) {
+      const variant = product.variants.find(v => v.weight === variantWeight);
+      if (variant && variant.price) itemPrice = parseFloat(variant.price);
+    }
+
     // Find or create cart item
-    const existingItem = await CartItem.findOne({ where: { cartId: cart.id, productId } });
+    const existingItem = await CartItem.findOne({ where: { cartId: cart.id, productId, variantWeight } });
 
     if (existingItem) {
       existingItem.quantity += quantity;
-      existingItem.price = product.price;
+      existingItem.price = itemPrice;
       await existingItem.save();
     } else {
-      await CartItem.create({ cartId: cart.id, productId, quantity, price: product.price });
+      await CartItem.create({ cartId: cart.id, productId, quantity, price: itemPrice, variantWeight });
     }
 
     // Recalculate total
@@ -80,13 +86,13 @@ exports.addToCart = async (req, res) => {
 // ── UPDATE Item Quantity ──────────────────────────────────────────────────────
 exports.updateItemQuantity = async (req, res) => {
   try {
-    const { productId, quantity } = req.body;
+    const { productId, quantity, variantWeight = null } = req.body;
     if (quantity < 1) return res.status(400).json({ status: 'error', message: 'Quantity must be >= 1' });
 
     const cart = await Cart.findOne({ where: { userId: req.user.id } });
     if (!cart) return res.status(404).json({ status: 'error', message: 'Cart not found' });
 
-    const item = await CartItem.findOne({ where: { cartId: cart.id, productId } });
+    const item = await CartItem.findOne({ where: { cartId: cart.id, productId, variantWeight } });
     if (!item) return res.status(404).json({ status: 'error', message: 'Item not in cart' });
 
     item.quantity = quantity;
@@ -112,11 +118,12 @@ exports.updateItemQuantity = async (req, res) => {
 exports.removeItem = async (req, res) => {
   try {
     const { productId } = req.params;
+    const variantWeight = req.query.variantWeight || null;
 
     const cart = await Cart.findOne({ where: { userId: req.user.id } });
     if (!cart) return res.status(404).json({ status: 'error', message: 'Cart not found' });
 
-    const deleted = await CartItem.destroy({ where: { cartId: cart.id, productId } });
+    const deleted = await CartItem.destroy({ where: { cartId: cart.id, productId, variantWeight } });
     if (!deleted) return res.status(404).json({ status: 'error', message: 'Item not in cart' });
 
     // Recalculate total

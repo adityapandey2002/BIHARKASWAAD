@@ -50,6 +50,18 @@ exports.createOrder = async (req, res) => {
       paymentStatus: 'pending',
     });
 
+    if (cartItems && cartItems.length > 0) {
+      const orderItemsData = cartItems.map(item => ({
+        orderId: order.id,
+        productId: item.productId || item.product?.id,
+        productName: item.product?.name || 'Unknown Product',
+        quantity: item.quantity,
+        price: item.price,
+        variantWeight: item.variantWeight || null
+      }));
+      await OrderItem.bulkCreate(orderItemsData);
+    }
+
     console.log('✅ Razorpay order created:', razorpayOrder.id);
 
     res.status(200).json({

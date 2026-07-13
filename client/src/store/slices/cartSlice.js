@@ -15,30 +15,32 @@ export const getCart = createAsyncThunk('cart/get', async (_, { getState, reject
   }
 });
 
-export const addToCart = createAsyncThunk('cart/add', async ({ productId, quantity = 1 }, { getState, rejectWithValue }) => {
+export const addToCart = createAsyncThunk('cart/add', async ({ productId, quantity = 1, variantWeight = null }, { getState, rejectWithValue }) => {
   try {
     const token = getState().auth.token;
-    const { data } = await axios.post(API, { productId, quantity }, { headers: { Authorization: `Bearer ${token}` } });
+    const { data } = await axios.post(API, { productId, quantity, variantWeight }, { headers: { Authorization: `Bearer ${token}` } });
     return data.data || data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.message || 'Failed to add to cart');
   }
 });
 
-export const updateQuantity = createAsyncThunk('cart/updateQty', async ({ productId, quantity }, { getState, rejectWithValue }) => {
+export const updateQuantity = createAsyncThunk('cart/updateQty', async ({ productId, quantity, variantWeight = null }, { getState, rejectWithValue }) => {
   try {
     const token = getState().auth.token;
-    const { data } = await axios.patch(`${API}/item`, { productId, quantity }, { headers: { Authorization: `Bearer ${token}` } });
+    const { data } = await axios.patch(`${API}/item`, { productId, quantity, variantWeight }, { headers: { Authorization: `Bearer ${token}` } });
     return data.data || data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.message || 'Failed to update quantity');
   }
 });
 
-export const removeFromCart = createAsyncThunk('cart/remove', async ({ productId }, { getState, rejectWithValue }) => {
+export const removeFromCart = createAsyncThunk('cart/remove', async ({ productId, variantWeight = null }, { getState, rejectWithValue }) => {
   try {
     const token = getState().auth.token;
-    const { data } = await axios.delete(`${API}/item/${productId}`, { headers: { Authorization: `Bearer ${token}` } });
+    let url = `${API}/item/${productId}`;
+    if (variantWeight) url += `?variantWeight=${encodeURIComponent(variantWeight)}`;
+    const { data } = await axios.delete(url, { headers: { Authorization: `Bearer ${token}` } });
     return data.data || data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.message || 'Failed to remove item');

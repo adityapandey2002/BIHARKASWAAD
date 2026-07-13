@@ -15,6 +15,8 @@ const Product = sequelize.define(
     stock: { type: DataTypes.INTEGER, defaultValue: 0 },
     imagePath: { type: DataTypes.STRING(500), allowNull: true },
     imageContentType: { type: DataTypes.STRING(100), allowNull: true },
+    images: { type: DataTypes.JSON, defaultValue: [] },
+    variants: { type: DataTypes.JSON, defaultValue: [] },
     featured: { type: DataTypes.BOOLEAN, defaultValue: false },
     published: { type: DataTypes.BOOLEAN, defaultValue: true },
     ratingsAverage: { type: DataTypes.DECIMAL(3, 2), defaultValue: 0 },

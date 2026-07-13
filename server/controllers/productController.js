@@ -33,6 +33,7 @@ exports.getAllProducts = async (req, res) => {
     const result = products.map((p) => {
       const obj = p.toJSON();
       obj.imageUrl = buildImageUrl(req, obj.imagePath);
+      obj.images = obj.images ? obj.images.map(img => buildImageUrl(req, img)) : [];
       return obj;
     });
 
@@ -55,6 +56,7 @@ exports.getProductById = async (req, res) => {
 
     const obj = product.toJSON();
     obj.imageUrl = buildImageUrl(req, obj.imagePath);
+    obj.images = obj.images ? obj.images.map(img => buildImageUrl(req, img)) : [];
 
     res.status(200).json({ status: 'success', data: obj });
   } catch (error) {
@@ -65,11 +67,20 @@ exports.getProductById = async (req, res) => {
 // ── CREATE Product (Admin) ────────────────────────────────────────────────────
 exports.createProduct = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ status: 'error', message: 'Please upload a product image' });
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ status: 'error', message: 'Please upload at least one product image' });
     }
 
-    console.log('📸 Product image saved:', req.file.path);
+    let parsedVariants = [];
+    if (req.body.variants) {
+      try {
+        parsedVariants = JSON.parse(req.body.variants);
+      } catch (e) {
+        console.error('Invalid variants JSON');
+      }
+    }
+
+    const imagePaths = req.files.map(f => f.path.replace(/\\/g, '/'));
 
     const product = await Product.create({
       name: req.body.name,
@@ -78,18 +89,21 @@ exports.createProduct = async (req, res) => {
       category: req.body.category,
       stock: parseInt(req.body.stock),
       featured: req.body.featured === 'true',
-      imagePath: req.file.path.replace(/\\/g, '/'), // normalize Windows slashes
-      imageContentType: req.file.mimetype,
+      imagePath: imagePaths[0],
+      imageContentType: req.files[0].mimetype,
+      images: imagePaths,
+      variants: parsedVariants
     });
 
     const obj = product.toJSON();
     obj.imageUrl = buildImageUrl(req, obj.imagePath);
+    obj.images = obj.images ? obj.images.map(img => buildImageUrl(req, img)) : [];
 
     console.log('✅ Product created:', product.id);
     res.status(201).json({ status: 'success', data: obj });
   } catch (error) {
     // Clean up uploaded file on error
-    if (req.file) deleteImageFile(req.file.path);
+    if (req.files) req.files.forEach(f => deleteImageFile(f.path));
     console.error('❌ Error creating product:', error);
     res.status(400).json({ status: 'error', message: error.message });
   }
@@ -112,22 +126,35 @@ exports.updateProduct = async (req, res) => {
     if (req.body.stock !== undefined) product.stock = parseInt(req.body.stock);
     if (req.body.featured !== undefined) product.featured = req.body.featured === 'true';
 
+    if (req.body.variants) {
+      try {
+        product.variants = JSON.parse(req.body.variants);
+      } catch (e) {
+        console.error('Invalid variants JSON');
+      }
+    }
+
     // Replace image if new one uploaded
-    if (req.file) {
+    if (req.files && req.files.length > 0) {
       deleteImageFile(product.imagePath);
-      product.imagePath = req.file.path.replace(/\\/g, '/');
-      product.imageContentType = req.file.mimetype;
+      if (product.images) product.images.forEach(img => deleteImageFile(img));
+      
+      const imagePaths = req.files.map(f => f.path.replace(/\\/g, '/'));
+      product.imagePath = imagePaths[0];
+      product.imageContentType = req.files[0].mimetype;
+      product.images = imagePaths;
     }
 
     await product.save();
 
     const obj = product.toJSON();
     obj.imageUrl = buildImageUrl(req, obj.imagePath);
+    obj.images = obj.images ? obj.images.map(img => buildImageUrl(req, img)) : [];
 
     console.log('✅ Product updated:', product.id);
     res.status(200).json({ status: 'success', data: obj });
   } catch (error) {
-    if (req.file) deleteImageFile(req.file.path);
+    if (req.files) req.files.forEach(f => deleteImageFile(f.path));
     res.status(400).json({ status: 'error', message: error.message });
   }
 };
@@ -143,6 +170,7 @@ exports.deleteProduct = async (req, res) => {
 
     // Delete image file from disk
     deleteImageFile(product.imagePath);
+    if (product.images) product.images.forEach(img => deleteImageFile(img));
 
     await product.destroy();
 

@@ -105,23 +105,25 @@ const Cart = () => {
                     style={{ width: '90px', height: '90px', borderRadius: '8px', objectFit: 'cover', flexShrink: '0' }}
                   />
                   <div style={{ flex: '1' }}>
-                    <h3 style={{ fontWeight: '600', fontSize: '15px', color: 'var(--indigo)', marginBottom: '6px' }}>{name}</h3>
+                    <h3 style={{ fontWeight: '600', fontSize: '15px', color: 'var(--indigo)', marginBottom: '6px' }}>
+                      {name} {item.variantWeight ? `(${item.variantWeight})` : ''}
+                    </h3>
                     <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--sindoor)', fontWeight: '700', fontSize: '16px', marginBottom: '12px' }}>
                       ₹{price} <span style={{ color: 'var(--muted)', fontWeight: '400', fontSize: '13px' }}>per unit</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <button
-                        onClick={() => dispatch(updateQuantity({ productId, quantity: item.quantity - 1 }))}
+                        onClick={() => dispatch(updateQuantity({ productId, quantity: item.quantity - 1, variantWeight: item.variantWeight }))}
                         disabled={item.quantity <= 1}
                         style={{ width: '30px', height: '30px', border: '1.5px solid var(--border)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: 'var(--paper)', color: 'var(--indigo)', fontSize: '16px' }}
                       >−</button>
                       <span style={{ fontFamily: 'var(--font-mono)', fontWeight: '700', fontSize: '15px', minWidth: '30px', textAlign: 'center' }}>{item.quantity}</span>
                       <button
-                        onClick={() => dispatch(updateQuantity({ productId, quantity: item.quantity + 1 }))}
+                        onClick={() => dispatch(updateQuantity({ productId, quantity: item.quantity + 1, variantWeight: item.variantWeight }))}
                         style={{ width: '30px', height: '30px', border: '1.5px solid var(--border)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: 'var(--paper)', color: 'var(--indigo)', fontSize: '16px' }}
                       >+</button>
                       <button
-                        onClick={() => dispatch(removeFromCart({ productId }))}
+                        onClick={() => dispatch(removeFromCart({ productId, variantWeight: item.variantWeight }))}
                         style={{ marginLeft: 'auto', color: 'var(--sindoor)', fontSize: '13px', fontWeight: '600', cursor: 'pointer', background: 'none', border: 'none' }}
                       >
                         <i className="fa-solid fa-trash" style={{ marginRight: '4px' }}></i>Remove
@@ -148,7 +150,7 @@ const Cart = () => {
                 const name = item.name || item.product?.name || 'Product';
                 return (
                   <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '14px' }}>
-                    <span style={{ color: 'var(--ink)' }}>{name} × {item.quantity}</span>
+                    <span style={{ color: 'var(--ink)' }}>{name} {item.variantWeight ? `(${item.variantWeight})` : ''} × {item.quantity}</span>
                     <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--indigo)', fontWeight: '600' }}>₹{(price * item.quantity).toLocaleString('en-IN')}</span>
                   </div>
                 );

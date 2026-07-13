@@ -4,7 +4,9 @@ import axios from 'axios';
 const AddProduct = ({ onProductAdded }) => {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [variants, setVariants] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -12,7 +14,6 @@ const AddProduct = ({ onProductAdded }) => {
     category: 'Thekua',
     stock: '',
     featured: false,
-    image: null
   });
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
@@ -28,46 +29,67 @@ const AddProduct = ({ onProductAdded }) => {
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
 
-    if (!file) {
-      console.log('No file selected');
+    if (images.length + files.length > 5) {
+      alert('❌ Maximum 5 images allowed!');
       return;
     }
 
-    console.log('File selected:', file.name);
+    const validFiles = files.filter(f => {
+      const validTypes = ['image/jpeg', 'image/jpg'];
+      if (!validTypes.includes(f.type)) {
+        alert(`❌ ${f.name} is not a JPG/JPEG!`);
+        return false;
+      }
+      if (f.size > 5 * 1024 * 1024) {
+        alert(`❌ ${f.name} exceeds 5MB!`);
+        return false;
+      }
+      return true;
+    });
 
-    // Validate file type
-    const validTypes = ['image/jpeg', 'image/jpg'];
-    if (!validTypes.includes(file.type)) {
-      alert('❌ Only JPG/JPEG images are allowed!');
-      e.target.value = '';
-      return;
+    if (validFiles.length > 0) {
+      setImages(prev => [...prev, ...validFiles]);
+
+      validFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreviews(prev => [...prev, reader.result]);
+        };
+        reader.readAsDataURL(file);
+      });
     }
+    
+    // reset input
+    e.target.value = '';
+  };
 
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      alert('❌ Image size must be less than 5MB!');
-      e.target.value = '';
-      return;
-    }
+  const removeImage = (index) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
 
-    setFormData({ ...formData, image: file });
+  const addVariant = () => {
+    setVariants([...variants, { weight: '', price: '' }]);
+  };
 
-    // Create preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+  const handleVariantChange = (index, field, value) => {
+    const newVariants = [...variants];
+    newVariants[index][field] = value;
+    setVariants(newVariants);
+  };
+
+  const removeVariant = (index) => {
+    setVariants(variants.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.image) {
-      alert('❌ Please select a product image!');
+    if (images.length === 0) {
+      alert('❌ Please select at least one product image!');
       return;
     }
 
@@ -83,7 +105,14 @@ const AddProduct = ({ onProductAdded }) => {
       submitData.append('category', formData.category);
       submitData.append('stock', formData.stock);
       submitData.append('featured', formData.featured);
-      submitData.append('image', formData.image);
+
+      images.forEach(img => {
+        submitData.append('images', img);
+      });
+
+      if (variants.length > 0) {
+        submitData.append('variants', JSON.stringify(variants));
+      }
 
       console.log('📤 Uploading product...');
 
@@ -102,9 +131,10 @@ const AddProduct = ({ onProductAdded }) => {
         category: 'Thekua',
         stock: '',
         featured: false,
-        image: null
       });
-      setImagePreview(null);
+      setImages([]);
+      setImagePreviews([]);
+      setVariants([]);
 
       alert('✅ Product added successfully!');
       setShowForm(false);
@@ -192,7 +222,7 @@ const AddProduct = ({ onProductAdded }) => {
           <div className="grid md:grid-cols-3 gap-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Price (₹) *
+                Default Price (₹) *
               </label>
               <input
                 type="number"
@@ -241,6 +271,59 @@ const AddProduct = ({ onProductAdded }) => {
             </div>
           </div>
 
+          {/* VARIANTS */}
+          <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+            <div className="flex justify-between items-center mb-4">
+              <label className="block text-sm font-semibold text-gray-700">
+                Product Variants (Weights / Sizes)
+              </label>
+              <button
+                type="button"
+                onClick={addVariant}
+                className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-md font-medium hover:bg-green-200"
+              >
+                + Add Variant
+              </button>
+            </div>
+            
+            {variants.length === 0 ? (
+              <p className="text-sm text-gray-500 italic">No variants added. Product will use the default price.</p>
+            ) : (
+              <div className="space-y-3">
+                {variants.map((variant, index) => (
+                  <div key={index} className="flex gap-4 items-center">
+                    <input
+                      type="text"
+                      placeholder="e.g. 250g, 500g, 1Kg"
+                      value={variant.weight}
+                      onChange={(e) => handleVariantChange(index, 'weight', e.target.value)}
+                      required
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                    />
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-600 font-semibold">₹</span>
+                      <input
+                        type="number"
+                        placeholder="Variant Price"
+                        value={variant.price}
+                        onChange={(e) => handleVariantChange(index, 'price', e.target.value)}
+                        required
+                        className="w-32 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeVariant(index)}
+                      className="text-red-500 hover:text-red-700 p-2"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Featured Product */}
           <div className="flex items-center">
             <input
@@ -259,81 +342,56 @@ const AddProduct = ({ onProductAdded }) => {
           {/* IMAGE UPLOAD */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Product Image (JPG only, max 5MB) *
+              Product Images (JPG only, max 5MB each, up to 5 images) *
             </label>
 
             <div className="space-y-3">
               <input
                 id="product-image-input"
                 type="file"
+                multiple
                 accept=".jpg,.jpeg,image/jpeg"
                 onChange={handleImageChange}
                 className="hidden"
               />
 
-              {!imagePreview ? (
-                <label
-                  htmlFor="product-image-input"
-                  className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all"
-                >
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <svg className="w-16 h-16 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <p className="mb-2 text-lg font-semibold text-gray-700">
-                      Click to select product image
-                    </p>
-                    <p className="text-sm text-gray-500">JPG or JPEG only (Max 5MB)</p>
-                  </div>
-                </label>
-              ) : (
-                <div className="relative">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full h-64 object-cover rounded-lg border-2 border-green-500"
-                  />
-                  <div className="absolute top-2 right-2 flex gap-2">
-                    <div className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
-                      ✓ Image Selected
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormData({ ...formData, image: null });
-                        setImagePreview(null);
-                      }}
-                      className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 shadow-lg"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
+              <label
+                htmlFor="product-image-input"
+                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all"
+              >
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg className="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <p className="text-sm font-semibold text-gray-700">
+                    Click to add product images
+                  </p>
                 </div>
-              )}
+              </label>
 
-              {formData.image && (
-                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <div>
-                        <p className="text-sm font-medium text-green-800">{formData.image.name}</p>
-                        <p className="text-xs text-green-600">
-                          Size: {(formData.image.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-                      </div>
+              {imagePreviews.length > 0 && (
+                <div className="flex flex-wrap gap-4 mt-4">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className="relative w-32 h-32 group">
+                      <img
+                        src={preview}
+                        alt={`Preview ${index}`}
+                        className="w-full h-full object-cover rounded-lg border-2 border-green-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 shadow-lg"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                      {index === 0 && (
+                         <div className="absolute bottom-1 left-1 bg-green-600 text-white text-[10px] px-2 py-0.5 rounded shadow">Main</div>
+                      )}
                     </div>
-                    <label
-                      htmlFor="product-image-input"
-                      className="text-blue-600 hover:text-blue-800 cursor-pointer text-sm font-medium"
-                    >
-                      Change
-                    </label>
-                  </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -343,7 +401,7 @@ const AddProduct = ({ onProductAdded }) => {
           <div className="flex gap-4 pt-4">
             <button
               type="submit"
-              disabled={loading || !formData.image}
+              disabled={loading || images.length === 0}
               className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-md flex items-center justify-center gap-2"
             >
               {loading ? (
@@ -367,7 +425,9 @@ const AddProduct = ({ onProductAdded }) => {
               type="button"
               onClick={() => {
                 setShowForm(false);
-                setImagePreview(null);
+                setImages([]);
+                setImagePreviews([]);
+                setVariants([]);
                 setFormData({
                   name: '',
                   description: '',
@@ -375,7 +435,6 @@ const AddProduct = ({ onProductAdded }) => {
                   category: 'Thekua',
                   stock: '',
                   featured: false,
-                  image: null
                 });
               }}
               className="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold"

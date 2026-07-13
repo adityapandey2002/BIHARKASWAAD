@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
@@ -19,6 +19,7 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [selectedVariantWeight, setSelectedVariantWeight] = useState(null);
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
 
@@ -31,10 +32,16 @@ const ProductDetails = () => {
         setProduct(data.data);
         setSelectedImage(data.data.imageUrl);
 
+        if (data.data.variants && data.data.variants.length > 0) {
+          setSelectedVariantWeight(data.data.variants[0].weight);
+        } else {
+          setSelectedVariantWeight(null);
+        }
+
         // Fetch related products (same category)
         if (data.data.category) {
           const relatedRes = await axios.get(`${API_URL}/products?category=${data.data.category}`);
-          const related = relatedRes.data.data.filter(p => p._id !== id).slice(0, 4);
+          const related = relatedRes.data.data.filter(p => p.id !== parseInt(id)).slice(0, 4);
           setRelatedProducts(related);
         }
 
@@ -51,8 +58,17 @@ const ProductDetails = () => {
     window.scrollTo(0, 0);
   }, [id, API_URL]);
 
+  const displayPrice = useMemo(() => {
+    if (!product) return 0;
+    if (selectedVariantWeight && product.variants && product.variants.length > 0) {
+      const v = product.variants.find(v => v.weight === selectedVariantWeight);
+      if (v && v.price) return parseFloat(v.price);
+    }
+    return parseFloat(product.price);
+  }, [product, selectedVariantWeight]);
+
   // Check if product is in wishlist
-  const isInWishlist = wishlistItems.some(item => item.product._id === product?._id);
+  const isInWishlist = wishlistItems.some(item => item.product.id === product?.id);
 
   // Quantity handlers
   const increaseQuantity = () => {
@@ -87,7 +103,7 @@ const ProductDetails = () => {
       return;
     }
 
-    dispatch(addToCart({ productId: product._id, quantity }));
+    dispatch(addToCart({ productId: product.id, quantity, variantWeight: selectedVariantWeight }));
     alert(`✅ Added ${quantity} item(s) to cart!`);
   };
 
@@ -104,7 +120,7 @@ const ProductDetails = () => {
       return;
     }
 
-    dispatch(addToCart({ productId: product._id, quantity }));
+    dispatch(addToCart({ productId: product.id, quantity, variantWeight: selectedVariantWeight }));
     navigate('/cart');
   };
 
@@ -117,9 +133,9 @@ const ProductDetails = () => {
     }
 
     if (isInWishlist) {
-      dispatch(removeFromWishlist(product._id));
+      dispatch(removeFromWishlist(product.id));
     } else {
-      dispatch(addToWishlist(product._id));
+      dispatch(addToWishlist(product.id));
     }
   };
 
@@ -188,10 +204,10 @@ const ProductDetails = () => {
                   <img
                     src={selectedImage}
                     alt={product.name}
-                    className="w-full h-96 object-cover rounded-lg"
+                    className="w-full h-[500px] object-cover rounded-lg"
                   />
                 ) : (
-                  <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
+                  <div className="w-full h-[500px] bg-gray-200 rounded-lg flex items-center justify-center">
                     <svg className="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
@@ -232,7 +248,22 @@ const ProductDetails = () => {
                 )}
               </div>
 
-              {/* Additional product images could go here */}
+              {/* Thumbnail Gallery */}
+              {product.images && product.images.length > 0 && (
+                <div className="flex gap-4 overflow-x-auto py-2">
+                  {[product.imageUrl, ...(product.images.filter(img => img !== product.imageUrl))].filter(Boolean).map((imgUrl, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImage(imgUrl)}
+                      className={`flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 transition-all ${
+                        selectedImage === imgUrl ? 'border-orange-500 shadow-md' : 'border-transparent hover:border-orange-300'
+                      }`}
+                    >
+                      <img src={imgUrl} alt={`Thumbnail ${index}`} className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Product Info Section */}
@@ -272,13 +303,35 @@ const ProductDetails = () => {
               <div className="mb-6">
                 <div className="flex items-baseline gap-3">
                   <span className="text-4xl font-bold text-green-600">
-                    ₹{product.price}
+                    ₹{displayPrice}
                   </span>
                   <span className="text-sm text-gray-500">
                     (Inclusive of all taxes)
                   </span>
                 </div>
               </div>
+
+              {/* Variants Selector */}
+              {product.variants && product.variants.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Available Variants</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {product.variants.map((v, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setSelectedVariantWeight(v.weight)}
+                        className={`px-4 py-2 rounded-full border-2 text-sm font-semibold transition-all ${
+                          selectedVariantWeight === v.weight
+                            ? 'border-orange-500 bg-orange-50 text-orange-700'
+                            : 'border-gray-200 text-gray-600 hover:border-orange-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {v.weight}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Stock Status */}
               <div className="mb-6">
@@ -297,7 +350,7 @@ const ProductDetails = () => {
               {/* Description */}
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Description</h3>
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
                   {product.description}
                 </p>
               </div>
@@ -400,8 +453,8 @@ const ProductDetails = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedProducts.map((relatedProduct) => (
                 <Link
-                  key={relatedProduct._id}
-                  to={`/products/${relatedProduct._id}`}
+                  key={relatedProduct.id}
+                  to={`/products/${relatedProduct.id}`}
                   className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
                 >
                   {relatedProduct.imageUrl && (

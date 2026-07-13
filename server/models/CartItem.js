@@ -9,6 +9,7 @@ const CartItem = sequelize.define(
     productId: { type: DataTypes.INTEGER, allowNull: false },
     quantity: { type: DataTypes.INTEGER, defaultValue: 1 },
     price: { type: DataTypes.DECIMAL(10, 2) },
+    variantWeight: { type: DataTypes.STRING(100), allowNull: true },
   },
   { tableName: 'cart_items' }
 );

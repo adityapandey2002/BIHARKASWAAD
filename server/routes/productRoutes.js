@@ -16,8 +16,8 @@ router.get('/', getAllProducts);
 router.get('/:id', getProductById);
 
 // Admin routes (protected)
-router.post('/', protect, restrictTo('admin'), upload.single('image'), createProduct);
-router.patch('/:id', protect, restrictTo('admin'), upload.single('image'), updateProduct);
+router.post('/', protect, restrictTo('admin'), upload.array('images', 5), createProduct);
+router.patch('/:id', protect, restrictTo('admin'), upload.array('images', 5), updateProduct);
 router.delete('/:id', protect, restrictTo('admin'), deleteProduct);
 
 console.log('✅ Product routes loaded');
