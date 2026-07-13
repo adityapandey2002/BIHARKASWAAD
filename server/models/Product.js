@@ -9,7 +9,7 @@ const Product = sequelize.define(
     description: { type: DataTypes.TEXT, allowNull: false },
     price: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
     category: {
-      type: DataTypes.ENUM('Snacks', 'Sweets', 'Spices', 'Beverages', 'Meals', 'Pickles'),
+      type: DataTypes.ENUM('Snacks', 'Sweets', 'Spices', 'Beverages', 'Meals', 'Pickles', 'Thekua', 'Sattu', 'Tilkut', 'Achaar', 'Honey', 'Bhuja Mix', 'Gift Hampers', 'Murabba', 'Chura', 'Khaja', 'Balushahi', 'Laai'),
       allowNull: false,
     },
     stock: { type: DataTypes.INTEGER, defaultValue: 0 },

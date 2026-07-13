@@ -12,9 +12,13 @@ const buildImageUrl = (req, imagePath) => {
 // Helper: delete old image file from disk
 const deleteImageFile = (imagePath) => {
   if (!imagePath) return;
-  const fullPath = path.join(__dirname, '..', imagePath);
-  if (fs.existsSync(fullPath)) {
-    fs.unlinkSync(fullPath);
+  try {
+    const fullPath = path.join(__dirname, '..', imagePath);
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
+    }
+  } catch (err) {
+    console.error(`❌ Failed to delete image file: ${imagePath}`, err);
   }
 };
 
