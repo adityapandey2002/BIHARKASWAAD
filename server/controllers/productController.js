@@ -9,6 +9,20 @@ const buildImageUrl = (req, imagePath) => {
   return `${req.protocol}://${req.get('host')}/api/${imagePath.replace(/^\\/, '').replace(/^\\/, '')}`;
 };
 
+// Helper: safely map images array
+const safeMapImages = (images, req) => {
+  if (!images) return [];
+  let parsed = images;
+  if (typeof images === 'string') {
+    try {
+      parsed = JSON.parse(images);
+    } catch (e) {
+      return [];
+    }
+  }
+  return Array.isArray(parsed) ? parsed.map(img => buildImageUrl(req, img)) : [];
+};
+
 // Helper: delete old image file from disk
 const deleteImageFile = (imagePath) => {
   if (!imagePath) return;
@@ -37,7 +51,7 @@ exports.getAllProducts = async (req, res) => {
     const result = products.map((p) => {
       const obj = p.toJSON();
       obj.imageUrl = buildImageUrl(req, obj.imagePath);
-      obj.images = obj.images ? obj.images.map(img => buildImageUrl(req, img)) : [];
+      obj.images = safeMapImages(obj.images, req);
       return obj;
     });
 
@@ -60,7 +74,7 @@ exports.getProductById = async (req, res) => {
 
     const obj = product.toJSON();
     obj.imageUrl = buildImageUrl(req, obj.imagePath);
-    obj.images = obj.images ? obj.images.map(img => buildImageUrl(req, img)) : [];
+    obj.images = safeMapImages(obj.images, req);
 
     res.status(200).json({ status: 'success', data: obj });
   } catch (error) {
@@ -101,7 +115,7 @@ exports.createProduct = async (req, res) => {
 
     const obj = product.toJSON();
     obj.imageUrl = buildImageUrl(req, obj.imagePath);
-    obj.images = obj.images ? obj.images.map(img => buildImageUrl(req, img)) : [];
+    obj.images = safeMapImages(obj.images, req);
 
     console.log('✅ Product created:', product.id);
     res.status(201).json({ status: 'success', data: obj });
@@ -153,7 +167,7 @@ exports.updateProduct = async (req, res) => {
 
     const obj = product.toJSON();
     obj.imageUrl = buildImageUrl(req, obj.imagePath);
-    obj.images = obj.images ? obj.images.map(img => buildImageUrl(req, img)) : [];
+    obj.images = safeMapImages(obj.images, req);
 
     console.log('✅ Product updated:', product.id);
     res.status(200).json({ status: 'success', data: obj });
