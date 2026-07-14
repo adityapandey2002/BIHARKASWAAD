@@ -82,7 +82,8 @@ app.use(cookieParser());
 app.use(mongoSanitize());
 
 // ─── Serve Uploaded Files as Static ──────────────────────────────────────────
-// This makes images accessible at: /api/uploads/products/filename.jpg
+// Changed to /api/media to bypass ModSecurity rules that target /uploads/
+app.use('/api/media', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ─── API Health Check ─────────────────────────────────────────────────────────

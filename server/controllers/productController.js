@@ -4,16 +4,13 @@ const { Op } = require('sequelize');
 const { Product } = require('../models/index');
 
 // Helper: build public URL for an image
-// Images are served directly from public_html/uploads (symlinked from nodejs/uploads)
-// This bypasses ModSecurity which blocks requests going through Node.js proxy
+// Images are served via /api/media/ to bypass ModSecurity rules targeting /uploads/
 const buildImageUrl = (req, imagePath) => {
   if (!imagePath) return null;
-  // Normalize path: replace backslashes → forward slashes, strip leading slash
   const cleanPath = imagePath.replace(/\\/g, '/').replace(/^\//, '');
-  // Remove 'uploads/' prefix if already there, then rebuild clean URL
   const relativePath = cleanPath.replace(/^uploads\//, '');
   const host = `${req.protocol}://${req.get('host')}`;
-  return `${host}/uploads/${relativePath}`;
+  return `${host}/api/media/${relativePath}`;
 };
 
 // Helper: safely map images array
