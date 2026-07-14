@@ -82,9 +82,25 @@ app.use(cookieParser());
 app.use(mongoSanitize());
 
 // ─── Serve Uploaded Files as Static ──────────────────────────────────────────
-// Changed to /api/media to bypass ModSecurity rules that target /uploads/
-app.use('/api/media', express.static(path.join(process.cwd(), 'uploads')));
-app.use('/api/uploads', express.static(path.join(process.cwd(), 'uploads')));
+// Custom handler to bypass express.static quirks and check both possible paths
+app.get('/api/media/*', (req, res) => {
+  const fs = require('fs');
+  const relativePath = req.params[0]; // e.g., 'products/123.jpg'
+  
+  const path1 = path.join(process.cwd(), 'uploads', relativePath);
+  const path2 = path.join(__dirname, 'uploads', relativePath);
+  const path3 = path.join(process.cwd(), 'server', 'uploads', relativePath);
+  
+  if (fs.existsSync(path1)) {
+    return res.sendFile(path1);
+  } else if (fs.existsSync(path2)) {
+    return res.sendFile(path2);
+  } else if (fs.existsSync(path3)) {
+    return res.sendFile(path3);
+  } else {
+    return res.status(404).json({ error: 'Image not found on server', pathsChecked: [path1, path2, path3] });
+  }
+});
 
 // ─── API Health Check ─────────────────────────────────────────────────────────
 app.get('/api/test', (req, res) => {
