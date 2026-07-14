@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../store/slices/authSlice';
+import { resetCart } from '../../store/slices/cartSlice';
 import { useSiteAssets } from '../../context/SiteAssetsContext';
 
 const Navbar = () => {
@@ -45,6 +46,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+    dispatch(resetCart());
     setIsUserMenuOpen(false);
   };
 
