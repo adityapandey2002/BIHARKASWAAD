@@ -75,3 +75,4 @@ export const SiteAssetsProvider = ({ children }) => {
     </SiteAssetsContext.Provider>
   );
 };
+console.log(asset.src); 
