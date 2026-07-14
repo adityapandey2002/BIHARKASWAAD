@@ -83,8 +83,8 @@ app.use(mongoSanitize());
 
 // ─── Serve Uploaded Files as Static ──────────────────────────────────────────
 // Changed to /api/media to bypass ModSecurity rules that target /uploads/
-app.use('/api/media', express.static(path.join(__dirname, 'uploads')));
-app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/api/media', express.static(path.join(process.cwd(), 'uploads')));
+app.use('/api/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // ─── API Health Check ─────────────────────────────────────────────────────────
 app.get('/api/test', (req, res) => {
