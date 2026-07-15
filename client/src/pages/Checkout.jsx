@@ -23,7 +23,6 @@ const Checkout = () => {
   });
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
-  const RAZORPAY_KEY = process.env.REACT_APP_RAZORPAY_KEY_ID;
 
   const handleChange = (e) => {
     setShippingInfo({
@@ -48,13 +47,17 @@ const Checkout = () => {
 
     setLoading(true);
 
-    if (!RAZORPAY_KEY) {
-      alert('❌ Razorpay key not configured. Please contact support.');
-      setLoading(false);
-      return;
-    }
-
     try {
+      // 1. Fetch Razorpay key from backend
+      const configRes = await axios.get(`${API_URL}/payment/config`);
+      const RAZORPAY_KEY = configRes.data?.data?.keyId;
+      
+      if (!RAZORPAY_KEY) {
+        alert('❌ Razorpay key not configured on the server. Please contact support.');
+        setLoading(false);
+        return;
+      }
+
       const token = localStorage.getItem('token');
 
       // Prepare cart items

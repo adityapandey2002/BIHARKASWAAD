@@ -79,6 +79,16 @@ exports.createOrder = async (req, res) => {
   }
 };
 
+// ── Get Razorpay Config ───────────────────────────────────────────────────────
+exports.getConfig = (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    data: {
+      keyId: process.env.RAZORPAY_KEY_ID
+    }
+  });
+};
+
 // ── Verify Payment ────────────────────────────────────────────────────────────
 exports.verifyPayment = async (req, res) => {
   try {
