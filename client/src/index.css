@@ -139,11 +139,9 @@
     color:var(--ink); 
     line-height:1.4; 
     min-height:44px;
+    max-height: 44px;
     overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    display: block;
   }
   .card-title a {
     display: block;
