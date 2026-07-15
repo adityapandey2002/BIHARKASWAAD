@@ -3,6 +3,7 @@ const { Cart, CartItem, Product } = require('../models/index');
 // Helper: build image URL (served via /api/media/ to bypass ModSecurity)
 const buildImageUrl = (req, imagePath) => {
   if (!imagePath) return null;
+  if (imagePath.startsWith('http')) return imagePath; // Return external URL directly (e.g. Cloudinary)
   const cleanPath = imagePath.replace(/\\/g, '/').replace(/^\//, '').replace(/^uploads\//, '');
   return `${req.protocol}://${req.get('host')}/api/media/${cleanPath}`;
 };

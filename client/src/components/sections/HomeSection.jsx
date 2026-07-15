@@ -182,7 +182,7 @@ const HomeSection = () => {
                     </div>
                     <div className="card-body">
                       <div className="card-title">
-                        <Link to={`/products/${id}`} style={{ color: 'inherit' }}>{product.name}</Link>
+                        <Link to={`/products/${id}`}>{product.name}</Link>
                       </div>
                       <div className="rating">
                         <i className="fa-solid fa-star" style={{ color: 'var(--haldi)' }}></i> 4.8

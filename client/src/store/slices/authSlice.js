@@ -10,6 +10,7 @@ export const loginUser = createAsyncThunk(
     try {
       const { data } = await axios.post(`${API}/login`, payload, { withCredentials: true });
       localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
       return data; // { token, user }
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || 'Login failed');
@@ -23,6 +24,7 @@ export const signupUser = createAsyncThunk(
     try {
       const { data } = await axios.post(`${API}/signup`, payload, { withCredentials: true });
       localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
       return data; // { token, user }
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || 'Signup failed');
@@ -31,7 +33,7 @@ export const signupUser = createAsyncThunk(
 );
 
 const initialState = {
-  user: null,
+  user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null,
   token: localStorage.getItem('token'),
   isAuthenticated: !!localStorage.getItem('token'),
   isLoading: false,
@@ -44,6 +46,7 @@ const authSlice = createSlice({
   reducers: {
     logout(state) {
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
