@@ -176,7 +176,9 @@ const HomeSection = () => {
                       <button className="fav" aria-label="Add to wishlist">
                         <i className="fa-regular fa-heart"></i>
                       </button>
-                      <img src={imageUrl} alt={product.name} loading="lazy" />
+                      <Link to={`/products/${id}`} style={{ display: 'block' }}>
+                        <img src={imageUrl} alt={product.name} loading="lazy" />
+                      </Link>
                     </div>
                     <div className="card-body">
                       <div className="card-title">

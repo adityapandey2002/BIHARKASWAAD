@@ -268,10 +268,25 @@ const ProductDetails = () => {
 
             {/* Product Info Section */}
             <div className="flex flex-col">
-              <div className="mb-4">
+              <div className="mb-4 flex flex-wrap gap-2">
                 <span className="inline-block bg-orange-100 text-orange-800 text-xs font-semibold px-3 py-1 rounded-full">
                   {product.category}
                 </span>
+                {product.subCategory && (
+                  <span className="inline-block bg-gray-100 text-gray-800 text-xs font-semibold px-3 py-1 rounded-full">
+                    {product.subCategory}
+                  </span>
+                )}
+                {product.packet && (
+                  <span className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full">
+                    Size: {product.packet}
+                  </span>
+                )}
+                {product.sku && (
+                  <span className="inline-block bg-purple-100 text-purple-800 text-xs font-semibold px-3 py-1 rounded-full">
+                    SKU: {product.sku}
+                  </span>
+                )}
               </div>
 
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -305,10 +320,20 @@ const ProductDetails = () => {
                   <span className="text-4xl font-bold text-green-600">
                     ₹{displayPrice}
                   </span>
+                  {product.mrp && product.mrp > displayPrice && (
+                    <span className="text-xl text-gray-400 line-through">
+                      ₹{product.mrp}
+                    </span>
+                  )}
                   <span className="text-sm text-gray-500">
                     (Inclusive of all taxes)
                   </span>
                 </div>
+                {product.mrp && product.mrp > displayPrice && (
+                  <div className="text-sm text-green-600 font-semibold mt-1">
+                    You save ₹{(product.mrp - displayPrice).toFixed(2)} ({Math.round(((product.mrp - displayPrice) / product.mrp) * 100)}%)
+                  </div>
+                )}
               </div>
 
               {/* Variants Selector */}
@@ -398,7 +423,7 @@ const ProductDetails = () => {
               )}
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <div className="flex flex-col sm:flex-row gap-4 mb-4">
                 <button
                   onClick={handleAddToCart}
                   disabled={product.stock === 0}
@@ -420,6 +445,22 @@ const ProductDetails = () => {
                   Buy Now
                 </button>
               </div>
+
+              {product.flipkartLink && (
+                <div className="mb-6">
+                  <a
+                    href={product.flipkartLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition duration-200 font-semibold text-lg flex items-center justify-center gap-2 shadow-md"
+                  >
+                    Buy on Flipkart
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </div>
+              )}
 
               {/* Additional Info */}
               <div className="border-t pt-6 space-y-3">

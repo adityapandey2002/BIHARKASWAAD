@@ -4,21 +4,29 @@ import axios from 'axios';
 const AddProduct = ({ onProductAdded }) => {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [images, setImages] = useState([]);
-  const [imagePreviews, setImagePreviews] = useState([]);
+  const [bulkLoading, setBulkLoading] = useState(false);
+  
+  // Images are now just an array of URL strings
+  const [imageUrls, setImageUrls] = useState(['']);
+  
   const [variants, setVariants] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     price: '',
-    category: 'Thekua',
+    mrp: '',
+    category: 'Snacks',
+    subCategory: '',
+    sku: '',
+    packet: '',
+    flipkartLink: '',
     stock: '',
     featured: false,
   });
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
 
-  const categories = ['Thekua', 'Sattu', 'Tilkut', 'Achaar', 'Honey', 'Bhuja Mix', 'Gift Hampers', 'Murabba', 'Chura', 'Khaja', 'Balushahi', 'Laai'];
+  const categories = ['Snacks', 'Sweets', 'Spices', 'Beverages', 'Meals', 'Pickles', 'Thekua', 'Sattu', 'Tilkut', 'Achaar', 'Honey', 'Bhuja Mix', 'Gift Hampers', 'Murabba', 'Chura', 'Khaja', 'Balushahi', 'Laai'];
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -26,6 +34,71 @@ const AddProduct = ({ onProductAdded }) => {
       ...formData,
       [name]: type === 'checkbox' ? checked : value
     });
+  };
+
+  const handleImageUrlChange = (index, value) => {
+    const newUrls = [...imageUrls];
+    newUrls[index] = value;
+    setImageUrls(newUrls);
+  };
+
+  const addImageUrl = () => {
+    if (imageUrls.length >= 6) return alert('Maximum 6 images allowed');
+    setImageUrls([...imageUrls, '']);
+  };
+
+  const removeImageUrl = (index) => {
+    setImageUrls(imageUrls.filter((_, i) => i !== index));
+  };
+
+  const moveImageUp = (index) => {
+    if (index === 0) return;
+    const newUrls = [...imageUrls];
+    [newUrls[index - 1], newUrls[index]] = [newUrls[index], newUrls[index - 1]];
+    setImageUrls(newUrls);
+  };
+
+  const moveImageDown = (index) => {
+    if (index === imageUrls.length - 1) return;
+    const newUrls = [...imageUrls];
+    [newUrls[index + 1], newUrls[index]] = [newUrls[index], newUrls[index + 1]];
+    setImageUrls(newUrls);
+  };
+
+  const handleBulkUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!window.confirm(`Are you sure you want to bulk upload products from ${file.name}?`)) {
+      e.target.value = '';
+      return;
+    }
+
+    setBulkLoading(true);
+    const data = new FormData();
+    data.append('file', file);
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post(`${API_URL}/products/bulk-upload`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      alert(`✅ Bulk upload successful! Created: ${res.data.created}, Updated: ${res.data.updated}`);
+      if (res.data.errors && res.data.errors.length > 0) {
+        console.warn('Bulk Upload Errors:', res.data.errors);
+        alert(`Some rows had errors. Check console for details. Example: ${res.data.errors[0]}`);
+      }
+      if (onProductAdded) onProductAdded();
+    } catch (error) {
+      console.error('Bulk upload error:', error);
+      alert('❌ ' + (error.response?.data?.message || 'Failed to process bulk upload.'));
+    } finally {
+      setBulkLoading(false);
+      e.target.value = '';
+    }
   };
 
   const handleImageChange = (e) => {
@@ -88,8 +161,9 @@ const AddProduct = ({ onProductAdded }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (images.length === 0) {
-      alert('❌ Please select at least one product image!');
+    const validUrls = imageUrls.filter(url => url.trim() !== '');
+    if (validUrls.length === 0) {
+      alert('❌ Please provide at least one product image URL!');
       return;
     }
 
@@ -102,13 +176,16 @@ const AddProduct = ({ onProductAdded }) => {
       submitData.append('name', formData.name);
       submitData.append('description', formData.description);
       submitData.append('price', formData.price);
+      if (formData.mrp) submitData.append('mrp', formData.mrp);
       submitData.append('category', formData.category);
+      if (formData.subCategory) submitData.append('subCategory', formData.subCategory);
+      if (formData.sku) submitData.append('sku', formData.sku);
+      if (formData.packet) submitData.append('packet', formData.packet);
+      if (formData.flipkartLink) submitData.append('flipkartLink', formData.flipkartLink);
       submitData.append('stock', formData.stock);
       submitData.append('featured', formData.featured);
-
-      images.forEach(img => {
-        submitData.append('images', img);
-      });
+      
+      submitData.append('images', JSON.stringify(validUrls));
 
       if (variants.length > 0) {
         submitData.append('variants', JSON.stringify(variants));
@@ -128,12 +205,16 @@ const AddProduct = ({ onProductAdded }) => {
         name: '',
         description: '',
         price: '',
-        category: 'Thekua',
+        mrp: '',
+        category: 'Snacks',
+        subCategory: '',
+        sku: '',
+        packet: '',
+        flipkartLink: '',
         stock: '',
         featured: false,
       });
-      setImages([]);
-      setImagePreviews([]);
+      setImageUrls(['']);
       setVariants([]);
 
       alert('✅ Product added successfully!');
@@ -161,26 +242,43 @@ const AddProduct = ({ onProductAdded }) => {
           </h2>
           <p className="text-sm text-gray-600 mt-1">Add new products to your store (JPG images only)</p>
         </div>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-200 flex items-center gap-2 shadow-md"
-        >
-          {showForm ? (
-            <>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              Cancel
-            </>
-          ) : (
-            <>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-              </svg>
-              Add New Product
-            </>
-          )}
-        </button>
+        <div className="flex gap-4">
+          <div className="relative">
+            <input 
+              type="file" 
+              accept=".xlsx, .xls, .csv" 
+              onChange={handleBulkUpload}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              disabled={bulkLoading}
+            />
+            <button
+              type="button"
+              className={`bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center gap-2 shadow-md ${bulkLoading ? 'opacity-50' : ''}`}
+            >
+              {bulkLoading ? 'Uploading...' : 'Bulk Upload Excel'}
+            </button>
+          </div>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-200 flex items-center gap-2 shadow-md"
+          >
+            {showForm ? (
+              <>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Cancel
+              </>
+            ) : (
+              <>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Add New Product
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Form */}
@@ -218,56 +316,44 @@ const AddProduct = ({ onProductAdded }) => {
             />
           </div>
 
-          {/* Price, Category, Stock */}
-          <div className="grid md:grid-cols-3 gap-6">
+          {/* Additional Details */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Default Price (₹) *
-              </label>
-              <input
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                required
-                min="0"
-                step="0.01"
-                placeholder="99.99"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Selling Price (₹) *</label>
+              <input type="number" name="price" value={formData.price} onChange={handleChange} required step="0.01" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />
             </div>
-
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Category *
-              </label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              >
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
+              <label className="block text-sm font-semibold text-gray-700 mb-2">MRP (₹)</label>
+              <input type="number" name="mrp" value={formData.mrp} onChange={handleChange} step="0.01" placeholder="Original price" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Category *</label>
+              <select name="category" value={formData.category} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                {categories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
               </select>
             </div>
-
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Stock Quantity *
-              </label>
-              <input
-                type="number"
-                name="stock"
-                value={formData.stock}
-                onChange={handleChange}
-                required
-                min="0"
-                placeholder="100"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Sub-Category</label>
+              <input type="text" name="subCategory" value={formData.subCategory} onChange={handleChange} placeholder="e.g. Traditional" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">SKU</label>
+              <input type="text" name="sku" value={formData.sku} onChange={handleChange} placeholder="Item code" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Packet Size/Weight</label>
+              <input type="text" name="packet" value={formData.packet} onChange={handleChange} placeholder="e.g. 500g" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Stock *</label>
+              <input type="number" name="stock" value={formData.stock} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Flipkart Link</label>
+              <input type="url" name="flipkartLink" value={formData.flipkartLink} onChange={handleChange} placeholder="https://flipkart.com/..." className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />
             </div>
           </div>
 
@@ -339,69 +425,58 @@ const AddProduct = ({ onProductAdded }) => {
             </label>
           </div>
 
-          {/* IMAGE UPLOAD */}
+          {/* IMAGE URLS UPLOAD (Editable & Reorderable) */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Product Images (JPG only, max 5MB each, up to 5 images) *
-            </label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Product Image URLs (Cloudinary, Imgur, etc.) *
+              </label>
+              <button type="button" onClick={addImageUrl} className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-md font-medium hover:bg-blue-200">
+                + Add Another URL
+              </button>
+            </div>
 
             <div className="space-y-3">
-              <input
-                id="product-image-input"
-                type="file"
-                multiple
-                accept=".jpg,.jpeg,image/jpeg"
-                onChange={handleImageChange}
-                className="hidden"
-              />
+              {imageUrls.map((url, index) => (
+                <div key={index} className="flex gap-2 items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
+                  <div className="flex flex-col gap-1">
+                    <button type="button" onClick={() => moveImageUp(index)} disabled={index === 0} className="p-1 bg-gray-200 rounded disabled:opacity-30 hover:bg-gray-300">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"></path></svg>
+                    </button>
+                    <button type="button" onClick={() => moveImageDown(index)} disabled={index === imageUrls.length - 1} className="p-1 bg-gray-200 rounded disabled:opacity-30 hover:bg-gray-300">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                  </div>
+                  
+                  <span className="font-bold text-gray-500 w-6">#{index + 1}</span>
+                  
+                  <input
+                    type="url"
+                    value={url}
+                    onChange={(e) => handleImageUrlChange(index, e.target.value)}
+                    placeholder="https://res.cloudinary.com/..."
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                    required={index === 0}
+                  />
 
-              <label
-                htmlFor="product-image-input"
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all"
-              >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <svg className="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <p className="text-sm font-semibold text-gray-700">
-                    Click to add product images
-                  </p>
-                </div>
-              </label>
+                  {url && url.startsWith('http') && (
+                    <img src={url} alt={`Preview ${index}`} className="w-12 h-12 object-cover rounded shadow" />
+                  )}
 
-              {imagePreviews.length > 0 && (
-                <div className="flex flex-wrap gap-4 mt-4">
-                  {imagePreviews.map((preview, index) => (
-                    <div key={index} className="relative w-32 h-32 group">
-                      <img
-                        src={preview}
-                        alt={`Preview ${index}`}
-                        className="w-full h-full object-cover rounded-lg border-2 border-green-500"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 shadow-lg"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                      {index === 0 && (
-                         <div className="absolute bottom-1 left-1 bg-green-600 text-white text-[10px] px-2 py-0.5 rounded shadow">Main</div>
-                      )}
-                    </div>
-                  ))}
+                  <button type="button" onClick={() => removeImageUrl(index)} className="p-2 text-red-500 hover:bg-red-100 rounded-lg">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                  </button>
                 </div>
-              )}
+              ))}
             </div>
+            <p className="text-xs text-gray-500 mt-2">The first image (#1) will be the primary main image. You can use the up/down arrows to reshuffle the display order.</p>
           </div>
 
           {/* Submit Buttons */}
           <div className="flex gap-4 pt-4">
             <button
               type="submit"
-              disabled={loading || images.length === 0}
+              disabled={loading || imageUrls.filter(u=>u.trim()!=='').length === 0}
               className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-md flex items-center justify-center gap-2"
             >
               {loading ? (
@@ -425,17 +500,20 @@ const AddProduct = ({ onProductAdded }) => {
               type="button"
               onClick={() => {
                 setShowForm(false);
-                setImages([]);
-                setImagePreviews([]);
-                setVariants([]);
                 setFormData({
                   name: '',
                   description: '',
                   price: '',
-                  category: 'Thekua',
+                  mrp: '',
+                  category: 'Snacks',
+                  subCategory: '',
+                  sku: '',
+                  packet: '',
+                  flipkartLink: '',
                   stock: '',
                   featured: false,
                 });
+                setImageUrls(['']);
               }}
               className="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold"
             >

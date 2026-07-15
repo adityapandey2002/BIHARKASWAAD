@@ -54,6 +54,26 @@ async function runMigration() {
       console.log('ℹ️  Already exists: products.variants');
     }
 
+    const newFields = [
+      { name: 'subCategory', type: DataTypes.STRING(255) },
+      { name: 'sku', type: DataTypes.STRING(100) },
+      { name: 'packet', type: DataTypes.STRING(100) },
+      { name: 'mrp', type: DataTypes.DECIMAL(10, 2) },
+      { name: 'flipkartLink', type: DataTypes.STRING(500) }
+    ];
+
+    for (const field of newFields) {
+      if (!productCols[field.name]) {
+        await qi.addColumn('products', field.name, {
+          type: field.type,
+          allowNull: true
+        });
+        console.log(`✅ Added: products.${field.name}`);
+      } else {
+        console.log(`ℹ️  Already exists: products.${field.name}`);
+      }
+    }
+
     // Also expand the category ENUM safely
     // (ALTER TABLE ... MODIFY is needed for ENUM changes in MySQL)
     try {

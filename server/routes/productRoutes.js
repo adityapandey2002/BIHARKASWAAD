@@ -4,7 +4,8 @@ const {
   getProductById,
   createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  bulkUploadProducts
 } = require('../controllers/productController');
 const { protect, restrictTo } = require('../controllers/authController');
 const upload = require('../config/multer');
@@ -16,6 +17,7 @@ router.get('/', getAllProducts);
 router.get('/:id', getProductById);
 
 // Admin routes (protected)
+router.post('/bulk-upload', protect, restrictTo('admin'), upload.single('file'), bulkUploadProducts);
 router.post('/', protect, restrictTo('admin'), upload.array('images', 5), createProduct);
 router.patch('/:id', protect, restrictTo('admin'), upload.array('images', 5), updateProduct);
 router.delete('/:id', protect, restrictTo('admin'), deleteProduct);
