@@ -101,48 +101,7 @@ const AddProduct = ({ onProductAdded }) => {
     }
   };
 
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (!files.length) return;
 
-    if (images.length + files.length > 5) {
-      alert('❌ Maximum 5 images allowed!');
-      return;
-    }
-
-    const validFiles = files.filter(f => {
-      const validTypes = ['image/jpeg', 'image/jpg'];
-      if (!validTypes.includes(f.type)) {
-        alert(`❌ ${f.name} is not a JPG/JPEG!`);
-        return false;
-      }
-      if (f.size > 5 * 1024 * 1024) {
-        alert(`❌ ${f.name} exceeds 5MB!`);
-        return false;
-      }
-      return true;
-    });
-
-    if (validFiles.length > 0) {
-      setImages(prev => [...prev, ...validFiles]);
-
-      validFiles.forEach(file => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImagePreviews(prev => [...prev, reader.result]);
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-    
-    // reset input
-    e.target.value = '';
-  };
-
-  const removeImage = (index) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
-    setImagePreviews(prev => prev.filter((_, i) => i !== index));
-  };
 
   const addVariant = () => {
     setVariants([...variants, { weight: '', price: '' }]);
