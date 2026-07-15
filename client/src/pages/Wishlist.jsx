@@ -73,17 +73,17 @@ const Wishlist = () => {
 
         {items.length === 0 ? (
           // Empty State
-          <div className="bg-white rounded-xl shadow-md p-12 text-center">
-            <svg className="w-24 h-24 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-            <h2 className="text-2xl font-bold text-gray-700 mb-2">Your Wishlist is Empty</h2>
-            <p className="text-gray-500 mb-6">Save your favorite products here!</p>
+          <div className="bg-[var(--paper)] border border-[var(--border)] rounded-xl shadow-sm p-12 text-center max-w-2xl mx-auto mt-12">
+            <div className="w-24 h-24 mx-auto mb-6 bg-[var(--kagzi)] rounded-full flex items-center justify-center border-2 border-dashed border-[var(--sindoor)]">
+              <i className="fa-solid fa-heart-crack text-4xl" style={{ color: 'var(--sindoor)' }}></i>
+            </div>
+            <h2 className="text-2xl font-bold mb-3" style={{ fontFamily: 'var(--font-display)', color: 'var(--indigo)' }}>Your Wishlist is Empty</h2>
+            <p className="text-[var(--muted)] mb-8 text-lg">Save your favorite BiharKaSwaad products here for later! Don't let those delicious flavors slip away.</p>
             <Link 
-              to="/products" 
-              className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition"
+              to="/#shop" 
+              className="inline-flex items-center gap-2 bg-[var(--sindoor)] text-white px-8 py-3 rounded-lg hover:opacity-90 transition font-medium"
             >
-              Browse Products
+              <i className="fa-solid fa-basket-shopping"></i> Browse Products
             </Link>
           </div>
         ) : (

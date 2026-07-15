@@ -2,7 +2,11 @@ const { Wishlist, Product } = require('../models/index');
 
 const buildImageUrl = (req, imagePath) => {
   if (!imagePath) return null;
-  return `${req.protocol}://${req.get('host')}/${imagePath}`;
+  if (imagePath.startsWith('http')) return imagePath;
+  const cleanPath = imagePath.replace(/\\/g, '/').replace(/^\//, '');
+  const relativePath = cleanPath.replace(/^uploads\//, '');
+  const host = `${req.protocol}://${req.get('host')}`;
+  return `${host}/api/media/${relativePath}`;
 };
 
 const formatWishlistItems = (items, req) =>

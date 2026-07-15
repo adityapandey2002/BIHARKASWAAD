@@ -3,12 +3,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchProducts } from '../../store/slices/productSlice';
 import { addToCart, getCart } from '../../store/slices/cartSlice';
+import { fetchWishlist, addToWishlist, removeFromWishlist } from '../../store/slices/wishlistSlice';
 
 const HomeSection = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { list: products, isLoading, error } = useSelector((state) => state.products);
   const { isAuthenticated } = useSelector((state) => state.auth);
+  const { items: wishlistItems } = useSelector((state) => state.wishlist);
   const [addedIds, setAddedIds] = useState({});
 
   // Dynamic Festival Timer
@@ -18,7 +20,10 @@ const HomeSection = () => {
 
   useEffect(() => {
     dispatch(fetchProducts());
-    if (isAuthenticated) dispatch(getCart());
+    if (isAuthenticated) {
+      dispatch(getCart());
+      dispatch(fetchWishlist());
+    }
   }, [dispatch, isAuthenticated]);
 
   useEffect(() => {
@@ -59,6 +64,25 @@ const HomeSection = () => {
       setTimeout(() => setAddedIds((prev) => { const n = { ...prev }; delete n[productId]; return n; }), 1500);
     } catch (err) {
       alert('Could not add to cart: ' + err);
+    }
+  };
+
+  const handleToggleWishlist = async (product) => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    const productId = product.id || product._id;
+    const isWished = wishlistItems.some(item => item.productId === productId || item.product?._id === productId || item.product?.id === productId);
+    
+    try {
+      if (isWished) {
+        await dispatch(removeFromWishlist(productId)).unwrap();
+      } else {
+        await dispatch(addToWishlist(productId)).unwrap();
+      }
+    } catch (err) {
+      alert('Could not update wishlist: ' + err);
     }
   };
 
@@ -169,12 +193,19 @@ const HomeSection = () => {
                 const off = Math.round((1 - product.price / mrp) * 100);
                 const stockPct = Math.max(12, 100 - stockLeft * 4);
 
+                const isWished = wishlistItems.some(item => item.productId === id || item.product?._id === id || item.product?.id === id);
+
                 return (
                   <div className="card" key={id}>
                     <div className="card-img">
                       <span className="kraft-tag">{product.category || 'Bestseller'}</span>
-                      <button className="fav" aria-label="Add to wishlist">
-                        <i className="fa-regular fa-heart"></i>
+                      <button 
+                        className="fav" 
+                        aria-label="Add to wishlist"
+                        onClick={(e) => { e.preventDefault(); handleToggleWishlist(product); }}
+                        style={{ color: isWished ? 'var(--sindoor)' : '' }}
+                      >
+                        {isWished ? <i className="fa-solid fa-heart"></i> : <i className="fa-regular fa-heart"></i>}
                       </button>
                       <Link to={`/products/${id}`} style={{ display: 'block' }}>
                         <img src={imageUrl} alt={product.name} loading="lazy" />

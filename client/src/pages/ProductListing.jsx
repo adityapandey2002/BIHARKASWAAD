@@ -38,7 +38,7 @@ const ProductListing = () => {
 
   // Check if product is in wishlist
   const isInWishlist = (productId) => {
-    return wishlistItems.some(item => item.product._id === productId);
+    return wishlistItems.some(item => (item.productId === productId || item.product?.id === productId || item.product?._id === productId));
   };
 
   const handleWishlistToggle = (productId, e) => {
@@ -193,17 +193,17 @@ const ProductListing = () => {
 
                     {/* Wishlist Heart Button */}
                     <button
-                      onClick={(e) => handleWishlistToggle(product._id, e)}
+                      onClick={(e) => handleWishlistToggle(product.id || product._id, e)}
                       className="absolute top-3 right-3 bg-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
-                      title={isInWishlist(product._id) ? 'Remove from wishlist' : 'Add to wishlist'}
+                      title={isInWishlist(product.id || product._id) ? 'Remove from wishlist' : 'Add to wishlist'}
                     >
                       <svg 
                         className={`w-6 h-6 transition-colors duration-200 ${
-                          isInWishlist(product._id) 
+                          isInWishlist(product.id || product._id) 
                             ? 'fill-red-500 text-red-500' 
                             : 'text-gray-400 hover:text-red-500'
                         }`}
-                        fill={isInWishlist(product._id) ? 'currentColor' : 'none'}
+                        fill={isInWishlist(product.id || product._id) ? 'currentColor' : 'none'}
                         stroke="currentColor" 
                         strokeWidth="2"
                         viewBox="0 0 24 24"

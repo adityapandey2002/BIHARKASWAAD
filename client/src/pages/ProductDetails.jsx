@@ -68,7 +68,7 @@ const ProductDetails = () => {
   }, [product, selectedVariantWeight]);
 
   // Check if product is in wishlist
-  const isInWishlist = wishlistItems.some(item => item.product.id === product?.id);
+  const isInWishlist = wishlistItems.some(item => (item.productId === product?.id || item.product?.id === product?.id || item.product?._id === product?._id));
 
   // Quantity handlers
   const increaseQuantity = () => {
@@ -133,9 +133,9 @@ const ProductDetails = () => {
     }
 
     if (isInWishlist) {
-      dispatch(removeFromWishlist(product.id));
+      dispatch(removeFromWishlist(product.id || product._id));
     } else {
-      dispatch(addToWishlist(product.id));
+      dispatch(addToWishlist(product.id || product._id));
     }
   };
 
