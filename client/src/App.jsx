@@ -30,6 +30,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Wishlist from './pages/Wishlist';
+import Orders from './pages/Orders';
 
 // Auth
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -93,6 +94,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Checkout />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="orders"
+                element={
+                  <ProtectedRoute>
+                    <Orders />
                   </ProtectedRoute>
                 }
               />

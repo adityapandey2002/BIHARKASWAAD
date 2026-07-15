@@ -25,6 +25,8 @@ const Order = sequelize.define(
       defaultValue: 'pending',
     },
     deliveredAt: { type: DataTypes.DATE, allowNull: true },
+    trackingKey: { type: DataTypes.STRING(100), allowNull: true },
+    courierName: { type: DataTypes.STRING(100), allowNull: true },
   },
   { tableName: 'orders' }
 );

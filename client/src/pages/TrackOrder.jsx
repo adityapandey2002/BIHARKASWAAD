@@ -1,90 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useSearchParams } from 'react-router-dom';
 
 const TrackOrder = () => {
-  const [orderId, setOrderId] = useState('');
+  const [searchParams] = useSearchParams();
+  const initialId = searchParams.get('id') || '';
+  const [orderId, setOrderId] = useState(initialId);
   const [trackingInfo, setTrackingInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Mock tracking data
-  const mockTrackingData = {
-    orderId: 'BKS123456789',
-    status: 'Shipped',
-    estimatedDelivery: '2024-01-25',
-    trackingNumber: 'TRK987654321',
-    timeline: [
-      {
-        status: 'Order Placed',
-        date: '2024-01-20',
-        time: '10:30 AM',
-        description: 'Your order has been placed successfully',
-        completed: true
-      },
-      {
-        status: 'Processing',
-        date: '2024-01-20',
-        time: '11:45 AM',
-        description: 'Your order is being prepared',
-        completed: true
-      },
-      {
-        status: 'Shipped',
-        date: '2024-01-22',
-        time: '2:15 PM',
-        description: 'Your order has been shipped',
-        completed: true
-      },
-      {
-        status: 'In Transit',
-        date: '2024-01-23',
-        time: '9:00 AM',
-        description: 'Your order is on the way',
-        completed: false
-      },
-      {
-        status: 'Delivered',
-        date: '2024-01-25',
-        time: 'Expected',
-        description: 'Your order will be delivered',
-        completed: false
-      }
-    ],
-    items: [
-      {
-        name: 'Traditional Litti Chokha Mix',
-        quantity: 2,
-        price: 299
-      },
-      {
-        name: 'Bihari Thekua (Sweet)',
-        quantity: 1,
-        price: 199
-      }
-    ],
-    shippingAddress: {
-      name: 'John Doe',
-      address: '123 Main Street, Patna',
-      city: 'Patna',
-      state: 'Bihar',
-      pincode: '800001',
-      phone: '+91 98765 43210'
-    }
-  };
+  const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
 
-  const handleTrackOrder = async (e) => {
-    e.preventDefault();
-    if (!orderId.trim()) return;
+  useEffect(() => {
+    if (initialId) {
+      handleTrackOrder(null, initialId);
+    }
+  }, [initialId]);
+
+  const handleTrackOrder = async (e, forcedId = null) => {
+    if (e) e.preventDefault();
+    const targetId = forcedId || orderId;
+    if (!targetId || !targetId.trim()) return;
 
     setIsLoading(true);
+    setTrackingInfo(null);
 
-    // Simulate API call
-    setTimeout(() => {
-      if (orderId === 'BKS123456789' || orderId === '123456789') {
-        setTrackingInfo(mockTrackingData);
-      } else {
-        setTrackingInfo({ error: 'Order not found. Please check your order ID.' });
-      }
+    try {
+      const { data } = await axios.get(`${API_URL}/orders/track/${targetId}`);
+      const order = data.data;
+
+      // Transform backend order to tracking info shape
+      const info = {
+        orderId: order.id,
+        status: order.orderStatus,
+        estimatedDelivery: order.deliveredAt ? new Date(order.deliveredAt).toLocaleDateString() : 'Pending calculation',
+        trackingNumber: order.trackingKey || 'Pending tracking update',
+        courierName: order.courierName || 'Courier',
+        timeline: [
+          { status: 'Order Placed', date: new Date(order.createdAt).toLocaleDateString(), description: 'Your order has been placed successfully', completed: true },
+          { status: 'Processing', date: '', description: 'Your order is being prepared', completed: ['processing', 'shipped', 'delivered'].includes(order.orderStatus) },
+          { status: 'Shipped', date: '', description: 'Your order has been shipped', completed: ['shipped', 'delivered'].includes(order.orderStatus) },
+          { status: 'Delivered', date: order.deliveredAt ? new Date(order.deliveredAt).toLocaleDateString() : '', description: 'Your order has been delivered', completed: order.orderStatus === 'delivered' }
+        ],
+        items: (order.items || []).map(item => ({ name: item.productName, quantity: item.quantity, price: item.price })),
+        shippingAddress: {
+          name: order.shippingName,
+          address: order.shippingAddress,
+          city: order.shippingCity,
+          state: order.shippingState,
+          pincode: order.shippingPincode,
+          phone: order.shippingPhone
+        }
+      };
+      setTrackingInfo(info);
+    } catch (err) {
+      setTrackingInfo({ error: err.response?.data?.message || 'Order not found. Please check your order ID.' });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const getStatusColor = (status) => {
@@ -162,7 +135,7 @@ const TrackOrder = () => {
                 </div>
                 <div className="grid md:grid-cols-3 gap-4 text-sm">
                   <div>
-                    <span className="text-gray-600">Tracking Number:</span>
+                    <span className="text-gray-600">Tracking Info ({trackingInfo.courierName}):</span>
                     <p className="font-medium">{trackingInfo.trackingNumber}</p>
                   </div>
                   <div>
@@ -189,7 +162,7 @@ const TrackOrder = () => {
                             {step.status}
                           </h4>
                           <span className="text-sm text-gray-500">
-                            {step.date} at {step.time}
+                            {step.date}
                           </span>
                         </div>
                         <p className={`text-sm mt-1 ${step.completed ? 'text-gray-600' : 'text-gray-400'}`}>

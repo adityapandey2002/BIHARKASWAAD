@@ -88,7 +88,7 @@ exports.getOrderById = async (req, res) => {
 // ── UPDATE Order Status (Admin) ───────────────────────────────────────────────
 exports.updateOrderStatus = async (req, res) => {
   try {
-    const { status, deliveredAt, paymentStatus } = req.body;
+    const { status, deliveredAt, paymentStatus, trackingKey, courierName } = req.body;
 
     const order = await Order.findByPk(req.params.id);
     if (!order) return res.status(404).json({ status: 'error', message: 'Order not found' });
@@ -96,10 +96,33 @@ exports.updateOrderStatus = async (req, res) => {
     if (status) order.orderStatus = status;
     if (deliveredAt) order.deliveredAt = deliveredAt;
     if (paymentStatus) order.paymentStatus = paymentStatus;
+    if (trackingKey !== undefined) order.trackingKey = trackingKey;
+    if (courierName !== undefined) order.courierName = courierName;
 
     await order.save();
     res.status(200).json({ status: 'success', data: order });
   } catch (error) {
     res.status(400).json({ status: 'error', message: error.message });
+  }
+};
+
+// ── TRACK Order (Public) ──────────────────────────────────────────────────────
+exports.trackOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Allow tracking by ID or Razorpay Order ID if ID is non-numeric
+    const whereClause = isNaN(id) ? { razorpayOrderId: id } : { id: id };
+    
+    const order = await Order.findOne({
+      where: whereClause,
+      include: [{ model: OrderItem, as: 'items', include: [{ model: Product, as: 'product' }] }],
+    });
+
+    if (!order) return res.status(404).json({ status: 'error', message: 'Order not found. Please check your tracking ID.' });
+
+    res.status(200).json({ status: 'success', data: order });
+  } catch (error) {
+    res.status(400).json({ status: 'error', message: 'Invalid order tracking ID' });
   }
 };

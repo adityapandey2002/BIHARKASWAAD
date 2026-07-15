@@ -53,7 +53,7 @@ const OrderSuccess = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-600">Order ID</p>
-                  <p className="font-semibold">{order._id}</p>
+                  <p className="font-semibold">{order.id}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Total Amount</p>
@@ -61,7 +61,7 @@ const OrderSuccess = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Payment ID</p>
-                  <p className="font-semibold text-xs">{order.paymentInfo.razorpayPaymentId}</p>
+                  <p className="font-semibold text-xs">{order.razorpayPaymentId}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Status</p>
