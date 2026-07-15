@@ -1,5 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
 import { SiteAssetsProvider } from './context/SiteAssetsContext';
@@ -33,6 +34,16 @@ import Wishlist from './pages/Wishlist';
 // Auth
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
 function App() {
   return (
     <Provider store={store}>
@@ -43,6 +54,7 @@ function App() {
             v7_relativeSplatPath: true
           }}
         >
+          <ScrollToTop />
           <Routes>
             {/* Main Layout with Outlet */}
             <Route path="/" element={<Layout />}>

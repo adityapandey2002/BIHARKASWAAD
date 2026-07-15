@@ -1,6 +1,7 @@
 // client/src/store/slices/cartSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { logout } from './authSlice';
 
 const API = `${process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api'}/cart`;
 
@@ -103,7 +104,12 @@ const cartSlice = createSlice({
       .addCase(removeFromCart.rejected, rejected)
       .addCase(clearCart.pending, pending)
       .addCase(clearCart.fulfilled, fulfilled)
-      .addCase(clearCart.rejected, rejected);
+      .addCase(clearCart.rejected, rejected)
+      .addCase(logout, (state) => {
+        state.items = [];
+        state.totalAmount = 0;
+        state.error = null;
+      });
   },
 });
 

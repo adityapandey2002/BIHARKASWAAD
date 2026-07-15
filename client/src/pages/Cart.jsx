@@ -12,9 +12,13 @@ const Cart = () => {
 
   const API_BASE = (process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api').replace('/api', '');
 
+  const [initialLoad, setInitialLoad] = useState(true);
+
   useEffect(() => {
     if (isAuthenticated) {
-      dispatch(getCart());
+      dispatch(getCart()).finally(() => setInitialLoad(false));
+    } else {
+      setInitialLoad(false);
     }
   }, [dispatch, isAuthenticated]);
 
@@ -39,11 +43,11 @@ const Cart = () => {
     );
   }
 
-  if (isLoading) {
+  if (initialLoad || isLoading) {
     return (
-      <div style={{ textAlign: 'center', padding: '80px 24px' }}>
-        <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: '36px', color: 'var(--sindoor)' }}></i>
-        <p style={{ marginTop: '16px', color: 'var(--muted)' }}>Loading your cart...</p>
+      <div style={{ textAlign: 'center', padding: '120px 24px', minHeight: '60vh' }}>
+        <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: '42px', color: 'var(--sindoor)' }}></i>
+        <p style={{ marginTop: '20px', color: 'var(--muted)', fontSize: '15px' }}>Loading your cart...</p>
       </div>
     );
   }
