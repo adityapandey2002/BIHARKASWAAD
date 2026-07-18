@@ -126,20 +126,39 @@ const ContactManagement = () => {
                 <p className="text-gray-700">{contact.message}</p>
               </div>
 
-              <div className="flex flex-wrap gap-2 mb-4">
-                <button
-                  onClick={() => handleStatusChange(contact._id || contact.id, 'in-progress')}
-                  className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                >
-                  In Progress
-                </button>
-                <button
-                  onClick={() => handleStatusChange(contact._id || contact.id, 'resolved')}
-                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                >
-                  Resolve
-                </button>
-              </div>
+              {contact.status === 'resolved' ? (
+                <div className="flex items-center gap-4 mb-4 bg-green-50 p-3 rounded-lg border border-green-100">
+                  <div className="text-green-700 font-bold flex items-center gap-2">
+                    <i className="fa-solid fa-check-circle"></i> Inquiry Resolved
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (window.confirm('Re-open this inquiry and mark as in-progress?')) {
+                        handleStatusChange(contact._id || contact.id, 'in-progress');
+                      }
+                    }}
+                    className="px-3 py-1 bg-white border border-gray-300 text-gray-700 rounded text-sm hover:bg-gray-100"
+                  >
+                    <i className="fa-solid fa-pen mr-1"></i> Edit Status
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <button
+                    onClick={() => handleStatusChange(contact._id || contact.id, 'in-progress')}
+                    className={`px-4 py-2 rounded text-white ${contact.status === 'in-progress' ? 'bg-yellow-600 opacity-50 cursor-not-allowed' : 'bg-yellow-500 hover:bg-yellow-600'}`}
+                    disabled={contact.status === 'in-progress'}
+                  >
+                    {contact.status === 'in-progress' ? 'Currently In Progress' : 'Mark In Progress'}
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange(contact._id || contact.id, 'resolved')}
+                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                  >
+                    <i className="fa-solid fa-check mr-1"></i> Mark Resolved
+                  </button>
+                </div>
+              )}
 
               <div>
                 <input
