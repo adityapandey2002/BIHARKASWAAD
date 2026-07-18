@@ -207,7 +207,7 @@ const HomeSection = () => {
                       >
                         {isWished ? <i className="fa-solid fa-heart"></i> : <i className="fa-regular fa-heart"></i>}
                       </button>
-                      <Link to={`/products/${id}`} style={{ display: 'block' }}>
+                      <Link to={`/products/${id}`} style={{ display: 'block', height: '100%' }}>
                         <img src={imageUrl} alt={product.name} loading="lazy" />
                       </Link>
                     </div>
