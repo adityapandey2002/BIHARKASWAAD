@@ -89,7 +89,11 @@ const ProductDetails = () => {
   }, [selectedImage]);
 
   // Check if product is in wishlist
-  const isInWishlist = wishlistItems.some(item => (item.productId === product?.id || item.product?.id === product?.id || item.product?._id === product?._id));
+  const isInWishlist = wishlistItems.some(item => (
+    String(item.productId) === String(product?.id) || 
+    String(item.product?.id) === String(product?.id) || 
+    String(item.product?._id) === String(product?._id)
+  ));
 
   // Quantity handlers
   const increaseQuantity = () => {

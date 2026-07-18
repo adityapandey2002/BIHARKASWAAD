@@ -99,28 +99,7 @@ const ManageSiteAssets = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center bg-red-50 p-4 rounded-xl border border-red-200">
-        <div>
-          <h3 className="text-red-800 font-bold">Database Sync Required</h3>
-          <p className="text-red-600 text-sm">Click this button if you are seeing 500 errors to update your production database schema.</p>
-        </div>
-        <button 
-          onClick={async () => {
-            if (window.confirm('Sync Database Schema? This will alter tables to match models.')) {
-              try {
-                const token = localStorage.getItem('token');
-                await axios.get(`${process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api'}/site-assets/sync-db`, { headers: { Authorization: `Bearer ${token}` }});
-                alert('✅ Database Synced Successfully!');
-              } catch (e) {
-                alert('❌ Sync failed: ' + e.message);
-              }
-            }
-          }}
-          className="px-4 py-2 bg-red-600 text-white rounded-md font-medium text-sm hover:bg-red-700 shadow-sm"
-        >
-          Sync DB Schema (Fix 500 Errors)
-        </button>
-      </div>
+
 
 
 

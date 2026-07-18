@@ -7,6 +7,7 @@ import { useSiteAssets } from '../../context/SiteAssetsContext';
 const Header = ({ onOpenMobileNav }) => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const { items } = useSelector((state) => state.cart);
+  const { items: wishlistItems } = useSelector((state) => state.wishlist);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -65,8 +66,9 @@ const Header = ({ onOpenMobileNav }) => {
             </button>
 
             {/* Wishlist */}
-            <Link to="/wishlist" className="icon-btn" aria-label="Wishlist" title="Wishlist">
+            <Link to="/wishlist" className="icon-btn" aria-label="Wishlist" title="Wishlist" style={{ position: 'relative' }}>
               <i className="fa-regular fa-heart"></i>
+              {wishlistItems && wishlistItems.length > 0 && <span className="cart-count">{wishlistItems.length}</span>}
             </Link>
 
             {/* Cart */}

@@ -48,20 +48,6 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <h1 className="text-4xl font-bold text-gray-900">Admin Dashboard</h1>
-          <button
-            onClick={async () => {
-              try {
-                const token = localStorage.getItem('token');
-                const res = await axios.get(`${API_URL}/site-assets/sync-db`, { headers: { Authorization: `Bearer ${token}` } });
-                alert('✅ ' + res.data.message);
-              } catch (err) {
-                alert('❌ Failed to sync DB. Ensure the latest backend code is deployed to your live server.');
-              }
-            }}
-            className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold shadow hover:bg-red-700 transition"
-          >
-            <i className="fa-solid fa-rotate mr-2"></i> Fix DB Errors (Sync)
-          </button>
         </div>
 
         {/* Tabs Navigation */}
@@ -126,7 +112,7 @@ const Dashboard = () => {
               ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {products.map((product) => (
-                    <div key={product._id} className="border rounded-lg p-4 hover:shadow-lg transition">
+                    <div key={product.id || product._id} className="border rounded-lg p-4 hover:shadow-lg transition">
                       {product.image && (
                         <img
                           src={`${API_URL.replace('/api', '')}${product.image}`}
@@ -137,7 +123,7 @@ const Dashboard = () => {
                       <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
                       <p className="text-green-600 font-bold mb-2">₹{product.price}</p>
                       <button
-                        onClick={() => handleDelete(product._id)}
+                        onClick={() => handleDelete(product.id || product._id)}
                         className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 font-bold mt-2"
                       >
                         Delete Product

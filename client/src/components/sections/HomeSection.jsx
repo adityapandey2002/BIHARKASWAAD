@@ -91,13 +91,13 @@ const HomeSection = () => {
   return (
     <>
       {/* ── Hero (New Layout) ─────────────────────────────────────────────────── */}
-      <section className="py-8 bg-gray-50">
-        <div className="max-w-[1200px] mx-auto px-4 flex flex-col md:flex-row gap-4">
+      <section className="py-4 md:py-8 bg-gray-50">
+        <div className="wrap flex flex-col md:flex-row gap-4">
           {/* Large Panel (Left) */}
-          <div className="w-full md:w-2/3 h-[300px] md:h-[500px] rounded-2xl overflow-hidden relative group shadow-md">
+          <div className="w-full md:w-2/3 h-[300px] md:h-[500px] rounded-xl md:rounded-2xl overflow-hidden relative group shadow-sm md:shadow-md bg-white">
             <Link to="/products">
               <img
-                src=""
+                src="https://res.cloudinary.com/kvteudbg/image/upload/v1784116245/BIHARKASWAAD_u86lts.png"
                 alt="Hero banner"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
@@ -105,26 +105,14 @@ const HomeSection = () => {
           </div>
           {/* Small Panels (Right) */}
           <div className="w-full md:w-1/3 flex flex-row md:flex-col gap-4 h-[150px] md:h-[500px]">
-            <div className="flex-1 rounded-2xl overflow-hidden relative group shadow-md bg-gray-200">
+            <div className="flex-1 rounded-xl md:rounded-2xl overflow-hidden relative group shadow-sm md:shadow-md bg-white border border-gray-100 flex items-center justify-center p-4">
               <Link to="/products">
-                {heroVideo1 ? (
-                  <video playsInline autoPlay muted loop className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                    <source src={heroVideo1} type="video/mp4" />
-                  </video>
-                ) : (
-                  <img src="https://picsum.photos/600/600?grayscale" alt="Placeholder" className="w-full h-full object-cover" />
-                )}
+                <img src="https://res.cloudinary.com/kvteudbg/image/upload/v1784116246/THEKUA_wsniwq.png" alt="Thekua" className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105" />
               </Link>
             </div>
-            <div className="flex-1 rounded-2xl overflow-hidden relative group shadow-md bg-gray-200">
+            <div className="flex-1 rounded-xl md:rounded-2xl overflow-hidden relative group shadow-sm md:shadow-md bg-white border border-gray-100 flex items-center justify-center p-4">
               <Link to="/products">
-                {heroVideo2 ? (
-                  <video playsInline autoPlay muted loop className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                    <source src={heroVideo2} type="video/mp4" />
-                  </video>
-                ) : (
-                  <img src="https://picsum.photos/601/600?grayscale" alt="Placeholder" className="w-full h-full object-cover" />
-                )}
+                <img src="https://res.cloudinary.com/kvteudbg/image/upload/v1784116246/TILKUT_e5fipd.png" alt="Tilkut" className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105" />
               </Link>
             </div>
           </div>
@@ -190,7 +178,11 @@ const HomeSection = () => {
                 const off = Math.round((1 - product.price / mrp) * 100);
                 const stockPct = Math.max(12, 100 - stockLeft * 4);
 
-                const isWished = wishlistItems.some(item => item.productId === id || item.product?._id === id || item.product?.id === id);
+                const isWished = wishlistItems.some(item => (
+                  String(item.productId) === String(id) || 
+                  String(item.product?._id) === String(id) || 
+                  String(item.product?.id) === String(id)
+                ));
 
                 return (
                   <div className="card" key={id}>
