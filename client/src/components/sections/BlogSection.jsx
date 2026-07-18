@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import AddBlog from '../admin/AddBlog';
+import { useSiteAssets } from '../../context/SiteAssetsContext';
 
 const BlogSection = () => {
   const [blogs, setBlogs] = useState([]);
@@ -11,6 +13,9 @@ const BlogSection = () => {
 
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const isAdmin = isAuthenticated && user?.role === 'admin';
+  const { slideshow } = useSiteAssets();
+  
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
 
@@ -54,6 +59,16 @@ const BlogSection = () => {
   useEffect(() => {
     fetchBlogs();
   }, []);
+
+  // Auto-running slideshow
+  useEffect(() => {
+    if (slideshow && slideshow.length > 1) {
+      const timer = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % slideshow.length);
+      }, 5000);
+      return () => clearInterval(timer);
+    }
+  }, [slideshow]);
 
   // Filter blogs by category
   const filteredBlogs = selectedCategory === 'All'
@@ -119,10 +134,64 @@ const BlogSection = () => {
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Stories, recipes, and insights from Bihar's rich culinary heritage
           </p>
-          <p className="text-sm text-gray-500 mt-2">
-            📦 All images stored in MongoDB database
-          </p>
         </div>
+
+        {/* Slideshow */}
+        {slideshow && slideshow.length > 0 && (
+          <div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl group">
+            {slideshow.map((slide, index) => (
+              <div
+                key={slide.id || index}
+                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                  index === currentSlide ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+              >
+                <img
+                  src={slide.imagePath}
+                  alt={slide.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.src = 'https://via.placeholder.com/1200x500?text=Image+Not+Available';
+                  }}
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-center p-4">
+                  <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
+                    {slide.title}
+                  </h2>
+                  {slide.subtitle && (
+                    <p className="text-xl md:text-2xl text-gray-200 mb-8 drop-shadow-md max-w-2xl">
+                      {slide.subtitle}
+                    </p>
+                  )}
+                  {slide.buttonText && (
+                    <Link
+                      to={slide.buttonLink || '/products'}
+                      className="bg-orange-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-orange-700 transition transform hover:scale-105 shadow-lg"
+                    >
+                      {slide.buttonText}
+                    </Link>
+                  )}
+                </div>
+              </div>
+            ))}
+            
+            {/* Dots indicator */}
+            {slideshow.length > 1 && (
+              <div className="absolute bottom-6 left-0 right-0 flex justify-center space-x-3">
+                {slideshow.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    className={`w-3 h-3 rounded-full transition-all ${
+                      index === currentSlide ? 'bg-orange-500 scale-125' : 'bg-white bg-opacity-50 hover:bg-opacity-100'
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Admin Panel */}
         {isAdmin && (

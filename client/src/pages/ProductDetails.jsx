@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
@@ -20,6 +20,9 @@ const ProductDetails = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [selectedVariantWeight, setSelectedVariantWeight] = useState(null);
+
+  const thumbnailContainerRef = useRef(null);
+  const activeThumbnailRef = useRef(null);
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
 
@@ -66,6 +69,24 @@ const ProductDetails = () => {
     }
     return parseFloat(product.price);
   }, [product, selectedVariantWeight]);
+
+  // Center thumbnail when selected
+  useEffect(() => {
+    if (activeThumbnailRef.current && thumbnailContainerRef.current) {
+      const container = thumbnailContainerRef.current;
+      const thumbnail = activeThumbnailRef.current;
+      
+      const containerHalfWidth = container.offsetWidth / 2;
+      const thumbnailHalfWidth = thumbnail.offsetWidth / 2;
+      
+      const scrollPosition = thumbnail.offsetLeft - containerHalfWidth + thumbnailHalfWidth;
+      
+      container.scrollTo({
+        left: scrollPosition,
+        behavior: 'smooth'
+      });
+    }
+  }, [selectedImage]);
 
   // Check if product is in wishlist
   const isInWishlist = wishlistItems.some(item => (item.productId === product?.id || item.product?.id === product?.id || item.product?._id === product?._id));
@@ -250,13 +271,21 @@ const ProductDetails = () => {
 
               {/* Thumbnail Gallery */}
               {product.images && product.images.length > 0 && (
-                <div className="flex gap-4 overflow-x-auto py-2">
+                <div 
+                  ref={thumbnailContainerRef}
+                  className="flex gap-4 overflow-x-auto py-2 pr-12" 
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  <style>{`
+                    .flex.gap-4.overflow-x-auto::-webkit-scrollbar { display: none; }
+                  `}</style>
                   {[product.imageUrl, ...(product.images.filter(img => img !== product.imageUrl))].filter(Boolean).map((imgUrl, index) => (
                     <button
                       key={index}
+                      ref={selectedImage === imgUrl ? activeThumbnailRef : null}
                       onClick={() => setSelectedImage(imgUrl)}
                       className={`flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 transition-all ${
-                        selectedImage === imgUrl ? 'border-orange-500 shadow-md' : 'border-transparent hover:border-orange-300'
+                        selectedImage === imgUrl ? 'border-orange-500 shadow-md transform scale-105' : 'border-transparent hover:border-orange-300'
                       }`}
                     >
                       <img src={imgUrl} alt={`Thumbnail ${index}`} className="w-full h-full object-cover" />

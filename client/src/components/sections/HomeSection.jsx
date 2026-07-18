@@ -88,32 +88,34 @@ const HomeSection = () => {
 
   return (
     <>
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="hero">
-        <div className="hero-inner">
-          <div>
-            <div className="tag-pill">
-              <i className="fa-solid fa-leaf"></i> Handmade by women artisans, Bihar
-            </div>
-            <h1>स्वाद जो सीधा<br/><em>दिल से आता है.</em></h1>
-            <p>Ghar jaisa Thekua, khaalis Sattu, aur Bihar ki mitti ki khushboo — ab seedha aapke ghar tak, jahan bhi aap ho.</p>
-            <div className="hero-ctas">
-              <Link to="/products" className="btn btn-primary">
-                <i className="fa-solid fa-basket-shopping"></i> Shop now
-              </Link>
-              <a href="#story" className="btn btn-outline">Our story</a>
-            </div>
-            <div className="hero-stats">
-              <div><strong>12,000+</strong><span>Happy customers</span></div>
-              <div><strong>60+</strong><span>Farmer partners</span></div>
-              <div><strong>25+</strong><span>Authentic products</span></div>
-            </div>
+      {/* ── Hero (New Layout) ─────────────────────────────────────────────────── */}
+      <section className="py-8 bg-gray-50">
+        <div className="max-w-[1200px] mx-auto px-4 flex flex-col md:flex-row gap-4">
+          {/* Large Panel (Left) */}
+          <div className="w-full md:w-2/3 h-[300px] md:h-[500px] rounded-2xl overflow-hidden relative group shadow-md">
+            <Link to="/products">
+              <img 
+                src="https://mithilafoods.com/cdn/shop/files/aasas.png?v=1782120694&width=1200" 
+                alt="Hero banner" 
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            </Link>
           </div>
-          <div className="hero-visual">
-            <div className="hero-collage">
-              <img src="https://picsum.photos/seed/thekua-hero/600/340" alt="Thekua" />
-              <img src="https://picsum.photos/seed/sattu-hero/280/150" alt="Sattu" />
-              <img src="https://picsum.photos/seed/tilkut-hero/280/150" alt="Tilkut" />
+          {/* Small Panels (Right) */}
+          <div className="w-full md:w-1/3 flex flex-row md:flex-col gap-4 h-[150px] md:h-[500px]">
+            <div className="flex-1 rounded-2xl overflow-hidden relative group shadow-md">
+              <Link to="/products">
+                <video playsInline autoPlay muted loop className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" poster="https://mithilafoods.com/cdn/shop/files/preview_images/49390a68a82642beafd482a8a82c60db.thumbnail.0000000000_600x.jpg?v=1782121159">
+                  <source src="https://mithilafoods.com/cdn/shop/videos/c/vp/49390a68a82642beafd482a8a82c60db/49390a68a82642beafd482a8a82c60db.HD-720p-4.5Mbps-87112570.mp4?v=0" type="video/mp4" />
+                </video>
+              </Link>
+            </div>
+            <div className="flex-1 rounded-2xl overflow-hidden relative group shadow-md">
+              <Link to="/products">
+                <video playsInline autoPlay muted loop className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" poster="https://mithilafoods.com/cdn/shop/files/preview_images/0e1f9b705eb24bc5ba494f4bee0f1ce2.thumbnail.0000000000_600x.jpg?v=1782056953">
+                  <source src="https://mithilafoods.com/cdn/shop/videos/c/vp/0e1f9b705eb24bc5ba494f4bee0f1ce2/0e1f9b705eb24bc5ba494f4bee0f1ce2.HD-720p-2.1Mbps-87067719.mp4?v=0" type="video/mp4" />
+                </video>
+              </Link>
             </div>
           </div>
         </div>
@@ -121,43 +123,26 @@ const HomeSection = () => {
 
       <div className="stitch"></div>
 
-      {/* ── Trust Strip ───────────────────────────────────────────────────── */}
-      <section className="trust-strip">
-        <div className="wrap">
-          <div className="trust-tag">
-            <i className="fa-solid fa-truck-fast"></i>
-            <div><strong>Free shipping</strong><span>India-wide delivery</span></div>
-          </div>
-          <div className="trust-tag">
-            <i className="fa-solid fa-hands-holding-circle"></i>
-            <div><strong>Handmade with love</strong><span>By women artisans of Bihar</span></div>
-          </div>
-          <div className="trust-tag">
-            <i className="fa-solid fa-award"></i>
-            <div><strong>Quality assured</strong><span>Pure ingredients, no preservatives</span></div>
-          </div>
-        </div>
-      </section>
-
       {/* ── Categories ───────────────────────────────────────────────────── */}
       <section className="section" id="categories">
         <div className="wrap">
-          <div className="section-head">
-            <div className="eyebrow">Categories</div>
-            <h2>Explore our heritage</h2>
+          <div className="section-head mb-8">
+            <h2 className="font-display text-3xl font-bold text-indigo-900">Categories</h2>
           </div>
           <div className="cat-grid">
             {[
-              { icon: 'fa-cookie-bite', label: 'Thekua', search: 'Thekua' },
-              { icon: 'fa-wheat-awn', label: 'Sattu', search: 'Sattu' },
-              { icon: 'fa-candy-cane', label: 'Tilkut', search: 'Tilkut' },
-              { icon: 'fa-jar', label: 'Achaar', search: 'Pickles', isCategory: true },
-              { icon: 'fa-bowl-rice', label: 'Bhuja Mix', search: 'Bhuja' },
-              { icon: 'fa-gift', label: 'Gift Hampers', search: 'Gift' },
-            ].map(({ icon, label, search, isCategory }) => (
-              <Link to={`/products?${isCategory ? 'category' : 'search'}=${encodeURIComponent(search)}`} key={label} className="cat-tile">
-                <div className="cat-circle"><i className={`fa-solid ${icon}`}></i></div>
-                <span>{label}</span>
+              { image: 'https://picsum.photos/seed/cat-thekua/150/150', label: 'Thekua', search: 'Thekua' },
+              { image: 'https://picsum.photos/seed/cat-sattu/150/150', label: 'Sattu', search: 'Sattu' },
+              { image: 'https://picsum.photos/seed/cat-tilkut/150/150', label: 'Tilkut', search: 'Tilkut' },
+              { image: 'https://picsum.photos/seed/cat-achaar/150/150', label: 'Achaar', search: 'Pickles', isCategory: true },
+              { image: 'https://picsum.photos/seed/cat-bhuja/150/150', label: 'Bhuja Mix', search: 'Bhuja' },
+              { image: 'https://picsum.photos/seed/cat-gift/150/150', label: 'Gift Hampers', search: 'Gift' },
+            ].map(({ image, label, search, isCategory }) => (
+              <Link to={`/products?${isCategory ? 'category' : 'search'}=${encodeURIComponent(search)}`} key={label} className="cat-tile block text-center group">
+                <div className="w-20 h-20 md:w-24 md:h-24 mx-auto mb-3 rounded-full overflow-hidden border-4 border-gray-100 shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:border-orange-500">
+                  <img src={image} alt={label} className="w-full h-full object-cover" />
+                </div>
+                <span className="text-sm font-semibold text-gray-800">{label}</span>
               </Link>
             ))}
           </div>
@@ -208,11 +193,11 @@ const HomeSection = () => {
                         {isWished ? <i className="fa-solid fa-heart"></i> : <i className="fa-regular fa-heart"></i>}
                       </button>
                       <Link to={`/products/${id}`} style={{ display: 'block', height: '100%' }}>
-                        <img src={imageUrl} alt={product.name} loading="lazy" />
+                        <img src={imageUrl} alt={product.name} loading="lazy" style={{ objectFit: 'contain', backgroundColor: '#fff' }} />
                       </Link>
                     </div>
                     <div className="card-body">
-                      <div className="card-title">
+                      <div className="card-title line-clamp-2">
                         <Link to={`/products/${id}`} style={{ color: '#2A2118', display: 'block' }}>
                           {product.name || 'Unnamed Product'}
                         </Link>
@@ -305,8 +290,26 @@ const HomeSection = () => {
         </div>
       </section>
 
+      {/* ── Trust Strip ───────────────────────────────────────────────────── */}
+      <section className="trust-strip">
+        <div className="wrap">
+          <div className="trust-tag">
+            <i className="fa-solid fa-truck-fast"></i>
+            <div><strong>Free shipping</strong><span>India-wide delivery</span></div>
+          </div>
+          <div className="trust-tag">
+            <i className="fa-solid fa-hands-holding-circle"></i>
+            <div><strong>Handmade with love</strong><span>By women artisans of Bihar</span></div>
+          </div>
+          <div className="trust-tag">
+            <i className="fa-solid fa-award"></i>
+            <div><strong>Quality assured</strong><span>Pure ingredients, no preservatives</span></div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Testimonials ──────────────────────────────────────────────────── */}
-      <section className="section">
+      <section className="section bg-gray-50">
         <div className="wrap">
           <div className="section-head">
             <div className="eyebrow">Testimonials</div>

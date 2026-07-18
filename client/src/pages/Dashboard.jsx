@@ -50,7 +50,10 @@ const Dashboard = () => {
 
         {/* Tabs Navigation */}
         <div className="mb-8 border-b border-gray-200">
-          <div className="flex space-x-8 overflow-x-auto pb-1">
+          <div className="flex space-x-6 md:space-x-8 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <style>{`
+              .flex.space-x-6::-webkit-scrollbar { display: none; }
+            `}</style>
             <button
               onClick={() => setActiveTab('products')}
               className={`pb-4 px-1 font-semibold whitespace-nowrap transition-all ${activeTab === 'products'

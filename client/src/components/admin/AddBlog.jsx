@@ -11,7 +11,7 @@ const AddBlog = ({ onBlogAdded }) => {
     content: '',
     author: '',
     category: 'Traditional Recipes',
-    image: null
+    image: ''
   });
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
@@ -33,53 +33,13 @@ const AddBlog = ({ onBlogAdded }) => {
     });
   };
 
-  // Handle image file selection
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-
-    if (!file) {
-      console.log('No file selected');
-      return;
-    }
-
-    console.log('File selected:', file.name, file.type, file.size);
-
-    // Validate file type (JPG/JPEG only)
-    const validTypes = ['image/jpeg', 'image/jpg'];
-    if (!validTypes.includes(file.type)) {
-      alert('❌ Only JPG/JPEG images are allowed!');
-      e.target.value = '';
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      alert('❌ Image size must be less than 5MB!');
-      e.target.value = '';
-      return;
-    }
-
-    // Set the file
-    setFormData({
-      ...formData,
-      image: file
-    });
-
-    // Create preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result);
-      console.log('Preview created');
-    };
-    reader.readAsDataURL(file);
-  };
+  // Removed handleImageChange as we are using image links now
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.image) {
-      alert('❌ Please select a JPG image!');
+    if (!formData.image || !formData.image.startsWith('http')) {
+      alert('❌ Please enter a valid Image URL (starting with http:// or https://)');
       return;
     }
 
@@ -88,21 +48,21 @@ const AddBlog = ({ onBlogAdded }) => {
     try {
       const token = localStorage.getItem('token');
 
-      // Create FormData
-      const submitData = new FormData();
-      submitData.append('title', formData.title);
-      submitData.append('excerpt', formData.excerpt);
-      submitData.append('content', formData.content);
-      submitData.append('author', formData.author);
-      submitData.append('category', formData.category);
-      submitData.append('image', formData.image);
+      const submitData = {
+        title: formData.title,
+        excerpt: formData.excerpt,
+        content: formData.content,
+        author: formData.author,
+        category: formData.category,
+        imagePath: formData.image // The backend should save this string as imagePath
+      };
 
       console.log('📤 Uploading blog...');
 
       const response = await axios.post(`${API_URL}/blogs`, submitData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'application/json'
         }
       });
 
@@ -115,7 +75,7 @@ const AddBlog = ({ onBlogAdded }) => {
         content: '',
         author: '',
         category: 'Traditional Recipes',
-        image: null
+        image: ''
       });
       setImagePreview(null);
 
@@ -142,7 +102,7 @@ const AddBlog = ({ onBlogAdded }) => {
             </svg>
             Admin Panel
           </h2>
-          <p className="text-sm text-gray-600 mt-1">Upload and manage blog posts (JPG images only)</p>
+          <p className="text-sm text-gray-600 mt-1">Upload and manage blog posts via Image Links</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
@@ -254,92 +214,36 @@ const AddBlog = ({ onBlogAdded }) => {
             </div>
           </div>
 
-          {/* IMAGE UPLOAD - FIXED VERSION */}
+          {/* IMAGE LINK */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Upload Image (JPG only, max 5MB) *
+              Blog Image Link (URL) *
             </label>
+            <input
+              type="text"
+              name="image"
+              value={formData.image}
+              onChange={(e) => {
+                handleChange(e);
+                setImagePreview(e.target.value);
+              }}
+              required
+              placeholder="https://example.com/image.jpg"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+            />
 
-            <div className="space-y-3">
-              {/* Hidden file input */}
-              <input
-                id="blog-image-input"
-                type="file"
-                accept=".jpg,.jpeg,image/jpeg"
-                onChange={handleImageChange}
-                className="hidden"
-              />
-
-              {/* Upload Button/Area */}
-              {!imagePreview ? (
-                <label
-                  htmlFor="blog-image-input"
-                  className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all"
-                >
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <svg className="w-16 h-16 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                    </svg>
-                    <p className="mb-2 text-lg font-semibold text-gray-700">
-                      Click to select image
-                    </p>
-                    <p className="text-sm text-gray-500">JPG or JPEG only (Max 5MB)</p>
-                  </div>
-                </label>
-              ) : (
-                // Image Preview
-                <div className="relative">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full h-64 object-cover rounded-lg border-2 border-green-500"
-                  />
-                  <div className="absolute top-2 right-2 flex gap-2">
-                    <div className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
-                      ✓ Image Selected
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormData({ ...formData, image: null });
-                        setImagePreview(null);
-                      }}
-                      className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 shadow-lg"
-                      title="Remove image"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* File info */}
-              {formData.image && (
-                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <div>
-                        <p className="text-sm font-medium text-green-800">{formData.image.name}</p>
-                        <p className="text-xs text-green-600">
-                          Size: {(formData.image.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-                      </div>
-                    </div>
-                    <label
-                      htmlFor="blog-image-input"
-                      className="text-blue-600 hover:text-blue-800 cursor-pointer text-sm font-medium"
-                    >
-                      Change
-                    </label>
-                  </div>
-                </div>
-              )}
-            </div>
+            {imagePreview && imagePreview.startsWith('http') && (
+              <div className="relative">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-full md:w-1/2 h-64 object-cover rounded-lg border-2 border-green-500"
+                  onError={(e) => {
+                    e.target.src = 'https://via.placeholder.com/400x300?text=Invalid+Image+URL';
+                  }}
+                />
+              </div>
+            )}
           </div>
 
           {/* Submit Buttons */}
@@ -377,7 +281,7 @@ const AddBlog = ({ onBlogAdded }) => {
                   content: '',
                   author: '',
                   category: 'Traditional Recipes',
-                  image: null
+                  image: ''
                 });
               }}
               className="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold"

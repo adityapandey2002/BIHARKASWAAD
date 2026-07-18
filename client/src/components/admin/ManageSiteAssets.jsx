@@ -8,14 +8,14 @@ const ManageSiteAssets = () => {
   const [loading, setLoading] = useState(false);
   const [logoPreview, setLogoPreview] = useState(null);
   const [slidePreview, setSlidePreview] = useState(null);
-  const [logoFile, setLogoFile] = useState(null);
-  const [slideFile, setSlideFile] = useState(null);
+  const [logoUrl, setLogoUrl] = useState('');
   const [slideData, setSlideData] = useState({
     title: '',
     subtitle: '',
     buttonText: 'Shop Now',
     buttonLink: '/products',
-    order: 0
+    order: 0,
+    imageUrl: ''
   });
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
@@ -36,62 +36,26 @@ const ManageSiteAssets = () => {
     fetchAssets();
   }, []);
 
-  // Only allow .jpg/.jpeg
-  const handleLogoChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const validTypes = ['image/jpeg', 'image/jpg'];
-    if (!validTypes.includes(file.type)) {
-      alert('❌ Only JPG/JPEG images allowed!');
-      return;
-    }
-
-    setLogoFile(file);
-    const reader = new FileReader();
-    reader.onloadend = () => setLogoPreview(reader.result);
-    reader.readAsDataURL(file);
-  };
-
-  // Only allow .jpg/.jpeg
-  const handleSlideImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const validTypes = ['image/jpeg', 'image/jpg'];
-    if (!validTypes.includes(file.type)) {
-      alert('❌ Only JPG/JPEG images allowed!');
-      return;
-    }
-
-    setSlideFile(file);
-    const reader = new FileReader();
-    reader.onloadend = () => setSlidePreview(reader.result);
-    reader.readAsDataURL(file);
-  };
-
   // Upload logo handler
   const handleUploadLogo = async () => {
-    if (!logoFile) {
-      alert('Please select a logo image');
+    if (!logoUrl || !logoUrl.startsWith('http')) {
+      alert('Please enter a valid Logo URL');
       return;
     }
 
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const formData = new FormData();
-      formData.append('logo', logoFile);
-
-      await axios.post(`${API_URL}/site-assets/logo`, formData, {
+      // Sending JSON instead of FormData
+      await axios.post(`${API_URL}/site-assets/logo`, { logoUrl }, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'application/json'
         }
       });
 
       alert('✅ Logo updated successfully!');
-      setLogoFile(null);
+      setLogoUrl('');
       fetchAssets();
       refreshAssets();
     } catch (error) {
@@ -104,38 +68,40 @@ const ManageSiteAssets = () => {
 
   // Add slideshow handler
   const handleAddSlideshow = async () => {
-    if (!slideFile) {
-      alert('Please select a slideshow image');
+    if (!slideData.imageUrl || !slideData.imageUrl.startsWith('http')) {
+      alert('Please enter a valid slideshow Image URL');
       return;
     }
 
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const formData = new FormData();
-      formData.append('image', slideFile);
-      formData.append('title', slideData.title);
-      formData.append('subtitle', slideData.subtitle);
-      formData.append('buttonText', slideData.buttonText);
-      formData.append('buttonLink', slideData.buttonLink);
-      formData.append('order', slideData.order);
+      
+      const submitData = {
+        title: slideData.title,
+        subtitle: slideData.subtitle,
+        buttonText: slideData.buttonText,
+        buttonLink: slideData.buttonLink,
+        order: slideData.order,
+        imagePath: slideData.imageUrl // Sending URL as imagePath
+      };
 
-      await axios.post(`${API_URL}/site-assets/slideshow`, formData, {
+      await axios.post(`${API_URL}/site-assets/slideshow`, submitData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'application/json'
         }
       });
 
       alert('✅ Slideshow added successfully!');
-      setSlideFile(null);
       setSlidePreview(null);
       setSlideData({
         title: '',
         subtitle: '',
         buttonText: 'Shop Now',
         buttonLink: '/products',
-        order: 0
+        order: 0,
+        imageUrl: ''
       });
       fetchAssets();
       refreshAssets();
@@ -178,46 +144,36 @@ const ManageSiteAssets = () => {
 
         <div className="space-y-4">
           <input
-            id="logo-input"
-            type="file"
-            accept=".jpg,.jpeg"
-            onChange={handleLogoChange}
-            className="hidden"
+            type="text"
+            placeholder="Enter Logo URL (https://...)"
+            value={logoUrl}
+            onChange={(e) => {
+              setLogoUrl(e.target.value);
+              setLogoPreview(e.target.value);
+            }}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
 
-          {logoPreview ? (
-            <div className="relative inline-block">
+          {logoPreview && (
+            <div className="relative inline-block mt-4">
               <img
                 src={logoPreview}
                 alt="Logo"
-                className="h-32 object-contain border-2 border-gray-200 rounded-lg p-2"
+                className="h-32 object-contain border-2 border-gray-200 rounded-lg p-2 bg-gray-50"
+                onError={(e) => {
+                  e.target.src = 'https://via.placeholder.com/150?text=Invalid+URL';
+                }}
               />
-              <label
-                htmlFor="logo-input"
-                className="absolute bottom-2 right-2 bg-blue-600 text-white px-3 py-1 rounded-lg text-sm cursor-pointer hover:bg-blue-700"
-              >
-                Change
-              </label>
             </div>
-          ) : (
-            <label
-              htmlFor="logo-input"
-              className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50"
-            >
-              <svg className="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-              <p className="text-sm text-gray-600">Click to upload logo (JPG only)</p>
-            </label>
           )}
 
-          {logoFile && (
+          {logoUrl && (
             <button
               onClick={handleUploadLogo}
               disabled={loading}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              className="block mt-4 w-full md:w-auto bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
             >
-              {loading ? 'Uploading...' : 'Upload Logo'}
+              {loading ? 'Updating...' : 'Update Logo Link'}
             </button>
           )}
         </div>
@@ -270,42 +226,32 @@ const ManageSiteAssets = () => {
           </div>
 
           <input
-            id="slide-input"
-            type="file"
-            accept=".jpg,.jpeg"
-            onChange={handleSlideImageChange}
-            className="hidden"
+            type="text"
+            placeholder="Image URL (https://...)"
+            value={slideData.imageUrl}
+            onChange={(e) => {
+              setSlideData({ ...slideData, imageUrl: e.target.value });
+              setSlidePreview(e.target.value);
+            }}
+            className="w-full px-4 py-2 border rounded-lg"
           />
 
-          {slidePreview ? (
+          {slidePreview && (
             <div className="relative">
               <img
                 src={slidePreview}
                 alt="Preview"
-                className="w-full h-64 object-cover rounded-lg"
+                className="w-full h-64 object-cover rounded-lg mt-4 border-2 border-green-500"
+                onError={(e) => {
+                  e.target.src = 'https://via.placeholder.com/800x400?text=Invalid+URL';
+                }}
               />
-              <label
-                htmlFor="slide-input"
-                className="absolute bottom-4 right-4 bg-white text-blue-600 px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-50 shadow-lg"
-              >
-                Change Image
-              </label>
             </div>
-          ) : (
-            <label
-              htmlFor="slide-input"
-              className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50"
-            >
-              <svg className="w-16 h-16 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-              <p className="text-sm text-gray-600">Click to upload slideshow image (JPG only)</p>
-            </label>
           )}
 
           <button
             onClick={handleAddSlideshow}
-            disabled={loading || !slideFile || !slideData.title}
+            disabled={loading || !slideData.imageUrl || !slideData.title}
             className="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50"
           >
             {loading ? 'Adding...' : 'Add Slideshow'}

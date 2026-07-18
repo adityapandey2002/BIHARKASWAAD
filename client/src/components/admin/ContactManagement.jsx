@@ -74,14 +74,17 @@ const ContactManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <h2 className="text-2xl font-bold">Contact Inquiries</h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <style>{`
+            .flex.gap-2.overflow-x-auto::-webkit-scrollbar { display: none; }
+          `}</style>
           {['all', 'new', 'in-progress', 'resolved'].map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-lg capitalize ${
+              className={`px-4 py-2 rounded-lg capitalize whitespace-nowrap ${
                 filter === f ? 'bg-orange-600 text-white' : 'bg-gray-200'
               }`}
             >

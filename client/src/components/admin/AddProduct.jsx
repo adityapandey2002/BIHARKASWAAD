@@ -193,15 +193,15 @@ const AddProduct = ({ onProductAdded }) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-            <svg className="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center">
+            <svg className="w-5 h-5 md:w-6 md:h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
             Product Management
           </h2>
-          <p className="text-sm text-gray-600 mt-1">Add new products to your store (JPG images only)</p>
+          <p className="text-xs md:text-sm text-gray-600 mt-1">Add new products to your store</p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-2 mt-4 md:mt-0">
           <div className="relative">
             <input 
               type="file" 
@@ -397,8 +397,8 @@ const AddProduct = ({ onProductAdded }) => {
 
             <div className="space-y-3">
               {imageUrls.map((url, index) => (
-                <div key={index} className="flex gap-2 items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
-                  <div className="flex flex-col gap-1">
+                <div key={index} className="flex flex-wrap md:flex-nowrap gap-2 items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
+                  <div className="flex flex-col gap-1 shrink-0">
                     <button type="button" onClick={() => moveImageUp(index)} disabled={index === 0} className="p-1 bg-gray-200 rounded disabled:opacity-30 hover:bg-gray-300">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"></path></svg>
                     </button>

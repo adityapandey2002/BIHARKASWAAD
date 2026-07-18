@@ -222,13 +222,13 @@ const ProductListing = () => {
                       <img
                         src={product.imageUrl}
                         alt={product.name}
-                        className="w-full h-56 object-cover"
+                        className="w-full h-56 object-contain bg-white"
                       />
                     ) : product.imagePath ? (
                       <img
                         src={`${(process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api').replace('/api', '')}/${product.imagePath}`}
                         alt={product.name}
-                        className="w-full h-56 object-cover"
+                        className="w-full h-56 object-contain bg-white"
                       />
                     ) : (
                       <div className="w-full h-56 bg-gray-200 flex items-center justify-center">

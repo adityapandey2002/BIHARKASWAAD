@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../store/slices/authSlice';
+import { useSiteAssets } from '../../context/SiteAssetsContext';
 
 const Header = ({ onOpenMobileNav }) => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -10,6 +11,8 @@ const Header = ({ onOpenMobileNav }) => {
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const { logoUrl } = useSiteAssets();
 
   // Cart count from Redux
   const cartCount = items?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
@@ -35,8 +38,11 @@ const Header = ({ onOpenMobileNav }) => {
             <i className="fa-solid fa-bars"></i>
           </button>
 
-          <Link to="/" className="logo">
-            BiharKaSwaad<small>बिहार का स्वाद</small>
+          <Link to="/" className="logo flex items-center" style={{ flexDirection: 'row', gap: '10px' }}>
+            {logoUrl && <img src={logoUrl} alt="Bihar Ka Swaad Logo" style={{ height: '40px', width: 'auto', objectFit: 'contain' }} />}
+            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.1' }}>
+              BiharKaSwaad<small>बिहार का स्वाद</small>
+            </div>
           </Link>
 
           <nav className="main-nav">
@@ -70,7 +76,11 @@ const Header = ({ onOpenMobileNav }) => {
 
             {/* Auth */}
             {isAuthenticated ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                <Link to="/orders" className="icon-btn" aria-label="My Orders" title="My Orders">
+                  <i className="fa-solid fa-box"></i>
+                </Link>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--indigo)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}
                   title={user?.name || 'Account'}>
                   {(user?.name || 'U').charAt(0).toUpperCase()}
@@ -78,6 +88,7 @@ const Header = ({ onOpenMobileNav }) => {
                 <button onClick={handleLogout} style={{ fontSize: '12.5px', color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600' }}>
                   Logout
                 </button>
+                </div>
               </div>
             ) : (
               <Link to="/login" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '13px' }}>
