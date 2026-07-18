@@ -119,12 +119,12 @@
   @media(max-width:760px){ .cat-grid{grid-template-columns:repeat(3,1fr);} }
 
   /* Products */
-  .prod-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:20px;}
+  .prod-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:20px;}
   .card{
     background:var(--paper); border:1px solid var(--border); border-radius:10px; overflow:hidden;
     display:flex; flex-direction:column;
   }
-  .card-img{position:relative; height:170px; background:#EFE7D3; overflow:hidden;}
+  .card-img{position:relative; height:150px; background:#EFE7D3; overflow:hidden;}
   .card-img img{width:100%; height:100%; object-fit:cover;}
   .kraft-tag{
     position:absolute; top:10px; left:10px; background:var(--haldi); color:var(--indigo);
@@ -135,8 +135,8 @@
   .fav:hover{color:var(--sindoor);}
   .card-body{padding:14px 15px 16px; display:flex; flex-direction:column; gap:7px; flex:1;}
   .card-title{
-    font-size:17px; 
-    font-weight:800; 
+    font-size:15px; 
+    font-weight:600; 
     line-height:1.3; 
     min-height: 48px;
     display: block;
@@ -154,7 +154,7 @@
   .rating{font-size:12px; color:var(--neem); font-weight:600; display:flex; align-items:center; gap:4px;}
   .rating span{color:var(--muted); font-weight:400;}
   .price-row{display:flex; align-items:baseline; gap:8px; font-family:var(--font-mono); margin-top:4px;}
-  .price{font-size:19px; font-weight:800; color:var(--sindoor);}
+  .price{font-size:17px; font-weight:800; color:#111;}
   .mrp{font-size:13px; color:var(--muted); text-decoration:line-through;}
   .add-btn{
     margin-top:auto; border:1.5px solid var(--indigo); color:var(--indigo); border-radius:5px;

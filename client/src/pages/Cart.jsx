@@ -101,14 +101,18 @@ const Cart = () => {
                   <img
                     src={getImageUrl(item)}
                     alt={name}
-                    style={{ width: '90px', height: '90px', borderRadius: '8px', objectFit: 'cover', flexShrink: '0' }}
+                    style={{ width: '70px', height: '70px', borderRadius: '8px', objectFit: 'cover', flexShrink: '0' }}
                   />
                   <div style={{ flex: '1', minWidth: 0 }}>
-                    <h3 className="line-clamp-2" style={{ fontWeight: '600', fontSize: '15px', color: 'var(--indigo)', marginBottom: '6px' }}>
-                      {name} {item.variantWeight ? `(${item.variantWeight})` : ''}
+                    <h3 className="line-clamp-2" style={{ fontWeight: '600', fontSize: '14px', color: 'var(--indigo)', marginBottom: '2px' }}>
+                      {name}
                     </h3>
-                    <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--sindoor)', fontWeight: '700', fontSize: '16px', marginBottom: '12px' }}>
-                      ₹{price} <span style={{ color: 'var(--muted)', fontWeight: '400', fontSize: '13px' }}>per unit</span>
+                    <div style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '4px', display: 'flex', gap: '8px' }}>
+                      {item.variantWeight ? <span><i className="fa-solid fa-weight-scale" style={{marginRight: '4px'}}></i>{item.variantWeight}</span> : null}
+                      <span><i className="fa-solid fa-layer-group" style={{marginRight: '4px'}}></i>Qty: {item.quantity}</span>
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--sindoor)', fontWeight: '700', fontSize: '15px', marginBottom: '8px' }}>
+                      ₹{price} <span style={{ color: 'var(--muted)', fontWeight: '400', fontSize: '12px' }}>per unit</span>
                     </div>
                     <div className="cart-item-actions">
                       <button
@@ -130,7 +134,7 @@ const Cart = () => {
                     </div>
                   </div>
                   <div className="cart-item-price-total">
-                    <div style={{ fontFamily: 'var(--font-mono)', fontWeight: '700', fontSize: '17px', color: 'var(--indigo)' }}>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontWeight: '700', fontSize: '15px', color: 'var(--indigo)' }}>
                       ₹{(price * item.quantity).toLocaleString('en-IN')}
                     </div>
                   </div>
