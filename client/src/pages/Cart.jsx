@@ -81,7 +81,7 @@ const Cart = () => {
       <div className="stitch"></div>
 
       <section className="section">
-        <div className="wrap" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '30px', alignItems: 'start' }}>
+        <div className="wrap cart-page-layout">
           
           {/* Cart Items */}
           <div>
@@ -97,12 +97,7 @@ const Cart = () => {
               const productId = item.productId || product.id;
 
               return (
-                <div key={item.id || productId} style={{
-                  display: 'flex', gap: '18px', padding: '20px',
-                  background: 'var(--paper)', border: '1px solid var(--border)',
-                  borderRadius: '10px', marginBottom: '14px',
-                  boxShadow: '0 2px 8px rgba(31,46,74,.04)',
-                }}>
+                <div key={item.id || productId} className="cart-item-card">
                   <img
                     src={getImageUrl(item)}
                     alt={name}
@@ -115,7 +110,7 @@ const Cart = () => {
                     <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--sindoor)', fontWeight: '700', fontSize: '16px', marginBottom: '12px' }}>
                       ₹{price} <span style={{ color: 'var(--muted)', fontWeight: '400', fontSize: '13px' }}>per unit</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div className="cart-item-actions">
                       <button
                         onClick={() => dispatch(updateQuantity({ productId, quantity: item.quantity - 1, variantWeight: item.variantWeight }))}
                         disabled={item.quantity <= 1}
@@ -134,7 +129,7 @@ const Cart = () => {
                       </button>
                     </div>
                   </div>
-                  <div style={{ textAlign: 'right', flexShrink: '0' }}>
+                  <div className="cart-item-price-total">
                     <div style={{ fontFamily: 'var(--font-mono)', fontWeight: '700', fontSize: '17px', color: 'var(--indigo)' }}>
                       ₹{(price * item.quantity).toLocaleString('en-IN')}
                     </div>

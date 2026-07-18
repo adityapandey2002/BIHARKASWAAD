@@ -26,7 +26,7 @@ const Wishlist = () => {
   };
 
   const handleAddToCart = (product) => {
-    dispatch(addToCart({ productId: product._id, quantity: 1 }));
+    dispatch(addToCart({ productId: product.id || product._id, quantity: 1 }));
     alert('✅ Added to cart!');
   };
 
@@ -105,7 +105,7 @@ const Wishlist = () => {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {items.map((item) => (
                 <div 
-                  key={item.product._id} 
+                  key={item.product.id || item.product._id} 
                   className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300"
                 >
                   {/* Product Image */}
@@ -126,7 +126,7 @@ const Wishlist = () => {
                     
                     {/* Remove Button */}
                     <button
-                      onClick={() => handleRemove(item.product._id)}
+                      onClick={() => handleRemove(item.product.id || item.product._id)}
                       className="absolute top-2 right-2 bg-white text-red-600 p-2 rounded-full shadow-lg hover:bg-red-50 transition"
                       title="Remove from wishlist"
                     >
@@ -150,7 +150,7 @@ const Wishlist = () => {
                     </div>
                     
                     <Link 
-                      to={`/products/${item.product._id}`}
+                      to={`/products/${item.product.id || item.product._id}`}
                       className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition line-clamp-2 mb-2 block"
                     >
                       {item.product.name}
@@ -183,7 +183,7 @@ const Wishlist = () => {
                         Add to Cart
                       </button>
                       <Link
-                        to={`/products/${item.product._id}`}
+                        to={`/products/${item.product.id || item.product._id}`}
                         className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition"
                       >
                         View
