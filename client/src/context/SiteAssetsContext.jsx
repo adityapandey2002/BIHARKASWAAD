@@ -16,6 +16,9 @@ export const SiteAssetsProvider = ({ children }) => {
     logoUrl: null,
     siteName: 'Bihar Ka Swaad',
     tagline: 'Authentic Flavors from Bihar',
+    heroImage: null,
+    heroVideo1: null,
+    heroVideo2: null,
     slideshow: [],
     loading: true,
     error: null
@@ -33,6 +36,9 @@ export const SiteAssetsProvider = ({ children }) => {
           logoUrl: data.data.logoUrl || null,
           siteName: data.data.siteName || 'Bihar Ka Swaad',
           tagline: data.data.tagline || 'Authentic Flavors from Bihar',
+          heroImage: data.data.heroImage || null,
+          heroVideo1: data.data.heroVideo1 || null,
+          heroVideo2: data.data.heroVideo2 || null,
           slideshow: data.data.slideshow || [],
           loading: false,
           error: null
@@ -59,6 +65,9 @@ export const SiteAssetsProvider = ({ children }) => {
         logoUrl: data.data.logoUrl || null,
         siteName: data.data.siteName || 'Bihar Ka Swaad',
         tagline: data.data.tagline || 'Authentic Flavors from Bihar',
+        heroImage: data.data.heroImage || null,
+        heroVideo1: data.data.heroVideo1 || null,
+        heroVideo2: data.data.heroVideo2 || null,
         slideshow: data.data.slideshow || [],
         loading: false,
         error: null

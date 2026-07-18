@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { fetchProducts } from '../../store/slices/productSlice';
 import { addToCart, getCart } from '../../store/slices/cartSlice';
 import { fetchWishlist, addToWishlist, removeFromWishlist } from '../../store/slices/wishlistSlice';
+import { useSiteAssets } from '../../context/SiteAssetsContext';
 
 const HomeSection = () => {
   const dispatch = useDispatch();
@@ -12,6 +13,7 @@ const HomeSection = () => {
   const { isAuthenticated } = useSelector((state) => state.auth);
   const { items: wishlistItems } = useSelector((state) => state.wishlist);
   const [addedIds, setAddedIds] = useState({});
+  const { heroImage, heroVideo1, heroVideo2 } = useSiteAssets();
 
   // Dynamic Festival Timer
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -92,10 +94,10 @@ const HomeSection = () => {
       <section className="py-8 bg-gray-50">
         <div className="max-w-[1200px] mx-auto px-4 flex flex-col md:flex-row gap-4">
           {/* Large Panel (Left) */}
-          <div className="w-full md:w-2/3 h-[300px] md:h-[500px] rounded-2xl overflow-hidden relative group shadow-md">
+          <div className="w-full md:w-2/3 h-[300px] md:h-[500px] rounded-2xl overflow-hidden relative group shadow-md bg-gray-200">
             <Link to="/products">
               <img 
-                src="https://mithilafoods.com/cdn/shop/files/aasas.png?v=1782120694&width=1200" 
+                src={heroImage || "https://picsum.photos/1200/800?grayscale"} 
                 alt="Hero banner" 
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
@@ -103,18 +105,26 @@ const HomeSection = () => {
           </div>
           {/* Small Panels (Right) */}
           <div className="w-full md:w-1/3 flex flex-row md:flex-col gap-4 h-[150px] md:h-[500px]">
-            <div className="flex-1 rounded-2xl overflow-hidden relative group shadow-md">
+            <div className="flex-1 rounded-2xl overflow-hidden relative group shadow-md bg-gray-200">
               <Link to="/products">
-                <video playsInline autoPlay muted loop className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" poster="https://mithilafoods.com/cdn/shop/files/preview_images/49390a68a82642beafd482a8a82c60db.thumbnail.0000000000_600x.jpg?v=1782121159">
-                  <source src="https://mithilafoods.com/cdn/shop/videos/c/vp/49390a68a82642beafd482a8a82c60db/49390a68a82642beafd482a8a82c60db.HD-720p-4.5Mbps-87112570.mp4?v=0" type="video/mp4" />
-                </video>
+                {heroVideo1 ? (
+                  <video playsInline autoPlay muted loop className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                    <source src={heroVideo1} type="video/mp4" />
+                  </video>
+                ) : (
+                  <img src="https://picsum.photos/600/600?grayscale" alt="Placeholder" className="w-full h-full object-cover" />
+                )}
               </Link>
             </div>
-            <div className="flex-1 rounded-2xl overflow-hidden relative group shadow-md">
+            <div className="flex-1 rounded-2xl overflow-hidden relative group shadow-md bg-gray-200">
               <Link to="/products">
-                <video playsInline autoPlay muted loop className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" poster="https://mithilafoods.com/cdn/shop/files/preview_images/0e1f9b705eb24bc5ba494f4bee0f1ce2.thumbnail.0000000000_600x.jpg?v=1782056953">
-                  <source src="https://mithilafoods.com/cdn/shop/videos/c/vp/0e1f9b705eb24bc5ba494f4bee0f1ce2/0e1f9b705eb24bc5ba494f4bee0f1ce2.HD-720p-2.1Mbps-87067719.mp4?v=0" type="video/mp4" />
-                </video>
+                {heroVideo2 ? (
+                  <video playsInline autoPlay muted loop className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                    <source src={heroVideo2} type="video/mp4" />
+                  </video>
+                ) : (
+                  <img src="https://picsum.photos/601/600?grayscale" alt="Placeholder" className="w-full h-full object-cover" />
+                )}
               </Link>
             </div>
           </div>
@@ -124,19 +134,21 @@ const HomeSection = () => {
       <div className="stitch"></div>
 
       {/* ── Categories ───────────────────────────────────────────────────── */}
-      <section className="section" id="categories">
+      <section className="section" id="categories" style={{ padding: '24px 0' }}>
         <div className="wrap">
           <div className="section-head mb-8">
             <h2 className="font-display text-3xl font-bold text-indigo-900">Categories</h2>
           </div>
           <div className="cat-grid">
             {[
-              { image: 'https://picsum.photos/seed/cat-thekua/150/150', label: 'Thekua', search: 'Thekua' },
-              { image: 'https://picsum.photos/seed/cat-sattu/150/150', label: 'Sattu', search: 'Sattu' },
-              { image: 'https://picsum.photos/seed/cat-tilkut/150/150', label: 'Tilkut', search: 'Tilkut' },
-              { image: 'https://picsum.photos/seed/cat-achaar/150/150', label: 'Achaar', search: 'Pickles', isCategory: true },
-              { image: 'https://picsum.photos/seed/cat-bhuja/150/150', label: 'Bhuja Mix', search: 'Bhuja' },
-              { image: 'https://picsum.photos/seed/cat-gift/150/150', label: 'Gift Hampers', search: 'Gift' },
+              { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116246/SATTU_m2gfbg.png', label: 'Sattu', search: 'Sattu' },
+              { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116246/TILKUT_e5fipd.png', label: 'Tilkut', search: 'Tilkut' },
+              { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116245/CHURA_vfur9l.png', label: 'Poha/ Chura', search: 'Poha' },
+              { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116245/BHUJA_b2qqyj.png', label: 'Mix Bhuja', search: 'Bhuja' },
+              { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116246/THEKUA_wsniwq.png', label: 'Thekua', search: 'Thekua' },
+              { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116245/RICE_qnjp6q.png', label: 'Rice', search: 'Rice' },
+              { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116245/SEEDS_bjhoxc.png', label: 'Seeds', search: 'Seeds' },
+              { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116245/SPICES_eluhsi.png', label: 'Spices', search: 'Spices' },
             ].map(({ image, label, search, isCategory }) => (
               <Link to={`/products?${isCategory ? 'category' : 'search'}=${encodeURIComponent(search)}`} key={label} className="cat-tile block text-center group">
                 <div className="w-20 h-20 md:w-24 md:h-24 mx-auto mb-3 rounded-full overflow-hidden border-4 border-gray-100 shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:border-orange-500">
@@ -197,8 +209,15 @@ const HomeSection = () => {
                       </Link>
                     </div>
                     <div className="card-body">
-                      <div className="card-title line-clamp-2">
-                        <Link to={`/products/${id}`} style={{ color: '#2A2118', display: 'block' }}>
+                      <div className="card-title" style={{ height: '2.8em', overflow: 'hidden' }}>
+                        <Link to={`/products/${id}`} style={{ 
+                          color: '#2A2118', 
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}>
                           {product.name || 'Unnamed Product'}
                         </Link>
                       </div>

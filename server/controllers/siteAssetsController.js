@@ -127,11 +127,14 @@ exports.deleteSlideshow = async (req, res) => {
 // ── UPDATE Site Settings (Admin) ──────────────────────────────────────────────
 exports.updateSiteSettings = async (req, res) => {
   try {
-    const { siteName, tagline } = req.body;
+    const { siteName, tagline, heroImage, heroVideo1, heroVideo2 } = req.body;
     const assets = await getOrCreateAssets();
 
-    if (siteName) assets.siteName = siteName;
-    if (tagline) assets.tagline = tagline;
+    if (siteName !== undefined) assets.siteName = siteName;
+    if (tagline !== undefined) assets.tagline = tagline;
+    if (heroImage !== undefined) assets.heroImage = heroImage;
+    if (heroVideo1 !== undefined) assets.heroVideo1 = heroVideo1;
+    if (heroVideo2 !== undefined) assets.heroVideo2 = heroVideo2;
     await assets.save();
 
     console.log('✅ Site settings updated');
