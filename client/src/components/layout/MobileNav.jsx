@@ -1,7 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const MobileNav = ({ isOpen, onClose }) => {
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+
   return (
     <>
       <div 
@@ -24,7 +27,9 @@ const MobileNav = ({ isOpen, onClose }) => {
         <a href="/#shop" onClick={onClose}>Shop</a>
         <a href="/#story" onClick={onClose}>Our Story</a>
         <a href="/#festival" onClick={onClose}>Festival Specials</a>
-        <Link to="/dashboard" onClick={onClose}>Admin Dashboard</Link>
+        {isAuthenticated && user?.role === 'admin' && (
+          <Link to="/dashboard" onClick={onClose} style={{ color: 'var(--sindoor)', fontWeight: '700' }}>Admin Dashboard</Link>
+        )}
         <Link to="/contact" onClick={onClose}>Contact</Link>
         <a href="https://wa.me/916201066464" target="_blank" rel="noopener noreferrer">
           <i className="fa-brands fa-whatsapp" style={{ color: '#25D366', marginRight: '8px' }}></i>

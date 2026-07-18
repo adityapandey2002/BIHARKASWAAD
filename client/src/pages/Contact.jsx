@@ -40,17 +40,16 @@ const Contact = () => {
   };
 
   const contacts = [
-    { icon: 'fa-location-dot', label: 'Address', text: '101 Maurya Apartment, Kumharar, Patna – 800026, Bihar' },
-    { icon: 'fa-phone', label: 'WhatsApp / Call', text: '+91 6201066464' },
-    { icon: 'fa-envelope', label: 'Email', text: 'support@biharkaswaad.in' },
-    { icon: 'fa-clock', label: 'Business Hours', text: 'Mon–Sat: 9 AM – 7 PM\nSunday: 10 AM – 4 PM' },
+    { icon: 'fa-location-dot', label: 'Address', text: 'Kumharar, Near Kushwaha Panchayat Bhawan, Kumharar Patna Bihar - 80026 IN.' },
+    { icon: 'fa-phone', label: 'Phone', text: '+916201066464' },
+    { icon: 'fa-envelope', label: 'Email', text: 'biharkaswaadfood@gmail.com' },
+    { icon: 'fa-clock', label: 'Business Hours', text: 'Mon-Sat: 9AM - 8 PM IST' },
   ];
 
   return (
     <>
       {/* Header Banner */}
       <div style={{ background: 'var(--indigo)', color: '#fff', padding: '48px 24px', textAlign: 'center' }}>
-        <div className="eyebrow" style={{ color: 'var(--haldi)', marginBottom: '8px' }}>हम यहाँ हैं</div>
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '38px', fontWeight: '600', margin: '0 0 10px' }}>
           Contact Us
         </h1>
@@ -63,7 +62,7 @@ const Contact = () => {
 
       {/* Main Content */}
       <section className="section">
-        <div className="wrap" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', alignItems: 'start' }}>
+        <div className="wrap grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
           
           {/* Left: Contact Info */}
           <div>
@@ -98,6 +97,18 @@ const Contact = () => {
             >
               <i className="fa-brands fa-whatsapp"></i> Chat on WhatsApp
             </a>
+
+            {/* Teams Details */}
+            <div style={{ marginTop: '48px' }}>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '24px', color: 'var(--indigo)', marginBottom: '16px', fontWeight: '600' }}>
+                TEAMS DETAILS
+              </h2>
+              <div style={{ background: 'var(--paper)', border: '1px solid var(--border)', borderRadius: '12px', padding: '24px' }}>
+                <p style={{ color: 'var(--muted)', fontSize: '14.5px', margin: 0, lineHeight: 1.6 }}>
+                  Our dedicated team at BiharKaSwaad works tirelessly to bring you the authentic taste of Bihar. From our chefs to our delivery partners, we are committed to quality and tradition.
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Right: Form */}
@@ -189,9 +200,9 @@ const Contact = () => {
       </section>
 
       {/* Map placeholder */}
-      <div style={{ background: 'var(--indigo)', padding: '4px', textAlign: 'center', color: '#AEB6C7', fontSize: '13px', padding: '14px 24px' }}>
+      <div style={{ background: 'var(--indigo)', textAlign: 'center', color: '#AEB6C7', fontSize: '13px', padding: '14px 24px' }}>
         <i className="fa-solid fa-location-dot" style={{ color: 'var(--haldi)', marginRight: '6px' }}></i>
-        101 Maurya Apartment, Kumharar, Patna, Bihar 800026
+        Kumharar, Near Kushwaha Panchayat Bhawan, Kumharar Patna Bihar - 80026 IN.
       </div>
     </>
   );

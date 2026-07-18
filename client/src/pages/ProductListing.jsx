@@ -2,25 +2,28 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts } from '../store/slices/productSlice';
 import { fetchWishlist, addToWishlist, removeFromWishlist } from '../store/slices/wishlistSlice';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const ProductListing = () => {
   const dispatch = useDispatch();
   const { list, isLoading, error } = useSelector((state) => state.products);
   const { items: wishlistItems } = useSelector((state) => state.wishlist);
   const { isAuthenticated } = useSelector((state) => state.auth);
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialCategory = queryParams.get('category') || 'All';
   
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
 
   const categories = ['All', 'Snacks', 'Sweets', 'Spices', 'Beverages', 'Meals', 'Pickles'];
 
   useEffect(() => {
-    dispatch(fetchProducts());
+    dispatch(fetchProducts({ category: selectedCategory !== 'All' ? selectedCategory : undefined }));
     if (isAuthenticated) {
       dispatch(fetchWishlist());
     }
-  }, [dispatch, isAuthenticated]);
+  }, [dispatch, isAuthenticated, selectedCategory]);
 
   const handleSearch = (e) => {
     e.preventDefault();
