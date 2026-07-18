@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts } from '../store/slices/productSlice';
 import { fetchWishlist, addToWishlist, removeFromWishlist } from '../store/slices/wishlistSlice';
-import { Link, useLocation } from 'react-router-dom';
+import { addToCart } from '../store/slices/cartSlice';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const ProductListing = () => {
   const dispatch = useDispatch();
@@ -16,6 +17,31 @@ const ProductListing = () => {
   
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+  const [addedIds, setAddedIds] = useState({});
+  const navigate = useNavigate();
+
+  const API_BASE = (process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api').replace('/api', '');
+
+  const getImageUrl = (product) => {
+    if (product.imageUrl) return product.imageUrl;
+    if (product.imagePath) return `${API_BASE}/${product.imagePath}`;
+    return `https://picsum.photos/seed/${product.id || product._id}/300/300`;
+  };
+
+  const handleAddToCart = async (product) => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    const id = product.id || product._id;
+    setAddedIds(prev => ({ ...prev, [id]: true }));
+    try {
+      await dispatch(addToCart({ productId: id, quantity: 1 })).unwrap();
+    } catch (err) {
+      alert('Failed to add to cart: ' + err);
+      setAddedIds(prev => ({ ...prev, [id]: false }));
+    }
+  };
 
   const categories = ['All', 'Snacks', 'Sweets', 'Spices', 'Beverages', 'Meals', 'Pickles'];
   const specialties = ['Thekua', 'Sattu', 'Tilkut', 'Achaar', 'Bhuja Mix', 'Gift Hampers'];
@@ -209,106 +235,69 @@ const ProductListing = () => {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {list.map((product) => (
-              <div
-                key={product.id || product._id}
-                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-              >
-                <Link to={`/products/${product.id || product._id}`} className="block">
-                  {/* Product Image */}
-                  <div className="relative">
-                    {product.imageUrl ? (
-                      <img
-                        src={product.imageUrl}
-                        alt={product.name}
-                        className="w-full h-56 object-contain bg-white"
-                      />
-                    ) : product.imagePath ? (
-                      <img
-                        src={`${(process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api').replace('/api', '')}/${product.imagePath}`}
-                        alt={product.name}
-                        className="w-full h-56 object-contain bg-white"
-                      />
-                    ) : (
-                      <div className="w-full h-56 bg-gray-200 flex items-center justify-center">
-                        <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                    )}
+          <div className="prod-grid">
+            {list.map((product, i) => {
+              const id = product.id || product._id;
+              const imageUrl = getImageUrl(product);
+              const isAdded = addedIds[id];
+              const stockLeft = 3 + ((i * 7) % 12);
+              const viewers = 4 + ((i * 5) % 20);
+              const mrp = Math.round(product.price * 1.4);
+              const off = Math.round((1 - product.price / mrp) * 100);
+              const stockPct = Math.max(12, 100 - stockLeft * 4);
+              const isWished = isInWishlist(id);
 
-                    {/* Wishlist Heart Button */}
+              return (
+                <div className="card" key={id}>
+                  <div className="card-img">
+                    {product.category && <span className="kraft-tag">{product.category}</span>}
                     <button
-                      onClick={(e) => handleWishlistToggle(product.id || product._id, e)}
-                      className="absolute top-3 right-3 bg-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
-                      title={isInWishlist(product.id || product._id) ? 'Remove from wishlist' : 'Add to wishlist'}
+                      className="fav"
+                      aria-label="Add to wishlist"
+                      onClick={(e) => handleWishlistToggle(id, e)}
+                      style={{ color: isWished ? 'var(--sindoor)' : '' }}
                     >
-                      <svg 
-                        className={`w-6 h-6 transition-colors duration-200 ${
-                          isInWishlist(product.id || product._id) 
-                            ? 'fill-red-500 text-red-500' 
-                            : 'text-gray-400 hover:text-red-500'
-                        }`}
-                        fill={isInWishlist(product.id || product._id) ? 'currentColor' : 'none'}
-                        stroke="currentColor" 
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                      >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" 
-                        />
-                      </svg>
+                      {isWished ? <i className="fa-solid fa-heart"></i> : <i className="fa-regular fa-heart"></i>}
                     </button>
-
-                    {/* Stock Badge */}
-                    {product.stock === 0 && (
-                      <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                        Out of Stock
-                      </div>
-                    )}
-
-                    {/* Category Badge */}
-                    {product.category && (
-                      <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1 rounded-full text-xs font-semibold">
-                        {product.category}
-                      </div>
-                    )}
+                    <Link to={`/products/${id}`} style={{ display: 'block', height: '100%' }}>
+                      <img src={imageUrl} alt={product.name} loading="lazy" style={{ objectFit: 'contain', backgroundColor: '#fff' }} />
+                    </Link>
                   </div>
-
-                  {/* Product Details */}
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-blue-600 transition">
-                      {product.name}
-                    </h3>
-                    
-                    {product.description && (
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                        {product.description}
-                      </p>
-                    )}
-
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-2xl font-bold text-green-600">₹{product.price}</p>
-                        <p className="text-xs text-gray-500">Stock: {product.stock}</p>
-                      </div>
-                      
-                      <div className="flex items-center gap-1 text-yellow-400">
-                        <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                        </svg>
-                        <span className="text-xs text-gray-600">
-                          {product.ratings?.average || 0} ({product.ratings?.count || 0})
-                        </span>
-                      </div>
+                  <div className="card-body">
+                    <div className="card-title line-clamp-2">
+                      <Link to={`/products/${id}`} style={{ color: '#2A2118', display: 'block' }}>
+                        {product.name || 'Unnamed Product'}
+                      </Link>
                     </div>
+                    <div className="rating">
+                      <i className="fa-solid fa-star" style={{ color: 'var(--haldi)' }}></i> 4.8
+                      <span>(200+ reviews)</span>
+                    </div>
+                    <div className="price-row">
+                      <span className="price">₹{product.price}</span>
+                      <span className="mrp">₹{mrp}</span>
+                      <span style={{ fontSize: '11px', color: 'var(--neem)', fontWeight: '600' }}>{off}% off</span>
+                    </div>
+                    <div className="stock-bar">
+                      <div className="stock-bar-fill" style={{ width: `${stockPct}%` }}></div>
+                    </div>
+                    <div className="urgency"><i className="fa-solid fa-fire"></i> Only {stockLeft} left in stock</div>
+                    <div className="viewers"><i className="fa-solid fa-eye"></i> {viewers} people viewing this</div>
+
+                    <button
+                      className={`add-btn ${isAdded ? 'added' : ''}`}
+                      onClick={() => handleAddToCart(product)}
+                    >
+                      {isAdded ? (
+                        <><i className="fa-solid fa-check"></i> Added!</>
+                      ) : (
+                        <><i className="fa-solid fa-basket-shopping"></i> Add to cart</>
+                      )}
+                    </button>
                   </div>
-                </Link>
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

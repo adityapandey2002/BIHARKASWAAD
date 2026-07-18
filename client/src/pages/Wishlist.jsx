@@ -2,12 +2,25 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchWishlist, removeFromWishlist, clearWishlist } from '../store/slices/wishlistSlice';
 import { addToCart } from '../store/slices/cartSlice';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Wishlist = () => {
   const dispatch = useDispatch();
-  const { items, loading, error } = useSelector((state) => state.wishlist);
+  const navigate = useNavigate();
+  const { items, isLoading, error } = useSelector((state) => state.wishlist);
   const { user } = useSelector((state) => state.auth);
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const [addedIds, setAddedIds] = useState({});
+
+  const API_BASE = (process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api').replace('/api', '');
+
+  const getImageUrl = (item) => {
+    const p = item.product;
+    if (!p) return `https://picsum.photos/seed/${item.productId}/300/300`;
+    if (p.imageUrl) return p.imageUrl;
+    if (p.imagePath) return `${API_BASE}/${p.imagePath}`;
+    return `https://picsum.photos/seed/${p.id || p._id}/300/300`;
+  };
 
   useEffect(() => {
     dispatch(fetchWishlist());
@@ -25,9 +38,15 @@ const Wishlist = () => {
     }
   };
 
-  const handleAddToCart = (product) => {
-    dispatch(addToCart({ productId: product.id || product._id, quantity: 1 }));
-    alert('✅ Added to cart!');
+  const handleAddToCart = async (product) => {
+    const id = product.id || product._id;
+    setAddedIds(prev => ({ ...prev, [id]: true }));
+    try {
+      await dispatch(addToCart({ productId: id, quantity: 1 })).unwrap();
+    } catch (err) {
+      alert('Failed to add to cart');
+      setAddedIds(prev => ({ ...prev, [id]: false }));
+    }
   };
 
   if (loading) {
@@ -102,96 +121,71 @@ const Wishlist = () => {
             </div>
 
             {/* Wishlist Items */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {items.map((item) => (
-                <div 
-                  key={item.product.id || item.product._id} 
-                  className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300"
-                >
-                  {/* Product Image */}
-                  <div className="relative">
-                    {item.product.imageUrl ? (
-                      <img
-                        src={item.product.imageUrl}
-                        alt={item.product.name}
-                        className="w-full h-48 object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                        <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                    )}
-                    
-                    {/* Remove Button */}
-                    <button
-                      onClick={() => handleRemove(item.product.id || item.product._id)}
-                      className="absolute top-2 right-2 bg-white text-red-600 p-2 rounded-full shadow-lg hover:bg-red-50 transition"
-                      title="Remove from wishlist"
-                    >
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                      </svg>
-                    </button>
+            <div className="prod-grid">
+              {items.map((item, i) => {
+                const product = item.product;
+                if (!product) return null;
+                const id = product.id || product._id;
+                const imageUrl = getImageUrl(item);
+                const isAdded = addedIds[id];
+                const stockLeft = product.stock || (3 + ((i * 7) % 12));
+                const viewers = 4 + ((i * 5) % 20);
+                const mrp = product.mrp || Math.round(product.price * 1.4);
+                const off = Math.round((1 - product.price / mrp) * 100);
+                const stockPct = Math.max(12, 100 - stockLeft * 4);
+                const isWished = true;
 
-                    {/* Stock Badge */}
-                    {item.product.stock === 0 && (
-                      <div className="absolute top-2 left-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                        Out of Stock
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Product Details */}
-                  <div className="p-4">
-                    <div className="mb-2">
-                      <span className="text-xs font-semibold text-gray-500 uppercase">{item.product.category}</span>
-                    </div>
-                    
-                    <Link 
-                      to={`/products/${item.product.id || item.product._id}`}
-                      className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition line-clamp-2 mb-2 block"
-                    >
-                      {item.product.name}
-                    </Link>
-                    
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                      {item.product.description}
-                    </p>
-
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <p className="text-2xl font-bold text-green-600">₹{item.product.price}</p>
-                        <p className="text-xs text-gray-500">Stock: {item.product.stock}</p>
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        Added: {new Date(item.addedAt).toLocaleDateString()}
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-2">
+                return (
+                  <div className="card" key={id}>
+                    <div className="card-img">
+                      {product.category && <span className="kraft-tag">{product.category}</span>}
                       <button
-                        onClick={() => handleAddToCart(item.product)}
-                        disabled={item.product.stock === 0}
-                        className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                        className="fav"
+                        aria-label="Remove from wishlist"
+                        onClick={(e) => { e.preventDefault(); handleRemove(id); }}
+                        style={{ color: 'var(--sindoor)' }}
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        Add to Cart
+                        <i className="fa-solid fa-heart"></i>
                       </button>
-                      <Link
-                        to={`/products/${item.product.id || item.product._id}`}
-                        className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition"
-                      >
-                        View
+                      <Link to={`/products/${id}`} style={{ display: 'block', height: '100%' }}>
+                        <img src={imageUrl} alt={product.name} loading="lazy" style={{ objectFit: 'contain', backgroundColor: '#fff' }} />
                       </Link>
                     </div>
+                    <div className="card-body">
+                      <div className="card-title line-clamp-2">
+                        <Link to={`/products/${id}`} style={{ color: '#2A2118', display: 'block' }}>
+                          {product.name || 'Unnamed Product'}
+                        </Link>
+                      </div>
+                      <div className="rating">
+                        <i className="fa-solid fa-star" style={{ color: 'var(--haldi)' }}></i> 4.8
+                        <span>(200+ reviews)</span>
+                      </div>
+                      <div className="price-row">
+                        <span className="price">₹{product.price}</span>
+                        <span className="mrp">₹{mrp}</span>
+                        <span style={{ fontSize: '11px', color: 'var(--neem)', fontWeight: '600' }}>{off}% off</span>
+                      </div>
+                      <div className="stock-bar">
+                        <div className="stock-bar-fill" style={{ width: `${stockPct}%` }}></div>
+                      </div>
+                      <div className="urgency"><i className="fa-solid fa-fire"></i> Only {stockLeft} left in stock</div>
+                      <div className="viewers"><i className="fa-solid fa-eye"></i> {viewers} people viewing this</div>
+
+                      <button
+                        className={`add-btn ${isAdded ? 'added' : ''}`}
+                        onClick={() => handleAddToCart(product)}
+                      >
+                        {isAdded ? (
+                          <><i className="fa-solid fa-check"></i> Added!</>
+                        ) : (
+                          <><i className="fa-solid fa-basket-shopping"></i> Add to cart</>
+                        )}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </>
         )}

@@ -99,7 +99,7 @@ const HomeSection = () => {
               <img
                 src="https://res.cloudinary.com/kvteudbg/image/upload/v1784389764/Sattu_p5k4yh.png"
                 alt="Sattu"
-                className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
             </Link>
           </div>
@@ -107,12 +107,12 @@ const HomeSection = () => {
           <div className="w-full md:w-1/3 flex flex-row md:flex-col gap-4 h-[150px] md:h-[500px]">
             <div className="flex-1 rounded-xl md:rounded-2xl overflow-hidden relative group shadow-sm md:shadow-md bg-white border border-gray-100 flex items-center justify-center p-4">
               <Link to="/products">
-                <img src="https://res.cloudinary.com/kvteudbg/image/upload/v1784389764/CHura_dcjdl3.png" alt="Chura" className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105" />
+                <img src="https://res.cloudinary.com/kvteudbg/image/upload/v1784389764/CHura_dcjdl3.png" alt="Chura" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
               </Link>
             </div>
             <div className="flex-1 rounded-xl md:rounded-2xl overflow-hidden relative group shadow-sm md:shadow-md bg-white border border-gray-100 flex items-center justify-center p-4">
               <Link to="/products">
-                <img src="https://res.cloudinary.com/kvteudbg/image/upload/v1784389763/Bhuja_exibzo.png" alt="Bhuja" className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105" />
+                <img src="https://res.cloudinary.com/kvteudbg/image/upload/v1784389763/Bhuja_exibzo.png" alt="Bhuja" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
               </Link>
             </div>
           </div>

@@ -103,8 +103,8 @@ const Cart = () => {
                     alt={name}
                     style={{ width: '90px', height: '90px', borderRadius: '8px', objectFit: 'cover', flexShrink: '0' }}
                   />
-                  <div style={{ flex: '1' }}>
-                    <h3 style={{ fontWeight: '600', fontSize: '15px', color: 'var(--indigo)', marginBottom: '6px' }}>
+                  <div style={{ flex: '1', minWidth: 0 }}>
+                    <h3 className="line-clamp-2" style={{ fontWeight: '600', fontSize: '15px', color: 'var(--indigo)', marginBottom: '6px' }}>
                       {name} {item.variantWeight ? `(${item.variantWeight})` : ''}
                     </h3>
                     <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--sindoor)', fontWeight: '700', fontSize: '16px', marginBottom: '12px' }}>
