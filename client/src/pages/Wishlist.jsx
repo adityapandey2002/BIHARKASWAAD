@@ -153,7 +153,7 @@ const Wishlist = () => {
                     </div>
                     <div className="card-body">
                       <div className="card-title line-clamp-2">
-                        <Link to={`/products/${id}`} style={{ color: '#2A2118', display: 'block' }}>
+                        <Link to={`/products/${id}`} style={{ color: '#2A2118' }}>
                           {product.name || 'Unnamed Product'}
                         </Link>
                       </div>

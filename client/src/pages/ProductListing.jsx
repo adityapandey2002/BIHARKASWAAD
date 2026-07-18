@@ -132,16 +132,16 @@ const ProductListing = () => {
   }
 
   return (
-    <div className="min-h-screen py-12 bg-gray-50">
+    <div className="min-h-screen py-6 md:py-12 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Our Products</h1>
-          <p className="text-gray-600">Discover authentic flavors from Bihar</p>
+        <div className="mb-4">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-1">Our Products</h1>
+          <p className="text-sm md:text-base text-gray-600">Discover authentic flavors from Bihar</p>
         </div>
 
         {/* Search Bar */}
-        <form onSubmit={handleSearch} className="mb-4">
+        <form onSubmit={handleSearch} className="mb-3">
           <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
@@ -163,15 +163,15 @@ const ProductListing = () => {
         </form>
 
         {/* Category Filter */}
-        <div className="mb-4">
-          <p className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Main Categories</p>
+        <div className="mb-2">
+          <p className="text-[10px] md:text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Main Categories</p>
           <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             <style>{`.flex.flex-nowrap::-webkit-scrollbar { display: none; }`}</style>
             {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => handleCategoryFilter(category)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap snap-start flex-shrink-0 transition-all duration-200 ${
+                className={`flex-1 text-center px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap snap-start flex-shrink-0 transition-all duration-200 ${
                   selectedCategory === category
                     ? 'bg-blue-600 text-white shadow-lg'
                     : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
@@ -184,14 +184,14 @@ const ProductListing = () => {
         </div>
 
         {/* Specialty Filter */}
-        <div className="mb-6 pb-2 border-b border-gray-200">
-          <p className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Popular Items</p>
+        <div className="mb-4 pb-2 border-b border-gray-200">
+          <p className="text-[10px] md:text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Popular Items</p>
           <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {specialties.map((specialty) => (
               <button
                 key={specialty}
                 onClick={() => handleSpecialtyFilter(specialty)}
-                className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap snap-start flex-shrink-0 transition-all duration-200 ${
+                className={`flex-1 text-center px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap snap-start flex-shrink-0 transition-all duration-200 ${
                   searchQuery === specialty
                     ? 'bg-orange-600 text-white shadow-md'
                     : 'bg-white text-gray-600 hover:bg-orange-50 border border-orange-200'
@@ -266,7 +266,7 @@ const ProductListing = () => {
                   </div>
                   <div className="card-body">
                     <div className="card-title line-clamp-2">
-                      <Link to={`/products/${id}`} style={{ color: '#2A2118', display: 'block' }}>
+                      <Link to={`/products/${id}`} style={{ color: '#2A2118' }}>
                         {product.name || 'Unnamed Product'}
                       </Link>
                     </div>
