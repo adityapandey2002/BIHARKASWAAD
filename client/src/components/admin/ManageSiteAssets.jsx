@@ -6,14 +6,7 @@ const ManageSiteAssets = () => {
   const { refreshAssets } = useSiteAssets();
   const [assets, setAssets] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [logoPreview, setLogoPreview] = useState(null);
   const [slidePreview, setSlidePreview] = useState(null);
-  const [logoUrl, setLogoUrl] = useState('');
-  const [heroSettings, setHeroSettings] = useState({
-    heroImage: '',
-    heroVideo1: '',
-    heroVideo2: ''
-  });
   const [slideData, setSlideData] = useState({
     title: '',
     subtitle: '',
@@ -29,14 +22,6 @@ const ManageSiteAssets = () => {
     try {
       const { data } = await axios.get(`${API_URL}/site-assets`);
       setAssets(data.data);
-      if (data.data.logoUrl) {
-        setLogoPreview(data.data.logoUrl);
-      }
-      setHeroSettings({
-        heroImage: data.data.heroImage || '',
-        heroVideo1: data.data.heroVideo1 || '',
-        heroVideo2: data.data.heroVideo2 || ''
-      });
     } catch (error) {
       console.error('Error fetching assets:', error);
     }
@@ -46,54 +31,6 @@ const ManageSiteAssets = () => {
     fetchAssets();
   }, []);
 
-  // Upload logo handler
-  const handleUploadLogo = async () => {
-    if (!logoUrl || !logoUrl.startsWith('http')) {
-      alert('Please enter a valid Logo URL');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      // Sending JSON instead of FormData
-      await axios.post(`${API_URL}/site-assets/logo`, { logoUrl }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      alert('✅ Logo updated successfully!');
-      setLogoUrl('');
-      fetchAssets();
-      refreshAssets();
-    } catch (error) {
-      alert('❌ Failed to upload logo');
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Update Hero Settings handler
-  const handleUpdateHeroSettings = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      await axios.patch(`${API_URL}/site-assets/settings`, heroSettings, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      alert('✅ Hero section updated successfully!');
-      fetchAssets();
-      refreshAssets();
-    } catch (error) {
-      alert('❌ Failed to update hero settings');
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Add slideshow handler
   const handleAddSlideshow = async () => {
@@ -185,110 +122,7 @@ const ManageSiteAssets = () => {
         </button>
       </div>
 
-      {/* Logo Section */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-          <svg className="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          Website Logo
-        </h2>
 
-        <div className="space-y-4">
-          <input
-            type="text"
-            placeholder="Enter Logo URL (https://...)"
-            value={logoUrl}
-            onChange={(e) => {
-              setLogoUrl(e.target.value);
-              setLogoPreview(e.target.value);
-            }}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-
-          {logoPreview && (
-            <div className="relative inline-block mt-4">
-              <img
-                src={logoPreview}
-                alt="Logo"
-                className="h-32 object-contain border-2 border-gray-200 rounded-lg p-2 bg-gray-50"
-                onError={(e) => {
-                  e.target.src = 'https://via.placeholder.com/150?text=Invalid+URL';
-                }}
-              />
-            </div>
-          )}
-
-          {logoUrl && (
-            <button
-              onClick={handleUploadLogo}
-              disabled={loading}
-              className="block mt-4 w-full md:w-auto bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-            >
-              {loading ? 'Updating...' : 'Update Logo Link'}
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Hero Settings Section */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-          <svg className="w-6 h-6 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          Homepage Hero Media
-        </h2>
-
-        <div className="space-y-4">
-          <p className="text-sm text-gray-600 mb-2">
-            <strong>Recommended Sizes:</strong><br/>
-            Main Image: 1200x800 or 16:9 ratio<br/>
-            Side Videos: 600x600 (Square or portrait, fast loading MP4)
-          </p>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Main Large Image URL</label>
-            <input
-              type="text"
-              placeholder="https://..."
-              value={heroSettings.heroImage}
-              onChange={(e) => setHeroSettings({ ...heroSettings, heroImage: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Small Side Video 1 URL (Top)</label>
-            <input
-              type="text"
-              placeholder="https://..."
-              value={heroSettings.heroVideo1}
-              onChange={(e) => setHeroSettings({ ...heroSettings, heroVideo1: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Small Side Video 2 URL (Bottom)</label>
-            <input
-              type="text"
-              placeholder="https://..."
-              value={heroSettings.heroVideo2}
-              onChange={(e) => setHeroSettings({ ...heroSettings, heroVideo2: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg"
-            />
-          </div>
-
-          <button
-            onClick={handleUpdateHeroSettings}
-            disabled={loading}
-            className="block mt-4 w-full md:w-auto bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {loading ? 'Updating...' : 'Update Hero Media'}
-          </button>
-        </div>
-      </div>
 
       {/* Slideshow Section */}
       <div className="bg-white rounded-xl shadow-md p-6">

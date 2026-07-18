@@ -39,7 +39,7 @@ const Header = ({ onOpenMobileNav }) => {
           </button>
 
           <Link to="/" className="logo flex items-center" style={{ flexDirection: 'row', gap: '10px' }}>
-            {logoUrl && <img src={logoUrl} alt="Bihar Ka Swaad Logo" style={{ height: '40px', width: 'auto', objectFit: 'contain' }} />}
+            <img src="https://res.cloudinary.com/kvteudbg/image/upload/v1784116245/BIHARKASWAAD_u86lts.png" alt="Bihar Ka Swaad Logo" style={{ height: '40px', width: 'auto', objectFit: 'contain' }} />
             <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.1' }}>
               BiharKaSwaad<small>बिहार का स्वाद</small>
             </div>
