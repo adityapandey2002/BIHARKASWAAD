@@ -306,9 +306,9 @@ const ProductDetails = () => {
                     {product.subCategory}
                   </span>
                 )}
-                {product.packet && (
+                {(selectedVariantWeight || product.packet) && (
                   <span className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full">
-                    Size: {product.packet}
+                    Size: {selectedVariantWeight || product.packet}
                   </span>
                 )}
                 {product.sku && (
@@ -401,13 +401,6 @@ const ProductDetails = () => {
                 </div>
               </div>
 
-              {/* Description */}
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Description</h3>
-                <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
-                  {product.description}
-                </p>
-              </div>
 
               {/* Quantity Selector */}
               {product.stock > 0 && (
@@ -490,6 +483,14 @@ const ProductDetails = () => {
                   </a>
                 </div>
               )}
+
+              {/* Description */}
+              <div className="mb-6 border-t pt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Description</h3>
+                <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
+                  {product.description}
+                </p>
+              </div>
 
               {/* Additional Info */}
               <div className="border-t pt-6 space-y-3">

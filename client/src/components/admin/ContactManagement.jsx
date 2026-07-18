@@ -5,7 +5,6 @@ const ContactManagement = () => {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
-  const [selectedContact, setSelectedContact] = useState(null);
   const [noteText, setNoteText] = useState('');
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
@@ -100,8 +99,12 @@ const ContactManagement = () => {
         <p className="text-gray-600">No inquiries found</p>
       ) : (
         <div className="grid gap-4">
-          {contacts.map((contact) => (
-            <div key={contact._id} className="bg-white rounded-lg shadow p-6">
+          {[...contacts].sort((a, b) => {
+            if (a.status === 'resolved' && b.status !== 'resolved') return 1;
+            if (a.status !== 'resolved' && b.status === 'resolved') return -1;
+            return 0;
+          }).map((contact) => (
+            <div key={contact._id || contact.id} className="bg-white rounded-lg shadow p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-lg font-semibold">{contact.name}</h3>
@@ -125,13 +128,13 @@ const ContactManagement = () => {
 
               <div className="flex gap-2 mb-4">
                 <button
-                  onClick={() => handleStatusChange(contact._id, 'in-progress')}
+                  onClick={() => handleStatusChange(contact._id || contact.id, 'in-progress')}
                   className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
                 >
                   In Progress
                 </button>
                 <button
-                  onClick={() => handleStatusChange(contact._id, 'resolved')}
+                  onClick={() => handleStatusChange(contact._id || contact.id, 'resolved')}
                   className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                 >
                   Resolve
@@ -147,7 +150,7 @@ const ContactManagement = () => {
                   className="w-full px-4 py-2 border rounded mb-2"
                 />
                 <button
-                  onClick={() => handleAddNote(contact._id)}
+                  onClick={() => handleAddNote(contact._id || contact.id)}
                   className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                   Add Note
