@@ -264,6 +264,11 @@ exports.deleteProduct = async (req, res) => {
        });
     }
 
+    // Delete dependent items first to prevent foreign key constraint errors
+    const { CartItem, Wishlist } = require('../models');
+    await CartItem.destroy({ where: { productId: product.id } });
+    await Wishlist.destroy({ where: { productId: product.id } });
+
     await product.destroy();
 
     console.log('🗑️ Product deleted:', req.params.id);

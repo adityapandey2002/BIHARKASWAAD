@@ -24,6 +24,7 @@ import OrderSuccess from './pages/Ordersuccess';
 // Pages
 import ProductListing from './pages/ProductListing';
 import ProductDetails from './pages/ProductDetails';
+import Blogs from './pages/Blogs';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Login from './pages/Login';
@@ -69,6 +70,7 @@ function App() {
               {/* Other Pages */}
               <Route path="products" element={<ProductListing />} />
               <Route path="products/:id" element={<ProductDetails />} />
+              <Route path="blogs" element={<Blogs />} />
               <Route path="login" element={<Login />} />
               <Route path="signup" element={<Signup />} />
 

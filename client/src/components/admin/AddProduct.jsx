@@ -336,7 +336,7 @@ const AddProduct = ({ onProductAdded }) => {
             ) : (
               <div className="space-y-3">
                 {variants.map((variant, index) => (
-                  <div key={index} className="flex gap-4 items-center">
+                  <div key={index} className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center p-3 sm:p-0 border sm:border-0 rounded-lg border-gray-200">
                     <input
                       type="text"
                       placeholder="e.g. 250g, 500g, 1Kg"

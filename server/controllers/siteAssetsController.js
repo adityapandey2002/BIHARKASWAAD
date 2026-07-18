@@ -4,6 +4,7 @@ const { SiteAssets, SlideshowItem } = require('../models/index');
 
 const buildImageUrl = (req, imagePath) => {
   if (!imagePath) return null;
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) return imagePath;
   return `${req.protocol}://${req.get('host')}/api/${imagePath.replace(/^\\/, '')}`;
 };
 
@@ -47,17 +48,22 @@ exports.getSiteAssets = async (req, res) => {
 // ── UPLOAD Logo (Admin) ───────────────────────────────────────────────────────
 exports.uploadLogo = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ status: 'error', message: 'Please upload a logo image' });
-    }
-
     const assets = await getOrCreateAssets();
 
-    // Delete old logo file
-    deleteImageFile(assets.logoPath);
+    if (req.body.logoUrl) {
+      assets.logoPath = req.body.logoUrl;
+      assets.logoContentType = 'url';
+    } else if (req.file) {
+      // Delete old logo file only if it's a local file
+      if (assets.logoContentType !== 'url') {
+        deleteImageFile(assets.logoPath);
+      }
+      assets.logoPath = req.file.path.replace(/\\/g, '/');
+      assets.logoContentType = req.file.mimetype;
+    } else {
+      return res.status(400).json({ status: 'error', message: 'Please provide a logo URL or upload a file' });
+    }
 
-    assets.logoPath = req.file.path.replace(/\\/g, '/');
-    assets.logoContentType = req.file.mimetype;
     await assets.save();
 
     const obj = assets.toJSON();
@@ -74,11 +80,12 @@ exports.uploadLogo = async (req, res) => {
 // ── ADD Slideshow Image (Admin) ───────────────────────────────────────────────
 exports.addSlideshow = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ status: 'error', message: 'Please upload a slideshow image' });
+    const { title, subtitle, buttonText, buttonLink, order, imageUrl } = req.body;
+
+    if (!req.file && !imageUrl) {
+      return res.status(400).json({ status: 'error', message: 'Please provide an image URL or upload an image' });
     }
 
-    const { title, subtitle, buttonText, buttonLink, order } = req.body;
     const count = await SlideshowItem.count();
 
     const slide = await SlideshowItem.create({
@@ -86,8 +93,8 @@ exports.addSlideshow = async (req, res) => {
       subtitle: subtitle || '',
       buttonText: buttonText || 'Shop Now',
       buttonLink: buttonLink || '/products',
-      imagePath: req.file.path.replace(/\\/g, '/'),
-      imageContentType: req.file.mimetype,
+      imagePath: imageUrl || req.file.path.replace(/\\/g, '/'),
+      imageContentType: imageUrl ? 'url' : req.file.mimetype,
       orderNum: parseInt(order) || count,
       uploadedAt: new Date(),
     });

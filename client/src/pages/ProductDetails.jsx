@@ -219,8 +219,9 @@ const ProductDetails = () => {
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-4 md:p-8">
             {/* Product Image Section */}
-            <div>
-              <div className="relative mb-4">
+            {/* Product Image Section */}
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 relative mb-4 md:mb-0">
                 {selectedImage ? (
                   <img
                     src={selectedImage}
@@ -273,11 +274,11 @@ const ProductDetails = () => {
               {product.images && product.images.length > 0 && (
                 <div 
                   ref={thumbnailContainerRef}
-                  className="flex gap-4 overflow-x-auto py-2 pr-12" 
+                  className="flex flex-row md:flex-col gap-4 overflow-x-auto md:overflow-y-auto py-2 md:py-0 md:pr-2 md:h-[500px]" 
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                   <style>{`
-                    .flex.gap-4.overflow-x-auto::-webkit-scrollbar { display: none; }
+                    .flex.gap-4.overflow-x-auto::-webkit-scrollbar, .md\\:overflow-y-auto::-webkit-scrollbar { display: none; }
                   `}</style>
                   {[product.imageUrl, ...(product.images.filter(img => img !== product.imageUrl))].filter(Boolean).map((imgUrl, index) => (
                     <button

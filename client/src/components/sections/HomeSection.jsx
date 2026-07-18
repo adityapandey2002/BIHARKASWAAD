@@ -76,7 +76,7 @@ const HomeSection = () => {
     }
     const productId = product.id || product._id;
     const isWished = wishlistItems.some(item => item.productId === productId || item.product?._id === productId || item.product?.id === productId);
-    
+
     try {
       if (isWished) {
         await dispatch(removeFromWishlist(productId)).unwrap();
@@ -94,11 +94,11 @@ const HomeSection = () => {
       <section className="py-8 bg-gray-50">
         <div className="max-w-[1200px] mx-auto px-4 flex flex-col md:flex-row gap-4">
           {/* Large Panel (Left) */}
-          <div className="w-full md:w-2/3 h-[300px] md:h-[500px] rounded-2xl overflow-hidden relative group shadow-md bg-gray-200">
+          <div className="w-full md:w-2/3 h-[300px] md:h-[500px] rounded-2xl overflow-hidden relative group shadow-md">
             <Link to="/products">
-              <img 
-                src={heroImage || "https://picsum.photos/1200/800?grayscale"} 
-                alt="Hero banner" 
+              <img
+                src=""
+                alt="Hero banner"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
             </Link>
@@ -134,12 +134,13 @@ const HomeSection = () => {
       <div className="stitch"></div>
 
       {/* ── Categories ───────────────────────────────────────────────────── */}
-      <section className="section" id="categories" style={{ padding: '24px 0' }}>
+      <section className="section" id="categories">
         <div className="wrap">
           <div className="section-head mb-8">
             <h2 className="font-display text-3xl font-bold text-indigo-900">Categories</h2>
           </div>
-          <div className="cat-grid">
+          <div className="flex gap-4 overflow-x-auto pb-4 snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <style>{`.flex.gap-4.overflow-x-auto::-webkit-scrollbar { display: none; }`}</style>
             {[
               { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116246/SATTU_m2gfbg.png', label: 'Sattu', search: 'Sattu' },
               { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116246/TILKUT_e5fipd.png', label: 'Tilkut', search: 'Tilkut' },
@@ -150,7 +151,7 @@ const HomeSection = () => {
               { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116245/SEEDS_bjhoxc.png', label: 'Seeds', search: 'Seeds' },
               { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116245/SPICES_eluhsi.png', label: 'Spices', search: 'Spices' },
             ].map(({ image, label, search, isCategory }) => (
-              <Link to={`/products?${isCategory ? 'category' : 'search'}=${encodeURIComponent(search)}`} key={label} className="cat-tile block text-center group">
+              <Link to={`/products?${isCategory ? 'category' : 'search'}=${encodeURIComponent(search)}`} key={label} className="block text-center group snap-start flex-shrink-0" style={{ width: '100px' }}>
                 <div className="w-20 h-20 md:w-24 md:h-24 mx-auto mb-3 rounded-full overflow-hidden border-4 border-gray-100 shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:border-orange-500">
                   <img src={image} alt={label} className="w-full h-full object-cover" />
                 </div>
@@ -162,7 +163,6 @@ const HomeSection = () => {
       </section>
 
       <div className="stitch"></div>
-
       {/* ── Products Grid ─────────────────────────────────────────────────── */}
       <section className="section" id="shop">
         <div className="wrap">
@@ -195,9 +195,9 @@ const HomeSection = () => {
                 return (
                   <div className="card" key={id}>
                     <div className="card-img">
-                      <span className="kraft-tag">{product.category || 'Bestseller'}</span>
-                      <button 
-                        className="fav" 
+                      {product.category && <span className="kraft-tag">{product.category}</span>}
+                      <button
+                        className="fav"
                         aria-label="Add to wishlist"
                         onClick={(e) => { e.preventDefault(); handleToggleWishlist(product); }}
                         style={{ color: isWished ? 'var(--sindoor)' : '' }}
@@ -205,184 +205,152 @@ const HomeSection = () => {
                         {isWished ? <i className="fa-solid fa-heart"></i> : <i className="fa-regular fa-heart"></i>}
                       </button>
                       <Link to={`/products/${id}`} style={{ display: 'block', height: '100%' }}>
-                        <img src={imageUrl} alt={product.name} loading="lazy" style={{ objectFit: 'contain', backgroundColor: '#fff' }} />
-                      </Link>
-                    </div>
-                    <div className="card-body">
-                      <div className="card-title" style={{ height: '2.8em', overflow: 'hidden' }}>
-                        <Link to={`/products/${id}`} style={{ 
-                          color: '#2A2118', 
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis'
-                        }}>
-                          {product.name || 'Unnamed Product'}
-                        </Link>
-                      </div>
-                      <div className="rating">
-                        <i className="fa-solid fa-star" style={{ color: 'var(--haldi)' }}></i> 4.8
-                        <span>(200+ reviews)</span>
-                      </div>
-                      <div className="price-row">
-                        <span className="price">₹{product.price}</span>
-                        <span className="mrp">₹{mrp}</span>
-                        <span style={{ fontSize: '11px', color: 'var(--neem)', fontWeight: '600' }}>{off}% off</span>
-                      </div>
-                      <div className="stock-bar">
-                        <div className="stock-bar-fill" style={{ width: `${stockPct}%` }}></div>
-                      </div>
-                      <div className="urgency"><i className="fa-solid fa-fire"></i> Only {stockLeft} left in stock</div>
-                      <div className="viewers"><i className="fa-solid fa-eye"></i> {viewers} people viewing this</div>
-
-                      <button
-                        className={`add-btn ${isAdded ? 'added' : ''}`}
-                        onClick={() => handleAddToCart(product)}
-                      >
-                        {isAdded ? (
-                          <><i className="fa-solid fa-check"></i> Added!</>
-                        ) : (
-                          <><i className="fa-solid fa-basket-shopping"></i> Add to cart</>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '60px', color: 'var(--muted)' }}>
-              <i className="fa-solid fa-box-open" style={{ fontSize: '48px', display: 'block', marginBottom: '16px', color: 'var(--border)' }}></i>
-              <p style={{ fontSize: '16px' }}>No products yet. Products added from the admin panel will appear here.</p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* ── Festival Banner ───────────────────────────────────────────────── */}
-      <section className="festival" id="festival">
-        <h3>Chhath Puja Special is Live</h3>
-        <p>Fresh Thekua, made in small batches, packed with prasad-grade purity — order before stock runs out.</p>
-        <div style={{
-          fontFamily: 'var(--font-mono)', background: 'rgba(0,0,0,.2)',
-          display: 'inline-block', padding: '10px 20px', borderRadius: '6px',
-          marginBottom: '18px', fontSize: '18px', fontWeight: '700', letterSpacing: '2px',
-        }}>
-          {pad(timeLeft.days)}d : {pad(timeLeft.hours)}h : {pad(timeLeft.minutes)}m : {pad(timeLeft.seconds)}s
-        </div>
-        <div>
-          <Link to="/products" className="btn btn-primary">
-            <i className="fa-solid fa-bolt"></i> Shop festival specials
-          </Link>
-        </div>
-      </section>
-
-      {/* ── Referral ──────────────────────────────────────────────────────── */}
-      <section className="referral">
-        <div className="wrap">
-          <div>
-            <div className="eyebrow">Refer &amp; earn</div>
-            <h2>Bihar ka swaad, apno tak pahunchao.</h2>
-            <p>Apne dost ko refer karo — unhe milega ₹100 off unke pehle order par, aur aapko milenge ₹100 reward points jab unka order deliver ho jaye.</p>
-            <button className="btn btn-primary"><i className="fa-solid fa-share-nodes"></i> Get my referral link</button>
-          </div>
-          <div className="ref-stats">
-            <div className="ref-card"><strong>₹100</strong><span>For you, per referral</span></div>
-            <div className="ref-card"><strong>₹100</strong><span>For your friend</span></div>
-            <div className="ref-card"><strong>2,400+</strong><span>Referrals sent</span></div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Our Story ─────────────────────────────────────────────────────── */}
-      <section className="story" id="story">
-        <div className="wrap">
-          <img src="https://picsum.photos/seed/artisan-kitchen/600/500" alt="Women artisans preparing Thekua" />
-          <div>
-            <div className="eyebrow" style={{ color: 'var(--haldi)' }}>Our story</div>
-            <h2>From <em>Bihar's kitchens</em><br/>to your doorstep.</h2>
-            <p>BiharKaSwaad began in a small kitchen in Kumharar, Patna — where recipes passed down through generations are still followed by hand, one batch at a time.</p>
-            <p>Every jar of Sattu, every piece of Thekua, is prepared by women artisans from across Bihar, using pure ghee, freshly milled atta, and zero preservatives.</p>
-            <div className="story-sig">— Team BiharKaSwaad</div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Trust Strip ───────────────────────────────────────────────────── */}
-      <section className="trust-strip">
-        <div className="wrap">
-          <div className="trust-tag">
-            <i className="fa-solid fa-truck-fast"></i>
-            <div><strong>Free shipping</strong><span>India-wide delivery</span></div>
-          </div>
-          <div className="trust-tag">
-            <i className="fa-solid fa-hands-holding-circle"></i>
-            <div><strong>Handmade with love</strong><span>By women artisans of Bihar</span></div>
-          </div>
-          <div className="trust-tag">
-            <i className="fa-solid fa-award"></i>
-            <div><strong>Quality assured</strong><span>Pure ingredients, no preservatives</span></div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Testimonials ──────────────────────────────────────────────────── */}
-      <section className="section bg-gray-50">
-        <div className="wrap">
-          <div className="section-head">
-            <div className="eyebrow">Testimonials</div>
-            <h2>Stories from our customers</h2>
-          </div>
-          <div className="testi-grid">
-            {[
-              { initials: 'SR', name: 'Sunita Rao', city: 'Bengaluru', text: 'Living far from Bihar, this Thekua brought back the smell of ghee from my mother\'s kitchen. It genuinely felt like home.' },
-              { initials: 'AJ', name: 'Alok Jha', city: 'Mumbai', text: 'I was skeptical about ordering something so traditional online, but the freshness and packaging completely won me over.' },
-              { initials: 'RS', name: 'Dr. Ritu Singh', city: 'Delhi', text: 'Being from Mithila, I know what real Sattu should taste like — this one didn\'t disappoint at all. Ordering a bigger pack next time.' },
-            ].map(({ initials, name, city, text }) => (
-              <div className="testi-card" key={name}>
-                <i className="fa-solid fa-quote-left"></i>
-                <p>{text}</p>
-                <div className="testi-who">
-                  <div className="testi-avatar">{initials}</div>
-                  <div><strong>{name}</strong><span>{city}</span></div>
-                </div>
+                  <img src={imageUrl} alt={product.name} loading="lazy" style={{ objectFit: 'contain', backgroundColor: '#fff' }} />
+                </Link>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+              <div className="card-body">
+                <div className="card-title line-clamp-2">
+                  <Link to={`/products/${id}`} style={{ color: '#2A2118', display: 'block' }}>
+                    {product.name || 'Unnamed Product'}
+                  </Link>
+                </div>
+                <div className="rating">
+                  <i className="fa-solid fa-star" style={{ color: 'var(--haldi)' }}></i> 4.8
+                  <span>(200+ reviews)</span>
+                </div>
+                <div className="price-row">
+                  <span className="price">₹{product.price}</span>
+                  <span className="mrp">₹{mrp}</span>
+                  <span style={{ fontSize: '11px', color: 'var(--neem)', fontWeight: '600' }}>{off}% off</span>
+                </div>
+                <div className="stock-bar">
+                  <div className="stock-bar-fill" style={{ width: `${stockPct}%` }}></div>
+                </div>
+                <div className="urgency"><i className="fa-solid fa-fire"></i> Only {stockLeft} left in stock</div>
+                <div className="viewers"><i className="fa-solid fa-eye"></i> {viewers} people viewing this</div>
 
-      {/* ── FAQ ───────────────────────────────────────────────────────────── */}
-      <section className="section" id="faq">
-        <div className="wrap">
-          <div className="section-head">
-            <div className="eyebrow">FAQs</div>
-            <h2>Common questions</h2>
-          </div>
-          <div className="faq-list">
-            {[
-              { q: 'How fresh are the products when they arrive?', a: 'Everything is prepared in small batches only after your order is placed, and shipped within 24-48 hours to keep it as fresh as possible.' },
-              { q: 'Do you deliver across India?', a: 'Yes, we deliver pan-India to over 19,000 pincodes, with free shipping on all orders.' },
-              { q: 'What is the shelf life of Thekua and Tilkut?', a: 'Thekua stays fresh for about 45 days and Tilkut for around 60 days when stored in an airtight container in a cool, dry place.' },
-              { q: 'Can I return or exchange a product?', a: 'Since these are perishable food items, we don\'t accept returns, but if a package arrives damaged or incorrect, we\'ll replace it free of cost.' },
-            ].map(({ q, a }) => (
-              <details key={q} className="faq-item" style={{ cursor: 'pointer' }}>
-                <summary className="faq-q" style={{ listStyle: 'none', display: 'flex', justifyContent: 'space-between' }}>
-                  {q}
-                  <i className="fa-solid fa-chevron-down"></i>
-                </summary>
-                <div className="faq-a"><p>{a}</p></div>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
+                <button
+                  className={`add-btn ${isAdded ? 'added' : ''}`}
+                  onClick={() => handleAddToCart(product)}
+                >
+                  {isAdded ? (
+                    <><i className="fa-solid fa-check"></i> Added!</>
+                  ) : (
+                    <><i className="fa-solid fa-basket-shopping"></i> Add to cart</>
+                  )}
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    ) : (
+      <div style={{ textAlign: 'center', padding: '60px', color: 'var(--muted)' }}>
+        <i className="fa-solid fa-box-open" style={{ fontSize: '48px', display: 'block', marginBottom: '16px', color: 'var(--border)' }}></i>
+        <p style={{ fontSize: '16px' }}>No products yet. Products added from the admin panel will appear here.</p>
+      </div>
+    )}
+  </div>
+</section>
 
-      {/* ── WhatsApp Float ────────────────────────────────────────────────── */}
-      <a href="https://wa.me/916201066464" target="_blank" rel="noopener noreferrer" className="wa-float" aria-label="Chat on WhatsApp">
-        <i className="fa-brands fa-whatsapp"></i>
-      </a>
+{/* ── Festival Banner ───────────────────────────────────────────────── */ }
+<section className="festival" id="festival">
+  <h3>Chhath Puja Special is Live</h3>
+  <p>Fresh Thekua, made in small batches, packed with prasad-grade purity — order before stock runs out.</p>
+  <div style={{
+    fontFamily: 'var(--font-mono)', background: 'rgba(0,0,0,.2)',
+    display: 'inline-block', padding: '10px 20px', borderRadius: '6px',
+    marginBottom: '18px', fontSize: '18px', fontWeight: '700', letterSpacing: '2px',
+  }}>
+    {pad(timeLeft.days)}d : {pad(timeLeft.hours)}h : {pad(timeLeft.minutes)}m : {pad(timeLeft.seconds)}s
+  </div>
+  <div>
+    <Link to="/products" className="btn btn-primary">
+      <i className="fa-solid fa-bolt"></i> Shop festival specials
+    </Link>
+  </div>
+</section>
+
+{/* ── Referral ──────────────────────────────────────────────────────── */ }
+<section className="referral">
+  <div className="wrap">
+    <div>
+      <div className="eyebrow">Refer &amp; earn</div>
+      <h2>Bihar ka swaad, apno tak pahunchao.</h2>
+      <p>Apne dost ko refer karo — unhe milega ₹100 off unke pehle order par, aur aapko milenge ₹100 reward points jab unka order deliver ho jaye.</p>
+      <button className="btn btn-primary"><i className="fa-solid fa-share-nodes"></i> Get my referral link</button>
+    </div>
+    <div className="ref-stats">
+      <div className="ref-card"><strong>₹100</strong><span>For you, per referral</span></div>
+      <div className="ref-card"><strong>₹100</strong><span>For your friend</span></div>
+      <div className="ref-card"><strong>2,400+</strong><span>Referrals sent</span></div>
+    </div>
+  </div>
+</section>
+
+{/* ── Our Story ─────────────────────────────────────────────────────── */ }
+<section className="story" id="story">
+  <div className="wrap">
+    <img src="https://picsum.photos/seed/artisan-kitchen/600/500" alt="Women artisans preparing Thekua" />
+    <div>
+      <div className="eyebrow" style={{ color: 'var(--haldi)' }}>Our story</div>
+      <h2>From <em>Bihar's kitchens</em><br />to your doorstep.</h2>
+      <p>BiharKaSwaad began in a small kitchen in Kumharar, Patna — where recipes passed down through generations are still followed by hand, one batch at a time.</p>
+      <p>Every jar of Sattu, every piece of Thekua, is prepared by women artisans from across Bihar, using pure ghee, freshly milled atta, and zero preservatives.</p>
+      <div className="story-sig">— Team BiharKaSwaad</div>
+    </div>
+  </div>
+</section>
+
+{/* ── Trust Strip ───────────────────────────────────────────────────── */ }
+<section className="trust-strip">
+  <div className="wrap">
+    <div className="trust-tag">
+      <i className="fa-solid fa-truck-fast"></i>
+      <div><strong>Free shipping</strong><span>India-wide delivery</span></div>
+    </div>
+    <div className="trust-tag">
+      <i className="fa-solid fa-hands-holding-circle"></i>
+      <div><strong>Handmade with love</strong><span>By women artisans of Bihar</span></div>
+    </div>
+    <div className="trust-tag">
+      <i className="fa-solid fa-award"></i>
+      <div><strong>Quality assured</strong><span>Pure ingredients, no preservatives</span></div>
+    </div>
+  </div>
+</section>
+
+
+{/* ── FAQ ───────────────────────────────────────────────────────────── */ }
+<section className="section" id="faq">
+  <div className="wrap">
+    <div className="section-head">
+      <div className="eyebrow">FAQs</div>
+      <h2>Common questions</h2>
+    </div>
+    <div className="faq-list">
+      {[
+        { q: 'How fresh are the products when they arrive?', a: 'Everything is prepared in small batches only after your order is placed, and shipped within 24-48 hours to keep it as fresh as possible.' },
+        { q: 'Do you deliver across India?', a: 'Yes, we deliver pan-India to over 19,000 pincodes, with free shipping on all orders.' },
+        { q: 'What is the shelf life of Thekua and Tilkut?', a: 'Thekua stays fresh for about 45 days and Tilkut for around 60 days when stored in an airtight container in a cool, dry place.' },
+        { q: 'Can I return or exchange a product?', a: 'Since these are perishable food items, we don\'t accept returns, but if a package arrives damaged or incorrect, we\'ll replace it free of cost.' },
+      ].map(({ q, a }) => (
+        <details key={q} className="faq-item" style={{ cursor: 'pointer' }}>
+          <summary className="faq-q" style={{ listStyle: 'none', display: 'flex', justifyContent: 'space-between' }}>
+            {q}
+            <i className="fa-solid fa-chevron-down"></i>
+          </summary>
+          <div className="faq-a"><p>{a}</p></div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+{/* ── WhatsApp Float ────────────────────────────────────────────────── */ }
+<a href="https://wa.me/916201066464" target="_blank" rel="noopener noreferrer" className="wa-float" aria-label="Chat on WhatsApp">
+  <i className="fa-brands fa-whatsapp"></i>
+</a>
     </>
   );
 };

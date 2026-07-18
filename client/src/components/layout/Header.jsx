@@ -46,8 +46,9 @@ const Header = ({ onOpenMobileNav }) => {
           </Link>
 
           <nav className="main-nav">
+            <Link to="/">Home</Link>
             <Link to="/products">Shop</Link>
-            <a href="/#story">Our Story</a>
+            <Link to="/blogs">Blogs</Link>
             <a href="/#festival">Festival Specials</a>
             <Link to="/contact">Contact</Link>
             {isAuthenticated && user?.role === 'admin' && (
@@ -59,17 +60,17 @@ const Header = ({ onOpenMobileNav }) => {
 
           <div className="top-actions">
             {/* Search */}
-            <button className="icon-btn" aria-label="Search" onClick={() => setSearchOpen(true)}>
+            <button className="icon-btn" aria-label="Search" title="Search" onClick={() => setSearchOpen(true)}>
               <i className="fa-solid fa-magnifying-glass"></i>
             </button>
 
             {/* Wishlist */}
-            <Link to="/wishlist" className="icon-btn" aria-label="Wishlist">
+            <Link to="/wishlist" className="icon-btn" aria-label="Wishlist" title="Wishlist">
               <i className="fa-regular fa-heart"></i>
             </Link>
 
             {/* Cart */}
-            <Link to="/cart" className="icon-btn" aria-label="Cart">
+            <Link to="/cart" className="icon-btn" aria-label="Cart" title="Cart">
               <i className="fa-solid fa-basket-shopping"></i>
               {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
             </Link>

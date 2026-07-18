@@ -4,6 +4,7 @@ const { Blog } = require('../models/index');
 
 const buildImageUrl = (req, imagePath) => {
   if (!imagePath) return null;
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) return imagePath;
   return `${req.protocol}://${req.get('host')}/api/${imagePath.replace(/^\\/, '')}`;
 };
 
@@ -74,20 +75,24 @@ exports.getBlogImage = async (req, res) => {
 // ── CREATE Blog (Admin) ───────────────────────────────────────────────────────
 exports.createBlog = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ status: 'error', message: 'Please upload a blog image' });
+    const { title, excerpt, content, author, category, imagePath } = req.body;
+
+    if (!req.file && !imagePath) {
+      return res.status(400).json({ status: 'error', message: 'Please provide an image URL or upload a blog image' });
     }
 
-    console.log('📸 Blog image saved:', req.file.path);
+    if (req.file) {
+      console.log('📸 Blog image saved:', req.file.path);
+    }
 
     const blog = await Blog.create({
-      title: req.body.title,
-      excerpt: req.body.excerpt,
-      content: req.body.content,
-      author: req.body.author,
-      category: req.body.category,
-      imagePath: req.file.path.replace(/\\/g, '/'),
-      imageContentType: req.file.mimetype,
+      title,
+      excerpt,
+      content,
+      author,
+      category,
+      imagePath: imagePath || req.file.path.replace(/\\/g, '/'),
+      imageContentType: imagePath ? 'url' : req.file.mimetype,
     });
 
     const obj = blog.toJSON();
@@ -111,7 +116,10 @@ exports.deleteBlog = async (req, res) => {
       return res.status(404).json({ status: 'error', message: 'Blog not found' });
     }
 
-    deleteImageFile(blog.imagePath);
+    if (blog.imagePath && !blog.imagePath.startsWith('http')) {
+      deleteImageFile(blog.imagePath);
+    }
+
     await blog.destroy();
 
     console.log('🗑️ Blog deleted:', req.params.id);

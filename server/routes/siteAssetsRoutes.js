@@ -20,6 +20,16 @@ router.post('/slideshow', protect, restrictTo('admin'), upload.single('image'), 
 router.delete('/slideshow/:slideId', protect, restrictTo('admin'), deleteSlideshow);
 router.patch('/settings', protect, restrictTo('admin'), updateSiteSettings);
 
+router.get('/sync-db', protect, restrictTo('admin'), async (req, res) => {
+  try {
+    const sequelize = require('../config/database');
+    await sequelize.sync({ alter: true });
+    res.json({ message: 'Database synced successfully on production!' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 console.log('✅ Site assets routes loaded');
 
 module.exports = router;

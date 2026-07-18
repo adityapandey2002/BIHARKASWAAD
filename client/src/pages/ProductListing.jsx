@@ -271,9 +271,11 @@ const ProductListing = () => {
                     )}
 
                     {/* Category Badge */}
-                    <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1 rounded-full text-xs font-semibold">
-                      {product.category}
-                    </div>
+                    {product.category && (
+                      <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1 rounded-full text-xs font-semibold">
+                        {product.category}
+                      </div>
+                    )}
                   </div>
 
                   {/* Product Details */}
