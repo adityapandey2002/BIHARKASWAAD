@@ -18,6 +18,7 @@ const ProductListing = () => {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
 
   const categories = ['All', 'Snacks', 'Sweets', 'Spices', 'Beverages', 'Meals', 'Pickles'];
+  const specialties = ['Thekua', 'Sattu', 'Tilkut', 'Achaar', 'Bhuja Mix', 'Gift Hampers'];
 
   useEffect(() => {
     const params = {};
@@ -38,9 +39,20 @@ const ProductListing = () => {
   const handleCategoryFilter = (category) => {
     setSelectedCategory(category);
     if (category === 'All') {
-      dispatch(fetchProducts());
+      dispatch(fetchProducts({ search: searchQuery }));
     } else {
-      dispatch(fetchProducts({ category }));
+      dispatch(fetchProducts({ category, search: searchQuery }));
+    }
+  };
+
+  const handleSpecialtyFilter = (specialty) => {
+    if (searchQuery === specialty) {
+      // Toggle off
+      setSearchQuery('');
+      dispatch(fetchProducts({ category: selectedCategory !== 'All' ? selectedCategory : undefined }));
+    } else {
+      setSearchQuery(specialty);
+      dispatch(fetchProducts({ category: selectedCategory !== 'All' ? selectedCategory : undefined, search: specialty }));
     }
   };
 
@@ -125,7 +137,8 @@ const ProductListing = () => {
         </form>
 
         {/* Category Filter */}
-        <div className="mb-8">
+        <div className="mb-4">
+          <p className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wider">Main Categories</p>
           <div className="flex flex-wrap gap-3">
             {categories.map((category) => (
               <button
@@ -138,6 +151,26 @@ const ProductListing = () => {
                 }`}
               >
                 {category}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Specialty Filter */}
+        <div className="mb-8 pb-4 border-b border-gray-200">
+          <p className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wider">Popular Items</p>
+          <div className="flex flex-wrap gap-3">
+            {specialties.map((specialty) => (
+              <button
+                key={specialty}
+                onClick={() => handleSpecialtyFilter(specialty)}
+                className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                  searchQuery === specialty
+                    ? 'bg-orange-600 text-white shadow-md'
+                    : 'bg-white text-gray-600 hover:bg-orange-50 border border-orange-200'
+                }`}
+              >
+                {specialty}
               </button>
             ))}
           </div>
@@ -179,15 +212,21 @@ const ProductListing = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {list.map((product) => (
               <div
-                key={product._id}
+                key={product.id || product._id}
                 className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
               >
-                <Link to={`/products/${product._id}`} className="block">
+                <Link to={`/products/${product.id || product._id}`} className="block">
                   {/* Product Image */}
                   <div className="relative">
                     {product.imageUrl ? (
                       <img
                         src={product.imageUrl}
+                        alt={product.name}
+                        className="w-full h-56 object-cover"
+                      />
+                    ) : product.imagePath ? (
+                      <img
+                        src={`${(process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api').replace('/api', '')}/${product.imagePath}`}
                         alt={product.name}
                         className="w-full h-56 object-cover"
                       />
