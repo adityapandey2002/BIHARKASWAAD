@@ -49,7 +49,7 @@ const ManageSiteAssets = () => {
         buttonText: slideData.buttonText,
         buttonLink: slideData.buttonLink,
         order: slideData.order,
-        imagePath: slideData.imageUrl // Sending URL as imagePath
+        imageUrl: slideData.imageUrl // Sending URL as imageUrl to match backend expectation
       };
 
       await axios.post(`${API_URL}/site-assets/slideshow`, submitData, {
