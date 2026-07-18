@@ -134,12 +134,12 @@ const HomeSection = () => {
       <div className="stitch"></div>
 
       {/* ── Categories ───────────────────────────────────────────────────── */}
-      <section className="section" id="categories">
+      <section className="section" id="categories" style={{ paddingTop: '20px', paddingBottom: '20px' }}>
         <div className="wrap">
-          <div className="section-head mb-8">
-            <h2 className="font-display text-3xl font-bold text-indigo-900">Categories</h2>
+          <div className="section-head mb-4">
+            <h2 className="font-display text-2xl font-bold text-indigo-900">Categories</h2>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <div className="flex gap-4 overflow-x-auto pb-4 pt-2 snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             <style>{`.flex.gap-4.overflow-x-auto::-webkit-scrollbar { display: none; }`}</style>
             {[
               { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116246/SATTU_m2gfbg.png', label: 'Sattu', search: 'Sattu' },
@@ -151,8 +151,8 @@ const HomeSection = () => {
               { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116245/SEEDS_bjhoxc.png', label: 'Seeds', search: 'Seeds' },
               { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116245/SPICES_eluhsi.png', label: 'Spices', search: 'Spices' },
             ].map(({ image, label, search, isCategory }) => (
-              <Link to={`/products?${isCategory ? 'category' : 'search'}=${encodeURIComponent(search)}`} key={label} className="block text-center group snap-start flex-shrink-0" style={{ width: '100px' }}>
-                <div className="w-20 h-20 md:w-24 md:h-24 mx-auto mb-3 rounded-full overflow-hidden border-4 border-gray-100 shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:border-orange-500">
+              <Link to={`/products?${isCategory ? 'category' : 'search'}=${encodeURIComponent(search)}`} key={label} className="block text-center group snap-start flex-shrink-0 w-24 md:w-28">
+                <div className="w-20 h-20 md:w-24 md:h-24 mx-auto mb-3 rounded-full overflow-hidden border-4 border-gray-100 shadow-sm transition-transform duration-150 group-hover:scale-110 group-hover:border-orange-500">
                   <img src={image} alt={label} className="w-full h-full object-cover" />
                 </div>
                 <span className="text-sm font-semibold text-gray-800">{label}</span>

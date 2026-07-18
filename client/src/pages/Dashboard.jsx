@@ -46,7 +46,23 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen py-12 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">Admin Dashboard</h1>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <h1 className="text-4xl font-bold text-gray-900">Admin Dashboard</h1>
+          <button
+            onClick={async () => {
+              try {
+                const token = localStorage.getItem('token');
+                const res = await axios.get(`${API_URL}/site-assets/sync-db`, { headers: { Authorization: `Bearer ${token}` } });
+                alert('✅ ' + res.data.message);
+              } catch (err) {
+                alert('❌ Failed to sync DB. Ensure the latest backend code is deployed to your live server.');
+              }
+            }}
+            className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold shadow hover:bg-red-700 transition"
+          >
+            <i className="fa-solid fa-rotate mr-2"></i> Fix DB Errors (Sync)
+          </button>
+        </div>
 
         {/* Tabs Navigation */}
         <div className="mb-8 border-b border-gray-200">
