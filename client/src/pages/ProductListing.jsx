@@ -141,7 +141,7 @@ const ProductListing = () => {
         </div>
 
         {/* Search Bar */}
-        <form onSubmit={handleSearch} className="mb-8">
+        <form onSubmit={handleSearch} className="mb-4">
           <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
@@ -164,13 +164,14 @@ const ProductListing = () => {
 
         {/* Category Filter */}
         <div className="mb-4">
-          <p className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wider">Main Categories</p>
-          <div className="flex flex-wrap gap-3">
+          <p className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Main Categories</p>
+          <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <style>{`.flex.flex-nowrap::-webkit-scrollbar { display: none; }`}</style>
             {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => handleCategoryFilter(category)}
-                className={`px-6 py-2 rounded-full font-medium transition-all duration-200 ${
+                className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap snap-start flex-shrink-0 transition-all duration-200 ${
                   selectedCategory === category
                     ? 'bg-blue-600 text-white shadow-lg'
                     : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
@@ -183,14 +184,14 @@ const ProductListing = () => {
         </div>
 
         {/* Specialty Filter */}
-        <div className="mb-8 pb-4 border-b border-gray-200">
-          <p className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wider">Popular Items</p>
-          <div className="flex flex-wrap gap-3">
+        <div className="mb-6 pb-2 border-b border-gray-200">
+          <p className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Popular Items</p>
+          <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {specialties.map((specialty) => (
               <button
                 key={specialty}
                 onClick={() => handleSpecialtyFilter(specialty)}
-                className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap snap-start flex-shrink-0 transition-all duration-200 ${
                   searchQuery === specialty
                     ? 'bg-orange-600 text-white shadow-md'
                     : 'bg-white text-gray-600 hover:bg-orange-50 border border-orange-200'
