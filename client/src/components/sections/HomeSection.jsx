@@ -98,9 +98,9 @@ const HomeSection = () => {
             <h1>स्वाद जो सीधा<br/><em>दिल से आता है.</em></h1>
             <p>Ghar jaisa Thekua, khaalis Sattu, aur Bihar ki mitti ki khushboo — ab seedha aapke ghar tak, jahan bhi aap ho.</p>
             <div className="hero-ctas">
-              <a href="#shop" className="btn btn-primary">
+              <Link to="/products" className="btn btn-primary">
                 <i className="fa-solid fa-basket-shopping"></i> Shop now
-              </a>
+              </Link>
               <a href="#story" className="btn btn-outline">Our story</a>
             </div>
             <div className="hero-stats">
@@ -148,17 +148,17 @@ const HomeSection = () => {
           </div>
           <div className="cat-grid">
             {[
-              { icon: 'fa-cookie-bite', label: 'Thekua' },
-              { icon: 'fa-wheat-awn', label: 'Sattu' },
-              { icon: 'fa-candy-cane', label: 'Tilkut' },
-              { icon: 'fa-jar', label: 'Achaar & Honey' },
-              { icon: 'fa-bowl-rice', label: 'Bhuja Mix' },
-              { icon: 'fa-gift', label: 'Gift Hampers' },
-            ].map(({ icon, label }) => (
-              <a href="#shop" key={label} className="cat-tile">
+              { icon: 'fa-cookie-bite', label: 'Thekua', search: 'Thekua' },
+              { icon: 'fa-wheat-awn', label: 'Sattu', search: 'Sattu' },
+              { icon: 'fa-candy-cane', label: 'Tilkut', search: 'Tilkut' },
+              { icon: 'fa-jar', label: 'Achaar', search: 'Pickles', isCategory: true },
+              { icon: 'fa-bowl-rice', label: 'Bhuja Mix', search: 'Bhuja' },
+              { icon: 'fa-gift', label: 'Gift Hampers', search: 'Gift' },
+            ].map(({ icon, label, search, isCategory }) => (
+              <Link to={`/products?${isCategory ? 'category' : 'search'}=${encodeURIComponent(search)}`} key={label} className="cat-tile">
                 <div className="cat-circle"><i className={`fa-solid ${icon}`}></i></div>
                 <span>{label}</span>
-              </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -268,9 +268,9 @@ const HomeSection = () => {
           {pad(timeLeft.days)}d : {pad(timeLeft.hours)}h : {pad(timeLeft.minutes)}m : {pad(timeLeft.seconds)}s
         </div>
         <div>
-          <a href="#shop" className="btn btn-primary">
+          <Link to="/products" className="btn btn-primary">
             <i className="fa-solid fa-bolt"></i> Shop festival specials
-          </a>
+          </Link>
         </div>
       </section>
 

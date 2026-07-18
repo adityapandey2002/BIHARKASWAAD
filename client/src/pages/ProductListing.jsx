@@ -12,18 +12,23 @@ const ProductListing = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const initialCategory = queryParams.get('category') || 'All';
+  const initialSearch = queryParams.get('search') || '';
   
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
 
   const categories = ['All', 'Snacks', 'Sweets', 'Spices', 'Beverages', 'Meals', 'Pickles'];
 
   useEffect(() => {
-    dispatch(fetchProducts({ category: selectedCategory !== 'All' ? selectedCategory : undefined }));
+    const params = {};
+    if (selectedCategory !== 'All') params.category = selectedCategory;
+    if (searchQuery) params.search = searchQuery;
+    
+    dispatch(fetchProducts(params));
     if (isAuthenticated) {
       dispatch(fetchWishlist());
     }
-  }, [dispatch, isAuthenticated, selectedCategory]);
+  }, [dispatch, isAuthenticated, selectedCategory, searchQuery]);
 
   const handleSearch = (e) => {
     e.preventDefault();

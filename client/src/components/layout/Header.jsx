@@ -40,7 +40,7 @@ const Header = ({ onOpenMobileNav }) => {
           </Link>
 
           <nav className="main-nav">
-            <a href="/#shop">Shop</a>
+            <Link to="/products">Shop</Link>
             <a href="/#story">Our Story</a>
             <a href="/#festival">Festival Specials</a>
             <Link to="/contact">Contact</Link>

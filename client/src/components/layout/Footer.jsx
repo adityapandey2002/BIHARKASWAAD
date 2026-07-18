@@ -11,7 +11,7 @@ const Footer = () => {
             The authentic taste of Bihar, delivered fresh to your doorstep — handmade by women artisans across the state.
           </p>
           <p style={{ fontSize: '12px', marginTop: '14px' }}>
-            <i className="fa-solid fa-location-dot"></i> 101 Maurya Apartment, Kumharar, Patna – 800026, Bihar
+            <i className="fa-solid fa-location-dot"></i> Kumharar, Near Kushwaha Panchayat Bhawan, Kumharar Patna Bihar - 80026 IN.
           </p>
         </div>
         <div>

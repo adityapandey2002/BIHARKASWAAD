@@ -24,7 +24,7 @@ const MobileNav = ({ isOpen, onClose }) => {
             <i className="fa-solid fa-xmark"></i>
           </button>
         </div>
-        <a href="/#shop" onClick={onClose}>Shop</a>
+        <Link to="/products" onClick={onClose}>Shop</Link>
         <a href="/#story" onClick={onClose}>Our Story</a>
         <a href="/#festival" onClick={onClose}>Festival Specials</a>
         {isAuthenticated && user?.role === 'admin' && (
