@@ -156,8 +156,8 @@ const Wishlist = () => {
                         </Link>
                       </div>
                       <div className="rating">
-                        <i className="fa-solid fa-star" style={{ color: 'var(--haldi)' }}></i> 4.8
-                        <span>(200+ reviews)</span>
+                        <i className="fa-solid fa-star" style={{ color: 'var(--haldi)' }}></i> {product.ratingsAverage ? parseFloat(product.ratingsAverage).toFixed(1) : '4.8'}
+                        <span>({product.ratingsCount ? `${product.ratingsCount}+ reviews` : '200+ reviews'})</span>
                       </div>
                       <div className="price-row">
                         <span className="price">₹{product.price}</span>

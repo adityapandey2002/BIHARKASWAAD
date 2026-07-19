@@ -10,7 +10,7 @@ const Wishlist = sequelize.define(
     addedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   },
   {
-    tableName: 'wishlist_items',
+    tableName: 'wishlists',
     timestamps: false,
     indexes: [{ unique: true, fields: ['userId', 'productId'] }],
   }

@@ -165,7 +165,9 @@ exports.createProduct = async (req, res) => {
       imagePath: finalImages[0], // primary image
       imageContentType: req.files && req.files.length > 0 ? req.files[0].mimetype : 'url',
       images: finalImages,
-      variants: parsedVariants
+      variants: parsedVariants,
+      ratingsAverage: req.body.ratingsAverage ? parseFloat(req.body.ratingsAverage) : 4.8,
+      ratingsCount: req.body.ratingsCount ? parseInt(req.body.ratingsCount) : 200
     });
 
     const obj = product.toJSON();
@@ -383,11 +385,11 @@ exports.bulkUploadProducts = async (req, res) => {
           }
         }
 
-        let dietaryPreference = 'Veg';
-        if (row['Dietary Preference']) {
-          const pref = String(row['Dietary Preference']).toLowerCase().trim();
-          if (pref === 'non-veg' || pref === 'non veg') dietaryPreference = 'Non-Veg';
-        }
+        let ratingsAverage = parseFloat(row['Rating'] || row['ratingsAverage'] || row['Rating Average']);
+        if (isNaN(ratingsAverage)) ratingsAverage = 4.8;
+
+        let ratingsCount = parseInt(row['Rating Count'] || row['ratingsCount'] || row['Reviews Count'] || row['Review Count']);
+        if (isNaN(ratingsCount)) ratingsCount = 200;
 
         const productData = {
           name: title,
@@ -409,7 +411,9 @@ exports.bulkUploadProducts = async (req, res) => {
           images: images,
           imagePath: images.length > 0 ? images[0] : null,
           imageContentType: 'url',
-          published: publishedValue
+          published: publishedValue,
+          ratingsAverage: ratingsAverage,
+          ratingsCount: ratingsCount
         };
 
         // If SKU exists, try to update. Otherwise, create new.

@@ -1,4 +1,4 @@
-const Review = require('../models/Review');
+const { Review, User } = require('../models/index');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 
@@ -52,7 +52,7 @@ exports.getProductReviews = async (req, res) => {
     const { productId } = req.params;
     const reviews = await Review.findAll({
       where: { productId },
-      include: ['user'], // assuming association is set
+      include: [{ model: User, as: 'user', attributes: ['id', 'name'] }],
       order: [['createdAt', 'DESC']]
     });
     res.status(200).json({ status: 'success', data: reviews });

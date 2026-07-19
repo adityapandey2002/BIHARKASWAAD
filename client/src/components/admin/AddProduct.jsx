@@ -23,6 +23,8 @@ const AddProduct = ({ onProductAdded }) => {
     flipkartLink: '',
     stock: '',
     featured: false,
+    ratingsAverage: '4.8',
+    ratingsCount: '200',
   });
 
   const [categories, setCategories] = useState([]);
@@ -160,6 +162,8 @@ const AddProduct = ({ onProductAdded }) => {
       if (formData.flipkartLink) submitData.append('flipkartLink', formData.flipkartLink);
       submitData.append('stock', formData.stock);
       submitData.append('featured', formData.featured);
+      if (formData.ratingsAverage) submitData.append('ratingsAverage', formData.ratingsAverage);
+      if (formData.ratingsCount) submitData.append('ratingsCount', formData.ratingsCount);
       
       submitData.append('images', JSON.stringify(validUrls));
 
@@ -371,6 +375,14 @@ const AddProduct = ({ onProductAdded }) => {
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Flipkart Link</label>
               <input type="url" name="flipkartLink" value={formData.flipkartLink} onChange={handleChange} placeholder="https://flipkart.com/..." className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Rating (e.g. 4.8)</label>
+              <input type="number" step="0.1" max="5" name="ratingsAverage" value={formData.ratingsAverage} onChange={handleChange} placeholder="4.8" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Reviews Count (e.g. 200)</label>
+              <input type="number" name="ratingsCount" value={formData.ratingsCount} onChange={handleChange} placeholder="200" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />
             </div>
           </div>
 

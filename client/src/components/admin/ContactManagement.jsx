@@ -5,7 +5,7 @@ const ContactManagement = () => {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
-  const [noteText, setNoteText] = useState('');
+  const [noteTexts, setNoteTexts] = useState({});
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
 
@@ -44,16 +44,17 @@ const ContactManagement = () => {
   };
 
   const handleAddNote = async (contactId) => {
-    if (!noteText.trim()) return;
+    const text = noteTexts[contactId] || '';
+    if (!text.trim()) return alert('Please enter note text');
 
     try {
       const token = localStorage.getItem('token');
       await axios.post(
         `${API_URL}/contacts/${contactId}/notes`,
-        { text: noteText },
+        { text },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setNoteText('');
+      setNoteTexts(prev => ({ ...prev, [contactId]: '' }));
       fetchContacts();
       alert('Note added');
     } catch (error) {
@@ -62,16 +63,17 @@ const ContactManagement = () => {
   };
 
   const handleReply = async (contactId) => {
-    if (!noteText.trim()) return alert('Please type a message to reply');
+    const text = noteTexts[contactId] || '';
+    if (!text.trim()) return alert('Please type a message to reply');
 
     try {
       const token = localStorage.getItem('token');
       await axios.post(
         `${API_URL}/contacts/${contactId}/reply`,
-        { message: noteText },
+        { message: text },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setNoteText('');
+      setNoteTexts(prev => ({ ...prev, [contactId]: '' }));
       fetchContacts();
       alert('Reply sent & query resolved!');
     } catch (error) {
@@ -79,6 +81,7 @@ const ContactManagement = () => {
       alert('Failed to send reply');
     }
   };
+
 
   const getStatusColor = (status) => {
     const colors = {
@@ -182,8 +185,12 @@ const ContactManagement = () => {
               <div>
                 <textarea
                   placeholder="Type a note or reply to customer..."
-                  value={noteText}
-                  onChange={(e) => setNoteText(e.target.value)}
+                  value={noteTexts[contact._id || contact.id] || ''}
+                  onChange={(e) => {
+                    const cid = contact._id || contact.id;
+                    const val = e.target.value;
+                    setNoteTexts(prev => ({ ...prev, [cid]: val }));
+                  }}
                   className="w-full px-4 py-2 border rounded mb-2"
                   rows="3"
                 />

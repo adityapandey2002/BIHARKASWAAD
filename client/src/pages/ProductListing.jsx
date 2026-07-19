@@ -38,7 +38,7 @@ const ProductListing = () => {
     try {
       await dispatch(addToCart({ productId: id, quantity: 1 })).unwrap();
     } catch (err) {
-      alert('Failed to add to cart: ' + err);
+      console.error('Failed to add to cart:', err);
       setAddedIds(prev => ({ ...prev, [id]: false }));
     }
   };
@@ -289,38 +289,41 @@ const ProductListing = () => {
                 <div className="card" key={id}>
                   <div className="card-img">
                     <div style={{ position: 'absolute', top: '12px', left: '12px', zIndex: 10, display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                      {product.featured && (
+                      {product.featured ? (
                         <span className="kraft-tag" style={{ background: '#d32f2f', color: '#fff', border: 'none' }}>
                           <i className="fa-solid fa-star" style={{ fontSize: '10px', marginRight: '4px' }}></i>
                           Bestseller
                         </span>
+                      ) : (
+                        product.category && <span className="kraft-tag">{product.category}</span>
                       )}
-                      {product.category && <span className="kraft-tag">{product.category}</span>}
                     </div>
-                    <button
-                      className="fav"
-                      aria-label="Add to wishlist"
-                      onClick={(e) => handleWishlistToggle(id, e)}
-                      style={{ color: isWished ? 'var(--sindoor)' : '' }}
-                    >
-                      {isWished ? <i className="fa-solid fa-heart"></i> : <i className="fa-regular fa-heart"></i>}
-                    </button>
+                    <div style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 10, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {product.dietaryPreference === 'Non-Veg' ? (
+                        <span title="Non-Vegetarian" style={{ display: 'inline-block', width: '14px', height: '14px', border: '1px solid #DC2626', borderRadius: '2px', padding: '1px', backgroundColor: 'rgba(255,255,255,0.92)' }}>
+                          <span style={{ display: 'block', width: '100%', height: '100%', backgroundColor: '#DC2626', borderRadius: '50%' }}></span>
+                        </span>
+                      ) : (
+                        <span title="Vegetarian" style={{ display: 'inline-block', width: '14px', height: '14px', border: '1px solid #16A34A', borderRadius: '2px', padding: '1px', backgroundColor: 'rgba(255,255,255,0.92)' }}>
+                          <span style={{ display: 'block', width: '100%', height: '100%', backgroundColor: '#16A34A', borderRadius: '50%' }}></span>
+                        </span>
+                      )}
+                      <button
+                        className="fav"
+                        aria-label="Add to wishlist"
+                        onClick={(e) => handleWishlistToggle(id, e)}
+                        style={{ position: 'static', color: isWished ? 'var(--sindoor)' : '' }}
+                      >
+                        {isWished ? <i className="fa-solid fa-heart"></i> : <i className="fa-regular fa-heart"></i>}
+                      </button>
+                    </div>
                     <Link to={`/products/${id}`} style={{ display: 'block', height: '100%' }}>
                       <img src={imageUrl} alt={product.name} loading="lazy" style={{ objectFit: 'contain', backgroundColor: '#fff' }} />
                     </Link>
                   </div>
                   <div className="card-body">
-                    <div className="card-title line-clamp-2">
-                      <Link to={`/products/${id}`} style={{ color: '#2A2118', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        {product.dietaryPreference === 'Non-Veg' ? (
-                          <span title="Non-Vegetarian" style={{ display: 'inline-block', width: '12px', height: '12px', border: '1px solid #DC2626', borderRadius: '2px', padding: '1px', flexShrink: 0 }}>
-                            <span style={{ display: 'block', width: '100%', height: '100%', backgroundColor: '#DC2626', borderRadius: '50%' }}></span>
-                          </span>
-                        ) : (
-                          <span title="Vegetarian" style={{ display: 'inline-block', width: '12px', height: '12px', border: '1px solid #16A34A', borderRadius: '2px', padding: '1px', flexShrink: 0 }}>
-                            <span style={{ display: 'block', width: '100%', height: '100%', backgroundColor: '#16A34A', borderRadius: '50%' }}></span>
-                          </span>
-                        )}
+                    <div className="card-title">
+                      <Link to={`/products/${id}`}>
                         {product.name || 'Unnamed Product'}
                       </Link>
                     </div>
@@ -337,8 +340,8 @@ const ProductListing = () => {
                     ) : null}
 
                     <div className="rating">
-                      <i className="fa-solid fa-star" style={{ color: 'var(--haldi)' }}></i> 4.8
-                      <span>(200+ reviews)</span>
+                      <i className="fa-solid fa-star" style={{ color: 'var(--haldi)' }}></i> {product.ratingsAverage ? parseFloat(product.ratingsAverage).toFixed(1) : '4.8'}
+                      <span>({product.ratingsCount ? `${product.ratingsCount}+ reviews` : '200+ reviews'})</span>
                     </div>
                     <div className="price-row">
                       <span className="price">₹{product.price}</span>
@@ -348,11 +351,11 @@ const ProductListing = () => {
                     <div className="stock-bar">
                       <div className="stock-bar-fill" style={{ width: `${stockPct}%` }}></div>
                     </div>
-                    {stockLeft > 0 ? (
+                    {stockLeft <= 10 && stockLeft > 0 ? (
                       <div className="urgency"><i className="fa-solid fa-fire"></i> Only {stockLeft} left in stock</div>
-                    ) : (
+                    ) : stockLeft === 0 ? (
                       <div className="urgency" style={{ color: '#DC2626' }}><i className="fa-solid fa-ban"></i> Out of stock</div>
-                    )}
+                    ) : null}
                     <div className="viewers"><i className="fa-solid fa-eye"></i> {viewers} people viewing this</div>
 
                     <div className="mt-auto pt-3">

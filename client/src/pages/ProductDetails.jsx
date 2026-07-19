@@ -326,9 +326,16 @@ const ProductDetails = () => {
             {/* Product Info Section */}
             <div className="flex flex-col">
               <div className="mb-4 flex flex-wrap gap-2">
-                <span className="inline-block bg-orange-100 text-orange-800 text-xs font-semibold px-3 py-1 rounded-full">
-                  {product.category}
-                </span>
+                {product.featured && (
+                  <span className="inline-flex items-center gap-1 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                    <i className="fa-solid fa-star text-[10px]"></i> Bestseller
+                  </span>
+                )}
+                {!product.featured && product.category && (
+                  <span className="inline-block bg-orange-100 text-orange-800 text-xs font-semibold px-3 py-1 rounded-full">
+                    {product.category}
+                  </span>
+                )}
                 {product.subCategory && (
                   <span className="inline-block bg-gray-100 text-gray-800 text-xs font-semibold px-3 py-1 rounded-full">
                     {product.subCategory}
@@ -370,7 +377,7 @@ const ProductDetails = () => {
                   {[1, 2, 3, 4, 5].map((star) => (
                     <svg
                       key={star}
-                      className={`w-5 h-5 ${star <= (product.ratings?.average || 0)
+                      className={`w-5 h-5 ${star <= Math.round(product.ratingsAverage || product.ratings?.average || 4.8)
                           ? 'text-yellow-400 fill-current'
                           : 'text-gray-300'
                         }`}
@@ -380,8 +387,11 @@ const ProductDetails = () => {
                     </svg>
                   ))}
                 </div>
-                <span className="ml-2 text-sm text-gray-600">
-                  ({product.ratings?.count || 0} reviews)
+                <span className="ml-2 text-sm font-semibold text-gray-700">
+                  {product.ratingsAverage ? parseFloat(product.ratingsAverage).toFixed(1) : '4.8'}
+                </span>
+                <span className="ml-1 text-sm text-gray-500">
+                  ({product.ratingsCount || product.ratings?.count || 200}+ reviews)
                 </span>
               </div>
 
@@ -433,10 +443,10 @@ const ProductDetails = () => {
               <div className="mb-6">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-gray-700">Availability:</span>
-                  {currentStock > 0 ? (
-                    <span className="text-green-600 font-semibold">
-                      In Stock ({currentStock} units available)
-                    </span>
+                  {currentStock > 10 ? (
+                    <span className="text-green-600 font-semibold">In Stock</span>
+                  ) : currentStock > 0 ? (
+                    <span className="text-amber-600 font-semibold">Only {currentStock} items left in stock!</span>
                   ) : (
                     <span className="text-red-600 font-semibold">Out of Stock</span>
                   )}
