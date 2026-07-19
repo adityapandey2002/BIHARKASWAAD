@@ -31,9 +31,7 @@ const Wishlist = () => {
   };
 
   const handleClearAll = () => {
-    if (window.confirm('Clear entire wishlist?')) {
-      dispatch(clearWishlist());
-    }
+    dispatch(clearWishlist());
   };
 
   const handleAddToCart = async (product) => {
