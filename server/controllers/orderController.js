@@ -1,4 +1,5 @@
 const { Order, OrderItem, Cart, CartItem, Product } = require('../models/index');
+const { pushOrderToShipmojo } = require('../services/shipmojoService');
 
 // ── CREATE Order ──────────────────────────────────────────────────────────────
 exports.createOrder = async (req, res) => {
@@ -67,6 +68,13 @@ exports.createOrder = async (req, res) => {
       await CartItem.destroy({ where: { cartId: cart.id } });
       cart.totalAmount = 0;
       await cart.save();
+
+      // Push COD order to Shipmojo
+      try {
+        await pushOrderToShipmojo(order, cart.items);
+      } catch (err) {
+        console.error('Shipmojo integration error:', err);
+      }
     }
 
     res.status(201).json({ status: 'success', data: order });

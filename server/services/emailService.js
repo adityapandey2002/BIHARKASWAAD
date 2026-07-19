@@ -1,11 +1,13 @@
 const nodemailer = require('nodemailer');
 
-// Create transporter
+// Create transporter (Supports Hostinger SMTP or fallback to previous env vars)
 const transporter = nodemailer.createTransport({
-  service: 'gmail', // or your email service
+  host: process.env.SMTP_HOST || (process.env.EMAIL_USER?.includes('gmail') ? 'smtp.gmail.com' : 'smtp.hostinger.com'),
+  port: process.env.SMTP_PORT || 465,
+  secure: true,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
+    user: process.env.SMTP_USER || process.env.EMAIL_USER,
+    pass: process.env.SMTP_PASS || process.env.EMAIL_PASSWORD
   }
 });
 
@@ -105,6 +107,48 @@ exports.sendCustomerConfirmation = async (contactData) => {
     return true;
   } catch (error) {
     console.error('❌ Error sending confirmation email:', error);
+    return false;
+  }
+};
+
+// Send reply to customer from Admin panel
+exports.sendCustomerReply = async (contactData, replyMessage) => {
+  try {
+    const mailOptions = {
+      from: `"BiharKaSwaad Support" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
+      to: contactData.email,
+      subject: `Re: ${contactData.subject}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <h2 style="color: #ea580c; border-bottom: 2px solid #ea580c; padding-bottom: 10px;">
+            Update on Your Inquiry
+          </h2>
+          
+          <p>Dear ${contactData.name},</p>
+          
+          <div style="margin: 20px 0; font-size: 16px; line-height: 1.5; color: #333;">
+            <p>${replyMessage.replace(/\n/g, '<br>')}</p>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
+
+          <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #ccc; border-radius: 5px; color: #666; font-size: 14px;">
+            <p style="margin-top: 0;"><strong>Your original message:</strong></p>
+            <p>${contactData.message}</p>
+          </div>
+
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666;">
+            <p>Best regards,<br><strong>Bihar Ka Swaad Team</strong></p>
+          </div>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log('✅ Reply email sent to customer');
+    return true;
+  } catch (error) {
+    console.error('❌ Error sending reply email:', error);
     return false;
   }
 };

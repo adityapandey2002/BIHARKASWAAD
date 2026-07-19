@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const Razorpay = require('razorpay');
-const { Order, OrderItem, Cart, CartItem } = require('../models/index');
+const { Order, OrderItem, Product, Cart, CartItem } = require('../models/index');
+const { pushOrderToShipmojo } = require('../services/shipmojoService');
 
 let razorpay;
 try {
@@ -141,6 +142,13 @@ exports.verifyPayment = async (req, res) => {
         await CartItem.destroy({ where: { cartId: cart.id } });
         cart.totalAmount = 0;
         await cart.save();
+      }
+
+      // Push Prepaid order to Shipmojo
+      try {
+        await pushOrderToShipmojo(order, orderItems);
+      } catch (err) {
+        console.error('Shipmojo integration error:', err);
       }
 
       console.log('✅ Payment verified:', razorpay_payment_id);

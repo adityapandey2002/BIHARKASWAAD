@@ -288,7 +288,15 @@ const ProductListing = () => {
               return (
                 <div className="card" key={id}>
                   <div className="card-img">
-                    {product.category && <span className="kraft-tag">{product.category}</span>}
+                    <div style={{ position: 'absolute', top: '12px', left: '12px', zIndex: 10, display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      {product.featured && (
+                        <span className="kraft-tag" style={{ background: '#d32f2f', color: '#fff', border: 'none' }}>
+                          <i className="fa-solid fa-star" style={{ fontSize: '10px', marginRight: '4px' }}></i>
+                          Bestseller
+                        </span>
+                      )}
+                      {product.category && <span className="kraft-tag">{product.category}</span>}
+                    </div>
                     <button
                       className="fav"
                       aria-label="Add to wishlist"

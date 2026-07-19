@@ -31,7 +31,7 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.2.0",
     "mysql2": "^3.22.6",
-    "nodemailer": "^7.0.9",
+    "nodemailer": "^7.0.13",
     "razorpay": "^2.9.6",
     "sequelize": "^6.37.8",
     "validator": "^13.11.0",

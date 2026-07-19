@@ -190,7 +190,15 @@ const HomeSection = () => {
                 return (
                   <div className="card" key={id}>
                     <div className="card-img">
-                      {product.category && <span className="kraft-tag">{product.category}</span>}
+                      <div style={{ position: 'absolute', top: '12px', left: '12px', zIndex: 10, display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        {product.featured && (
+                          <span className="kraft-tag" style={{ background: '#d32f2f', color: '#fff', border: 'none' }}>
+                            <i className="fa-solid fa-star" style={{ fontSize: '10px', marginRight: '4px' }}></i>
+                            Bestseller
+                          </span>
+                        )}
+                        {product.category && <span className="kraft-tag">{product.category}</span>}
+                      </div>
                       <button
                         className="fav"
                         aria-label="Add to wishlist"
@@ -283,8 +291,7 @@ const HomeSection = () => {
   <div className="wrap">
     <img src="https://res.cloudinary.com/kvteudbg/image/upload/v1784476045/BiharKaSwaad_grhnlp.png" alt="BiharKaSwaad Products" />
     <div>
-      <div className="eyebrow" style={{ color: 'var(--haldi)' }}>Our story</div>
-      <h2>From <em>Bihar's kitchens</em><br />to your doorstep.</h2>
+      <h2 style={{ color: 'var(--haldi)' }}>BiharKaSwaad</h2>
       <p>Craving the taste of home while living away shouldn't mean losing touch with the food that defines your roots. Whether you want a glass of pure Chana Sattu, the sweetness of handmade Thekua, or the perfect crunch of evening Bhuja, etc. BiharKaSwaad brings all these pure flavors straight from the village to your doorstep anywhere in India.</p>
       <p>We cut down the distance between you and your home, ensuring you never miss a single bite of the food you grew up with. Welcome to BiharKaSwaad—your ultimate destination for परंपरा, स्वाद, भरोसा!</p>
       <div className="story-sig">— Team BiharKaSwaad</div>

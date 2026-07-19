@@ -61,6 +61,25 @@ const ContactManagement = () => {
     }
   };
 
+  const handleReply = async (contactId) => {
+    if (!noteText.trim()) return alert('Please type a message to reply');
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(
+        `${API_URL}/contacts/${contactId}/reply`,
+        { message: noteText },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setNoteText('');
+      fetchContacts();
+      alert('Reply sent & query resolved!');
+    } catch (error) {
+      console.error('Error sending reply:', error);
+      alert('Failed to send reply');
+    }
+  };
+
   const getStatusColor = (status) => {
     const colors = {
       new: 'bg-blue-100 text-blue-800',
@@ -161,19 +180,27 @@ const ContactManagement = () => {
               )}
 
               <div>
-                <input
-                  type="text"
-                  placeholder="Add a note..."
+                <textarea
+                  placeholder="Type a note or reply to customer..."
                   value={noteText}
                   onChange={(e) => setNoteText(e.target.value)}
                   className="w-full px-4 py-2 border rounded mb-2"
+                  rows="3"
                 />
-                <button
-                  onClick={() => handleAddNote(contact._id || contact.id)}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  Add Note
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleAddNote(contact._id || contact.id)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 font-semibold"
+                  >
+                    Add Internal Note
+                  </button>
+                  <button
+                    onClick={() => handleReply(contact._id || contact.id)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold flex items-center gap-2 shadow-sm"
+                  >
+                    <i className="fa-solid fa-paper-plane"></i> Reply & Resolve
+                  </button>
+                </div>
               </div>
 
               {contact.notes && contact.notes.length > 0 && (

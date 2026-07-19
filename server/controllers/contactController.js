@@ -1,6 +1,6 @@
 const { Op } = require('sequelize');
 const { Contact, ContactNote, User } = require('../models/index');
-const { sendContactNotification, sendCustomerConfirmation } = require('../services/emailService');
+const { sendContactNotification, sendCustomerConfirmation, sendCustomerReply } = require('../services/emailService');
 
 // ── SUBMIT Contact Form ───────────────────────────────────────────────────────
 exports.submitContact = async (req, res) => {
@@ -137,6 +137,49 @@ exports.addNote = async (req, res) => {
     res.status(200).json({ status: 'success', data: updatedContact });
   } catch (error) {
     console.error('❌ Error adding note:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+// ── REPLY to Contact (Admin/Support) ──────────────────────────────────────────
+exports.replyToContact = async (req, res) => {
+  try {
+    const { message } = req.body;
+    if (!message) return res.status(400).json({ status: 'error', message: 'Reply message is required' });
+
+    const contact = await Contact.findByPk(req.params.id);
+    if (!contact) return res.status(404).json({ status: 'error', message: 'Contact not found' });
+
+    // Send email to customer
+    await sendCustomerReply(contact, message);
+
+    // Save reply as a note
+    await ContactNote.create({
+      contactId: contact.id,
+      text: `[Reply Sent to Customer]: ${message}`,
+      addedBy: req.user.id,
+      addedAt: new Date()
+    });
+
+    // Update status to resolved
+    contact.status = 'resolved';
+    if (!contact.resolvedAt) contact.resolvedAt = new Date();
+    await contact.save();
+
+    const updatedContact = await Contact.findByPk(req.params.id, {
+      include: [
+        { model: User, as: 'assignee', attributes: ['id', 'name', 'email'] },
+        {
+          model: ContactNote,
+          as: 'notes',
+          include: [{ model: User, as: 'addedByUser', attributes: ['id', 'name'] }],
+        },
+      ],
+    });
+
+    res.status(200).json({ status: 'success', data: updatedContact });
+  } catch (error) {
+    console.error('❌ Error replying to contact:', error);
     res.status(500).json({ status: 'error', message: error.message });
   }
 };

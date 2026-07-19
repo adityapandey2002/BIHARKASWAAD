@@ -5,6 +5,7 @@ const {
   getContact,
   updateContact,
   addNote,
+  replyToContact,
   deleteContact
 } = require('../controllers/contactController');
 const { protect, restrictTo } = require('../controllers/authController');
@@ -22,6 +23,7 @@ router.get('/', getAllContacts);
 router.get('/:id', getContact);
 router.patch('/:id', updateContact);
 router.post('/:id/notes', addNote);
+router.post('/:id/reply', replyToContact);
 router.delete('/:id', restrictTo('admin'), deleteContact);
 
 console.log('✅ Contact routes loaded');
