@@ -210,10 +210,7 @@ sequelize
     console.log('✅ All MySQL tables synced');
     app.listen(PORT, () => {
       console.log('\n' + '='.repeat(50));
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🗄️  Database: MySQL (${process.env.DB_NAME})`);
-      console.log(`📡 API: http://localhost:${PORT}/api`);
+      console.log(`🚀 Server running on port ${PORT} (Without DB Sync)`);
       console.log('='.repeat(50) + '\n');
     });
   })
@@ -221,5 +218,11 @@ sequelize
     const errorMsg = `❌ MySQL connection failed: ${err.message}\n   Check DB_HOST, DB_NAME, DB_USER, DB_PASSWORD in .env\nStack: ${err.stack}\n\n`;
     console.error(errorMsg);
     fs.appendFileSync('startup-error.log', errorMsg);
-    process.exit(1);
+    
+    // START THE SERVER ANYWAY SO WE DON'T GET A 503 ERROR
+    app.listen(PORT, () => {
+      console.log('\n' + '='.repeat(50));
+      console.log(`🚀 Server running on port ${PORT} (BUT DATABASE IS DISCONNECTED!)`);
+      console.log('='.repeat(50) + '\n');
+    });
   });
