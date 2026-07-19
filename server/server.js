@@ -192,9 +192,8 @@ sequelize
   .authenticate()
   .then(() => {
     console.log('✅ MySQL connected successfully');
-    // In development: alter=true keeps schema in sync automatically
-    // In production: use migrate.js to make schema changes safely
-    const syncOpts = process.env.NODE_ENV === 'production' ? {} : { alter: true };
+    // Temporarily forcing alter: true in production so Hostinger creates the tables automatically
+    const syncOpts = { alter: true };
     return sequelize.sync(syncOpts);
   })
   .then(() => {

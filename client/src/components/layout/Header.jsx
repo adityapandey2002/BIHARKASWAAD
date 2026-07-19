@@ -103,71 +103,18 @@ const Header = ({ onOpenMobileNav }) => {
               )}
             </div>
 
-            {/* --- MOBILE ACTIONS (Dropdown) --- */}
-            <div className="flex md:hidden relative items-center">
-              <button 
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="icon-btn relative"
-                style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'var(--paper)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)' }}
-                aria-label="Profile Menu"
-              >
-                {isAuthenticated ? (
-                  <span style={{ fontWeight: '700', fontSize: '15px', color: 'var(--indigo)' }}>{(user?.name || 'U').charAt(0).toUpperCase()}</span>
-                ) : (
-                  <i className="fa-regular fa-user" style={{ fontSize: '16px' }}></i>
-                )}
-                {/* Red dot if there are items in cart or wishlist */}
-                {(cartCount > 0 || (wishlistItems && wishlistItems.length > 0)) && (
-                   <span style={{ position: 'absolute', top: -2, right: -2, width: '12px', height: '12px', background: 'var(--sindoor)', borderRadius: '50%', border: '2px solid #fff' }}></span>
-                )}
+            {/* --- MOBILE ACTIONS --- */}
+            <div className="flex md:hidden items-center gap-3">
+              {/* Search */}
+              <button className="icon-btn" aria-label="Search" title="Search" onClick={() => setSearchOpen(true)}>
+                <i className="fa-solid fa-magnifying-glass"></i>
               </button>
 
-              {mobileMenuOpen && (
-                <div className="absolute top-[50px] right-0 bg-white shadow-xl rounded-lg py-2 w-56 z-50 border border-gray-100 flex flex-col" style={{ boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
-                  <div className="px-4 py-3 border-b border-gray-100 mb-1">
-                    <p className="font-bold text-gray-800" style={{ fontSize: '15px' }}>{isAuthenticated ? user?.name : 'Welcome!'}</p>
-                    {isAuthenticated && <p className="text-xs text-gray-500 mt-1">{user?.email}</p>}
-                  </div>
-                  
-                  <button onClick={() => { setSearchOpen(true); setMobileMenuOpen(false); }} className="px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 text-gray-700" style={{ fontSize: '14px' }}>
-                    <i className="fa-solid fa-magnifying-glass w-5 text-center text-gray-400"></i> Search
-                  </button>
-                  
-                  <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-left hover:bg-gray-50 flex items-center justify-between text-gray-700" style={{ fontSize: '14px' }}>
-                    <div className="flex items-center gap-3"><i className="fa-regular fa-heart w-5 text-center text-gray-400"></i> Wishlist</div>
-                    {wishlistItems && wishlistItems.length > 0 && <span style={{ background: 'var(--sindoor)' }} className="text-white text-xs font-bold rounded-full px-2 py-0.5">{wishlistItems.length}</span>}
-                  </Link>
-                  
-                  <Link to="/cart" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-left hover:bg-gray-50 flex items-center justify-between text-gray-700" style={{ fontSize: '14px' }}>
-                    <div className="flex items-center gap-3"><i className="fa-solid fa-basket-shopping w-5 text-center text-gray-400"></i> Cart</div>
-                    {cartCount > 0 && <span style={{ background: 'var(--sindoor)' }} className="text-white text-xs font-bold rounded-full px-2 py-0.5">{cartCount}</span>}
-                  </Link>
-                  
-                  {isAuthenticated ? (
-                    <>
-                      <Link to="/orders" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 text-gray-700" style={{ fontSize: '14px' }}>
-                        <i className="fa-solid fa-box w-5 text-center text-gray-400"></i> My Orders
-                      </Link>
-                      {user?.role === 'admin' && (
-                        <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 font-semibold text-orange-600" style={{ fontSize: '14px' }}>
-                          <i className="fa-solid fa-screwdriver-wrench w-5 text-center"></i> Admin Panel
-                        </Link>
-                      )}
-                      <div className="border-t border-gray-100 my-1"></div>
-                      <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="px-4 py-3 text-left hover:bg-gray-50 text-red-600 flex items-center gap-3" style={{ fontSize: '14px' }}>
-                        <i className="fa-solid fa-right-from-bracket w-5 text-center"></i> Logout
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <div className="border-t border-gray-100 my-1"></div>
-                      <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 font-semibold" style={{ color: 'var(--sindoor)', fontSize: '14px' }}>
-                        <i className="fa-solid fa-right-to-bracket w-5 text-center"></i> Sign In
-                      </Link>
-                    </>
-                  )}
-                </div>
-              )}
+              {/* Wishlist */}
+              <Link to="/wishlist" className="icon-btn" aria-label="Wishlist" title="Wishlist" style={{ position: 'relative' }}>
+                <i className="fa-regular fa-heart"></i>
+                {wishlistItems && wishlistItems.length > 0 && <span className="cart-count">{wishlistItems.length}</span>}
+              </Link>
             </div>
           </div>
         </div>

@@ -4,6 +4,7 @@ import Header from './layout/Header';
 import Footer from './layout/Footer';
 import MobileNav from './layout/MobileNav';
 import CartDrawer from './layout/CartDrawer';
+import BottomNav from './layout/BottomNav';
 
 const Layout = () => {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
@@ -31,6 +32,7 @@ const Layout = () => {
       </main>
       
       <Footer />
+      <BottomNav />
     </>
   );
 };
