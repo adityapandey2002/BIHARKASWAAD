@@ -171,6 +171,33 @@ app.get('/api/sync-db', async (req, res) => {
   }
 });
 
+// Diagnostic route to test SMTP email configuration
+app.get('/api/test-email', async (req, res) => {
+  const targetEmail = req.query.to || process.env.SMTP_USER || process.env.EMAIL_USER;
+  if (!targetEmail) {
+    return res.status(400).send('<h1>ERROR</h1><p>No recipient email specified. Add ?to=your-email@gmail.com to the URL.</p>');
+  }
+
+  try {
+    const { sendCustomerReply } = require('./services/emailService');
+    const dummyContact = {
+      name: 'Diagnostic Test',
+      email: targetEmail,
+      subject: 'SMTP Diagnostics Test',
+      message: 'This is a test email sent from BiharKaSwaad SMTP server.'
+    };
+
+    const success = await sendCustomerReply(dummyContact, 'Testing Hostinger SMTP email delivery.');
+    if (success) {
+      res.status(200).send(`<h1>SUCCESS!</h1><p>Test email successfully dispatched to <strong>${targetEmail}</strong> via Hostinger SMTP!</p><p>Check your Inbox and Spam folder.</p>`);
+    } else {
+      res.status(500).send(`<h1>FAILED</h1><p>Email failed to dispatch. Please check your Hostinger .env credentials (SMTP_USER and SMTP_PASS).</p>`);
+    }
+  } catch (err) {
+    res.status(500).send(`<h1>SMTP ERROR</h1><p>${err.message}</p><pre>${err.stack}</pre>`);
+  }
+});
+
 if (productRoutes) app.use('/api/products', productRoutes);
 if (cartRoutes) app.use('/api/cart', cartRoutes);
 if (orderRoutes) app.use('/api/orders', orderRoutes);

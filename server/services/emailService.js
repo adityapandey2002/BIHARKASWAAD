@@ -1,13 +1,17 @@
 const nodemailer = require('nodemailer');
 
 // Create transporter (Supports Hostinger SMTP or fallback to previous env vars)
+const portNum = parseInt(process.env.SMTP_PORT || '465');
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || (process.env.EMAIL_USER?.includes('gmail') ? 'smtp.gmail.com' : 'smtp.hostinger.com'),
-  port: process.env.SMTP_PORT || 465,
-  secure: true,
+  port: portNum,
+  secure: portNum === 465,
   auth: {
     user: process.env.SMTP_USER || process.env.EMAIL_USER,
     pass: process.env.SMTP_PASS || process.env.EMAIL_PASSWORD
+  },
+  tls: {
+    rejectUnauthorized: false
   }
 });
 
