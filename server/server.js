@@ -114,13 +114,20 @@ app.get('/api/test', (req, res) => {
 
 // ─── Load & Mount Routes ──────────────────────────────────────────────────────
 let authRoutes, productRoutes, cartRoutes, orderRoutes, paymentRoutes,
-    blogRoutes, wishlistRoutes, siteAssetsRoutes, contactRoutes;
+    blogRoutes, wishlistRoutes, siteAssetsRoutes, contactRoutes, categoryRoutes, reviewRoutes;
 
 try { authRoutes = require('./routes/authRoutes'); console.log('✅ Auth routes loaded'); }
 catch (err) { console.error('❌ Auth routes:', err.message); }
 
 try { productRoutes = require('./routes/productRoutes'); console.log('✅ Product routes loaded'); }
 catch (err) { console.error('❌ Product routes:', err.message); }
+
+
+try { categoryRoutes = require('./routes/categoryRoutes'); console.log('✅ Category routes loaded'); }
+catch (err) { console.error('❌ Category routes:', err.message); }
+
+try { reviewRoutes = require('./routes/reviewRoutes'); console.log('✅ Review routes loaded'); }
+catch (err) { console.error('❌ Review routes:', err.message); }
 
 try { cartRoutes = require('./routes/cartRoutes'); console.log('✅ Cart routes loaded'); }
 catch (err) { console.error('❌ Cart routes:', err.message); }
@@ -152,6 +159,8 @@ if (blogRoutes) app.use('/api/blogs', blogRoutes);
 if (wishlistRoutes) app.use('/api/wishlists', wishlistRoutes);
 if (siteAssetsRoutes) app.use('/api/site-assets', siteAssetsRoutes);
 if (contactRoutes) app.use('/api/contacts', contactRoutes);
+if (categoryRoutes) app.use('/api/categories', categoryRoutes);
+if (reviewRoutes) app.use('/api/reviews', reviewRoutes);
 
 // ─── Serve React Frontend (Production) ───────────────────────────────────────
 if (process.env.NODE_ENV === 'production') {

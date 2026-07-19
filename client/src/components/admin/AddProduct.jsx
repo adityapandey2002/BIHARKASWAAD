@@ -15,7 +15,8 @@ const AddProduct = ({ onProductAdded }) => {
     description: '',
     price: '',
     mrp: '',
-    category: 'Snacks',
+    discountPercentage: '',
+    category: '',
     subCategory: '',
     sku: '',
     packet: '',
@@ -24,9 +25,24 @@ const AddProduct = ({ onProductAdded }) => {
     featured: false,
   });
 
+  const [categories, setCategories] = useState([]);
   const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
 
-  const categories = ['Snacks', 'Sweets', 'Spices', 'Beverages', 'Meals', 'Pickles', 'Thekua', 'Sattu', 'Tilkut', 'Achaar', 'Honey', 'Bhuja Mix', 'Gift Hampers', 'Murabba', 'Chura', 'Khaja', 'Balushahi', 'Laai'];
+  React.useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const { data } = await axios.get(`${API_URL}/categories`);
+      if (data.data && data.data.length > 0) {
+        setCategories(data.data);
+        setFormData(prev => ({ ...prev, category: data.data[0].name }));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -136,6 +152,7 @@ const AddProduct = ({ onProductAdded }) => {
       submitData.append('description', formData.description);
       submitData.append('price', formData.price);
       if (formData.mrp) submitData.append('mrp', formData.mrp);
+      if (formData.discountPercentage) submitData.append('discountPercentage', formData.discountPercentage);
       submitData.append('category', formData.category);
       if (formData.subCategory) submitData.append('subCategory', formData.subCategory);
       if (formData.sku) submitData.append('sku', formData.sku);
@@ -165,7 +182,8 @@ const AddProduct = ({ onProductAdded }) => {
         description: '',
         price: '',
         mrp: '',
-        category: 'Snacks',
+        discountPercentage: '',
+        category: '',
         subCategory: '',
         sku: '',
         packet: '',
@@ -276,21 +294,61 @@ const AddProduct = ({ onProductAdded }) => {
           </div>
 
           {/* Additional Details */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Selling Price (₹) *</label>
-              <input type="number" name="price" value={formData.price} onChange={handleChange} required step="0.01" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Selling Price (₹)*</label>
+                <input
+                  type="number"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border rounded-md focus:ring-orange-500 focus:border-orange-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">MRP (₹)</label>
+                <input
+                  type="number"
+                  name="mrp"
+                  value={formData.mrp}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border rounded-md focus:ring-orange-500 focus:border-orange-500"
+                />
+              </div>
             </div>
+
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">MRP (₹)</label>
-              <input type="number" name="mrp" value={formData.mrp} onChange={handleChange} step="0.01" placeholder="Original price" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />
+              <label className="block text-sm font-medium text-gray-700 mb-1">Discount Percentage (%)</label>
+              <input
+                type="number"
+                name="discountPercentage"
+                value={formData.discountPercentage}
+                onChange={handleChange}
+                step="0.01"
+                className="w-full px-3 py-2 border rounded-md focus:ring-orange-500 focus:border-orange-500"
+                placeholder="e.g. 15 for 15% off"
+              />
+              <p className="text-xs text-gray-500 mt-1">Leave empty to auto-calculate from MRP and Price.</p>
             </div>
+
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Category *</label>
-              <select name="category" value={formData.category} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
-                {categories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
-              </select>
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border rounded-md focus:ring-orange-500 focus:border-orange-500"
+                  required
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((cat, idx) => (
+                    <option key={idx} value={cat.name}>{cat.name}</option>
+                  ))}
+                </select>
             </div>
+            
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Sub-Category</label>
               <input type="text" name="subCategory" value={formData.subCategory} onChange={handleChange} placeholder="e.g. Traditional" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />

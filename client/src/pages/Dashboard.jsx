@@ -3,6 +3,7 @@ import axios from 'axios';
 import AddProduct from '../components/admin/AddProduct';
 import ManageSiteAssets from '../components/admin/ManageSiteAssets';
 import ContactManagement from '../components/admin/ContactManagement';
+import ManageCategories from '../components/admin/ManageCategories';
 import AddBlog from '../components/admin/AddBlog';
 
 const Dashboard = () => {
@@ -64,6 +65,16 @@ const Dashboard = () => {
                 }`}
             >
               <i className="fa-solid fa-box mr-2"></i> Products
+            </button>
+
+            <button
+              onClick={() => setActiveTab('categories')}
+              className={`pb-4 px-1 font-semibold whitespace-nowrap transition-all ${activeTab === 'categories'
+                  ? 'border-b-2 border-orange-600 text-orange-600'
+                  : 'text-gray-500 hover:text-gray-700'
+                }`}
+            >
+              <i className="fa-solid fa-list mr-2"></i> Categories
             </button>
 
             <button
@@ -136,6 +147,8 @@ const Dashboard = () => {
           </>
         ) : activeTab === 'site-assets' ? (
           <ManageSiteAssets />
+        ) : activeTab === 'categories' ? (
+          <ManageCategories />
         ) : activeTab === 'contacts' ? (
           <ContactManagement />
         ) : (

@@ -10,6 +10,18 @@ const Contact = require('./Contact');
 const ContactNote = require('./ContactNote');
 const SiteAssets = require('./SiteAssets');
 const SlideshowItem = require('./SlideshowItem');
+const Category = require('./Category');
+const Review = require('./Review');
+
+// Associations
+User.hasMany(Review, { foreignKey: 'userId' });
+Review.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+Product.hasMany(Review, { foreignKey: 'productId', as: 'reviews' });
+Review.belongsTo(Product, { foreignKey: 'productId' });
+
+Order.hasMany(Review, { foreignKey: 'orderId' });
+Review.belongsTo(Order, { foreignKey: 'orderId' });
 
 // Cart associations
 User.hasOne(Cart, { foreignKey: 'userId' });
@@ -51,5 +63,7 @@ module.exports = {
   Contact,
   ContactNote,
   SiteAssets,
-  SlideshowItem
+  SlideshowItem,
+  Category,
+  Review
 };

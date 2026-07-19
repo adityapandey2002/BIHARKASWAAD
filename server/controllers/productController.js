@@ -316,11 +316,14 @@ exports.bulkUploadProducts = async (req, res) => {
         const subCategory = row['Sub -Category'] || row['Sub-Category'] || null;
         const packet = row['Packet'] ? String(row['Packet']).trim() : null;
         
-        let mrp = parseFloat(row['MRP']);
+        let mrp = parseFloat(row['MRP'] || row['mrp']);
         mrp = isNaN(mrp) ? null : mrp;
         
         let sellingPrice = parseFloat(row['Selling Price'] || row['price']);
         if (isNaN(sellingPrice)) sellingPrice = 0;
+
+        let discountPercentage = parseFloat(row['Discount Percentage'] || row['discountPercentage']);
+        discountPercentage = isNaN(discountPercentage) ? null : discountPercentage;
 
         const flipkartLink = row['FLIPKART LINK'] || null;
 
@@ -338,6 +341,7 @@ exports.bulkUploadProducts = async (req, res) => {
           description: row['Description'] || title,
           price: sellingPrice,
           mrp: mrp,
+          discountPercentage: discountPercentage,
           category: category,
           subCategory: subCategory,
           sku: sku,

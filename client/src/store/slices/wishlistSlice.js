@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { logout } from './authSlice';
 
 const API = `${process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api'}/wishlists`;
 
@@ -128,6 +129,11 @@ const wishlistSlice = createSlice({
       .addCase(clearWishlist.fulfilled, (state) => {
         state.loading = false;
         state.items = [];
+      })
+      .addCase(logout, (state) => {
+        state.items = [];
+        state.loading = false;
+        state.error = null;
       });
   },
 });
