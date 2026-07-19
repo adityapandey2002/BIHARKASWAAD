@@ -13,6 +13,7 @@ const HomeSection = () => {
   const { isAuthenticated } = useSelector((state) => state.auth);
   const { items: wishlistItems } = useSelector((state) => state.wishlist);
   const [addedIds, setAddedIds] = useState({});
+  const [categories, setCategories] = useState([]);
   const { heroImage, heroVideo1, heroVideo2 } = useSiteAssets();
 
   // Dynamic Festival Timer
@@ -26,7 +27,14 @@ const HomeSection = () => {
       dispatch(getCart());
       dispatch(fetchWishlist());
     }
-  }, [dispatch, isAuthenticated]);
+    
+    // Fetch dynamic categories
+    import('axios').then(axios => {
+      axios.default.get(`${API_BASE}/api/categories`).then(res => {
+        if(res.data && res.data.data) setCategories(res.data.data);
+      }).catch(err => console.error("Failed to fetch categories", err));
+    });
+  }, [dispatch, isAuthenticated, API_BASE]);
 
   useEffect(() => {
     const targetDate = new Date();
@@ -129,21 +137,16 @@ const HomeSection = () => {
           </div>
           <div className="flex gap-4 overflow-x-auto pb-4 pt-2 snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             <style>{`.flex.gap-4.overflow-x-auto::-webkit-scrollbar { display: none; }`}</style>
-            {[
-              { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116246/SATTU_m2gfbg.png', label: 'Sattu', search: 'Sattu' },
-              { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116246/TILKUT_e5fipd.png', label: 'Tilkut', search: 'Tilkut' },
-              { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116245/CHURA_vfur9l.png', label: 'Poha/ Chura', search: 'Poha' },
-              { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116245/BHUJA_b2qqyj.png', label: 'Mix Bhuja', search: 'Bhuja' },
-              { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116246/THEKUA_wsniwq.png', label: 'Thekua', search: 'Thekua' },
-              { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116245/RICE_qnjp6q.png', label: 'Rice', search: 'Rice' },
-              { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116245/SEEDS_bjhoxc.png', label: 'Seeds', search: 'Seeds' },
-              { image: 'https://res.cloudinary.com/kvteudbg/image/upload/v1784116245/SPICES_eluhsi.png', label: 'Spices', search: 'Spices' },
-            ].map(({ image, label, search, isCategory }) => (
-              <Link to={`/products?${isCategory ? 'category' : 'search'}=${encodeURIComponent(search)}`} key={label} className="block text-center group snap-start flex-shrink-0 w-24 md:w-28">
+            {categories.map((cat) => (
+              <Link to={`/products?category=${encodeURIComponent(cat.name)}`} key={cat.id} className="block text-center group snap-start flex-shrink-0 w-24 md:w-28">
                 <div className="w-20 h-20 md:w-24 md:h-24 mx-auto mb-3 rounded-full overflow-hidden border-4 border-gray-100 shadow-sm transition-transform duration-150 group-hover:scale-110 group-hover:border-orange-500">
-                  <img src={image} alt={label} className="w-full h-full object-cover" />
+                  {cat.imagePath ? (
+                    <img src={`https://biharkaswaad.in${cat.imagePath}`} alt={cat.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-2xl font-bold">{cat.name[0]}</div>
+                  )}
                 </div>
-                <span className="text-sm font-semibold text-gray-800">{label}</span>
+                <span className="text-sm font-semibold text-gray-800">{cat.name}</span>
               </Link>
             ))}
           </div>

@@ -43,19 +43,54 @@ const ProductListing = () => {
     }
   };
 
-  const categories = ['All', 'Snacks', 'Sweets', 'Spices', 'Beverages', 'Meals', 'Pickles'];
-  const specialties = ['Thekua', 'Sattu', 'Tilkut', 'Achaar', 'Bhuja Mix', 'Gift Hampers'];
+  const [categories, setCategories] = useState(['All']);
+  const [subCategories, setSubCategories] = useState([]);
+  const [selectedSubCategory, setSelectedSubCategory] = useState('All');
+
+  // Fetch dynamic categories on mount
+  useEffect(() => {
+    import('axios').then(axios => {
+      axios.default.get(`${API_BASE}/api/categories`).then(res => {
+        if(res.data && res.data.data) {
+          const names = res.data.data.map(c => c.name);
+          setCategories(['All', ...names]);
+        }
+      }).catch(err => console.error("Failed to fetch categories", err));
+    });
+  }, [API_BASE]);
+
+  // Extract dynamic subcategories from currently loaded products
+  useEffect(() => {
+    if (list && list.length > 0) {
+      const subs = new Set();
+      list.forEach(p => {
+        if (p.subCategory) subs.add(p.subCategory);
+      });
+      setSubCategories(Array.from(subs));
+    } else {
+      setSubCategories([]);
+    }
+    // If selected subcategory no longer exists in current list, reset it
+    if (selectedSubCategory !== 'All' && list && !list.find(p => p.subCategory === selectedSubCategory)) {
+      setSelectedSubCategory('All');
+    }
+  }, [list, selectedSubCategory]);
 
   useEffect(() => {
     const params = {};
     if (selectedCategory !== 'All') params.category = selectedCategory;
     if (searchQuery) params.search = searchQuery;
+    // We filter subCategory locally since API doesn't support it directly yet, 
+    // or we can just send it if backend supports it. Let's rely on local filtering for subCategory.
     
     dispatch(fetchProducts(params));
     if (isAuthenticated) {
       dispatch(fetchWishlist());
     }
   }, [dispatch, isAuthenticated, selectedCategory, searchQuery]);
+
+  // Filter list locally for subcategory
+  const displayedProducts = list ? list.filter(p => selectedSubCategory === 'All' || p.subCategory === selectedSubCategory) : [];
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -71,14 +106,11 @@ const ProductListing = () => {
     }
   };
 
-  const handleSpecialtyFilter = (specialty) => {
-    if (searchQuery === specialty) {
-      // Toggle off
-      setSearchQuery('');
-      dispatch(fetchProducts({ category: selectedCategory !== 'All' ? selectedCategory : undefined }));
+  const handleSubCategoryFilter = (subCat) => {
+    if (selectedSubCategory === subCat) {
+      setSelectedSubCategory('All');
     } else {
-      setSearchQuery(specialty);
-      dispatch(fetchProducts({ category: selectedCategory !== 'All' ? selectedCategory : undefined, search: specialty }));
+      setSelectedSubCategory(subCat);
     }
   };
 
@@ -183,50 +215,53 @@ const ProductListing = () => {
           </div>
         </div>
 
-        {/* Specialty Filter */}
-        <div className="mb-4 pb-2 border-b border-gray-200">
-          <p className="text-[10px] md:text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Popular Items</p>
-          <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            {specialties.map((specialty) => (
-              <button
-                key={specialty}
-                onClick={() => handleSpecialtyFilter(specialty)}
-                className={`flex-1 text-center px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap snap-start flex-shrink-0 transition-all duration-200 ${
-                  searchQuery === specialty
-                    ? 'bg-orange-600 text-white shadow-md'
-                    : 'bg-white text-gray-600 hover:bg-orange-50 border border-orange-200'
-                }`}
-              >
-                {specialty}
-              </button>
-            ))}
+        {/* Sub-Category Filter */}
+        {subCategories.length > 0 && (
+          <div className="mb-4 pb-2 border-b border-gray-200">
+            <p className="text-[10px] md:text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Sub Categories</p>
+            <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              {subCategories.map((subCat) => (
+                <button
+                  key={subCat}
+                  onClick={() => handleSubCategoryFilter(subCat)}
+                  className={`flex-1 text-center px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap snap-start flex-shrink-0 transition-all duration-200 ${
+                    selectedSubCategory === subCat
+                      ? 'bg-orange-600 text-white shadow-md'
+                      : 'bg-white text-gray-600 hover:bg-orange-50 border border-orange-200'
+                  }`}
+                >
+                  {subCat}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Products Count */}
         <div className="mb-6">
           <p className="text-gray-600">
-            Showing <span className="font-semibold text-blue-600">{list.length}</span> products
+            Showing <span className="font-semibold text-blue-600">{displayedProducts.length}</span> products
           </p>
         </div>
 
         {/* Products Grid */}
-        {list.length === 0 ? (
+        {displayedProducts.length === 0 ? (
           <div className="bg-white rounded-xl shadow-md p-12 text-center">
-            <svg className="w-24 h-24 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
             </svg>
             <h2 className="text-2xl font-bold text-gray-700 mb-2">No Products Found</h2>
             <p className="text-gray-500 mb-6">
-              {searchQuery || selectedCategory !== 'All' 
+              {searchQuery || selectedCategory !== 'All' || selectedSubCategory !== 'All'
                 ? 'Try adjusting your search or filters' 
                 : 'Check back soon for new products'}
             </p>
-            {(searchQuery || selectedCategory !== 'All') && (
+            {(searchQuery || selectedCategory !== 'All' || selectedSubCategory !== 'All') && (
               <button
                 onClick={() => {
                   setSearchQuery('');
                   setSelectedCategory('All');
+                  setSelectedSubCategory('All');
                   dispatch(fetchProducts());
                 }}
                 className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
@@ -237,7 +272,7 @@ const ProductListing = () => {
           </div>
         ) : (
           <div className="prod-grid">
-            {list.map((product, i) => {
+            {displayedProducts.map((product, i) => {
               const id = product.id || product._id;
               const imageUrl = getImageUrl(product);
               const isAdded = addedIds[id];
