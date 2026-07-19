@@ -281,12 +281,12 @@ const HomeSection = () => {
 {/* ── Our Story ─────────────────────────────────────────────────────── */ }
 <section className="story" id="story">
   <div className="wrap">
-    <img src="https://picsum.photos/seed/artisan-kitchen/600/500" alt="Farmers preparing Thekua" />
+    <img src="https://res.cloudinary.com/kvteudbg/image/upload/v1784476045/BiharKaSwaad_grhnlp.png" alt="BiharKaSwaad Products" />
     <div>
       <div className="eyebrow" style={{ color: 'var(--haldi)' }}>Our story</div>
       <h2>From <em>Bihar's kitchens</em><br />to your doorstep.</h2>
-      <p>BiharKaSwaad began in a small kitchen in Kumharar, Patna — where recipes passed down through generations are still followed by hand, one batch at a time.</p>
-      <p>Every jar of Sattu, every piece of Thekua, is prepared by farmers from across Bihar, using pure ghee, freshly milled atta, and zero preservatives.</p>
+      <p>Craving the taste of home while living away shouldn't mean losing touch with the food that defines your roots. Whether you want a glass of pure Chana Sattu, the sweetness of handmade Thekua, or the perfect crunch of evening Bhuja, etc. BiharKaSwaad brings all these pure flavors straight from the village to your doorstep anywhere in India.</p>
+      <p>We cut down the distance between you and your home, ensuring you never miss a single bite of the food you grew up with. Welcome to BiharKaSwaad—your ultimate destination for परंपरा, स्वाद, भरोसा!</p>
       <div className="story-sig">— Team BiharKaSwaad</div>
     </div>
   </div>
