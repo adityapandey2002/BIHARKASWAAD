@@ -360,51 +360,54 @@ const ProductDetails = () => {
                 )}
               </div>
 
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-                {product.dietaryPreference === 'Non-Veg' ? (
-                  <span title="Non-Vegetarian" style={{ display: 'inline-block', width: '20px', height: '20px', border: '2px solid #DC2626', borderRadius: '4px', padding: '2px', flexShrink: 0 }}>
-                    <span style={{ display: 'block', width: '100%', height: '100%', backgroundColor: '#DC2626', borderRadius: '50%' }}></span>
-                  </span>
-                ) : (
-                  <span title="Vegetarian" style={{ display: 'inline-block', width: '20px', height: '20px', border: '2px solid #16A34A', borderRadius: '4px', padding: '2px', flexShrink: 0 }}>
-                    <span style={{ display: 'block', width: '100%', height: '100%', backgroundColor: '#16A34A', borderRadius: '50%' }}></span>
-                  </span>
-                )}
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 {product.name}
               </h1>
 
-              {/* Ratings */}
-              <div className="flex items-center mb-4">
+              {/* Ratings and Veg Mark */}
+              <div className="flex items-center gap-4 mb-3">
                 <div className="flex items-center">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <svg
-                      key={star}
-                      className={`w-5 h-5 ${star <= Math.round(product.ratingsAverage || product.ratings?.average || 4.8)
-                          ? 'text-yellow-400 fill-current'
-                          : 'text-gray-300'
-                        }`}
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                    </svg>
-                  ))}
+                  <div className="flex items-center">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <svg
+                        key={star}
+                        className={`w-5 h-5 ${star <= Math.round(product.ratingsAverage || product.ratings?.average || 4.8)
+                            ? 'text-yellow-400 fill-current'
+                            : 'text-gray-300'
+                          }`}
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                      </svg>
+                    ))}
+                  </div>
+                  <span className="ml-2 text-sm font-semibold text-gray-700">
+                    {product.ratingsAverage ? parseFloat(product.ratingsAverage).toFixed(1) : '4.8'}
+                  </span>
+                  <span className="ml-1 text-sm text-gray-500">
+                    ({product.ratingsCount || product.ratings?.count || 200}+ reviews)
+                  </span>
                 </div>
-                <span className="ml-2 text-sm font-semibold text-gray-700">
-                  {product.ratingsAverage ? parseFloat(product.ratingsAverage).toFixed(1) : '4.8'}
-                </span>
-                <span className="ml-1 text-sm text-gray-500">
-                  ({product.ratingsCount || product.ratings?.count || 200}+ reviews)
-                </span>
+                {/* Veg/Non-Veg Mark moved here */}
+                {product.dietaryPreference === 'Non-Veg' ? (
+                  <span title="Non-Vegetarian" style={{ display: 'inline-block', width: '18px', height: '18px', border: '1.5px solid #DC2626', borderRadius: '4px', padding: '1.5px', flexShrink: 0 }}>
+                    <span style={{ display: 'block', width: '100%', height: '100%', backgroundColor: '#DC2626', borderRadius: '50%' }}></span>
+                  </span>
+                ) : (
+                  <span title="Vegetarian" style={{ display: 'inline-block', width: '18px', height: '18px', border: '1.5px solid #16A34A', borderRadius: '4px', padding: '1.5px', flexShrink: 0 }}>
+                    <span style={{ display: 'block', width: '100%', height: '100%', backgroundColor: '#16A34A', borderRadius: '50%' }}></span>
+                  </span>
+                )}
               </div>
 
               {/* Price */}
-              <div className="mb-4">
+              <div className="mb-3">
                 <div className="flex items-baseline gap-3">
-                  <span className="text-4xl font-bold text-green-600">
+                  <span className="text-3xl font-bold text-green-600">
                     ₹{displayPrice}
                   </span>
                   {product.mrp && product.mrp > displayPrice && (
-                    <span className="text-xl text-gray-400 line-through">
+                    <span className="text-lg text-gray-400 line-through">
                       ₹{product.mrp}
                     </span>
                   )}
@@ -421,7 +424,7 @@ const ProductDetails = () => {
 
               {/* Variants Selector */}
               {product.variants && product.variants.length > 0 && (
-                <div className="mb-4">
+                <div className="mb-3">
                   <h3 className="text-sm font-semibold text-gray-700 mb-2">Available Variants</h3>
                   <div className="flex flex-wrap gap-2">
                     {product.variants.map((v, index) => (
@@ -442,7 +445,7 @@ const ProductDetails = () => {
               )}
 
               {/* Stock Status */}
-              <div className="mb-4">
+              <div className="mb-3">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-gray-700">Availability:</span>
                   {currentStock > 10 ? (
@@ -467,9 +470,9 @@ const ProductDetails = () => {
                       <button
                         onClick={decreaseQuantity}
                         disabled={quantity <= 1}
-                        className="px-4 py-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                        className="px-3 py-1.5 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
                         </svg>
                       </button>
@@ -479,14 +482,14 @@ const ProductDetails = () => {
                         max={currentStock}
                         value={quantity}
                         onChange={handleQuantityInput}
-                        className="w-20 text-center py-2 border-x-2 border-gray-300 focus:outline-none font-semibold"
+                        className="w-16 text-center py-1.5 border-x-2 border-gray-300 focus:outline-none font-semibold text-sm"
                       />
                       <button
                         onClick={increaseQuantity}
                         disabled={quantity >= currentStock}
-                        className="px-4 py-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                        className="px-3 py-1.5 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                         </svg>
                       </button>
@@ -496,13 +499,13 @@ const ProductDetails = () => {
               )}
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 mb-4">
+              <div className="flex flex-col sm:flex-row gap-3 mb-3">
                 <button
                   onClick={handleAddToCart}
                   disabled={currentStock === 0}
-                  className="flex-1 bg-orange-600 text-white px-8 py-4 rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200 font-semibold text-lg flex items-center justify-center gap-2"
+                  className="flex-1 bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200 font-semibold text-base flex items-center justify-center gap-2"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                   Add to Cart
@@ -510,9 +513,9 @@ const ProductDetails = () => {
                 <button
                   onClick={handleBuyNow}
                   disabled={currentStock === 0}
-                  className="flex-1 bg-green-600 text-white px-8 py-4 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200 font-semibold text-lg flex items-center justify-center gap-2"
+                  className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200 font-semibold text-base flex items-center justify-center gap-2"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                   Buy Now
