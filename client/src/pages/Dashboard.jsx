@@ -37,7 +37,6 @@ const Dashboard = () => {
       await axios.delete(`${API_URL}/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      alert('✅ Product deleted');
       fetchProducts();
     } catch (error) {
       console.error('Error deleting product:', error);

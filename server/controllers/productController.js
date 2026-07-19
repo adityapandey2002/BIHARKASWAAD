@@ -389,11 +389,21 @@ exports.bulkUploadProducts = async (req, res) => {
           }
         }
 
+        let dietaryPreference = row['Dietary Preference'] || row['dietaryPreference'];
+        if (dietaryPreference) {
+          dietaryPreference = String(dietaryPreference).trim();
+          if (dietaryPreference !== 'Veg' && dietaryPreference !== 'Non-Veg') {
+            dietaryPreference = 'Veg';
+          }
+        } else {
+          dietaryPreference = 'Veg';
+        }
+
         let ratingsAverage = parseFloat(row['Rating'] || row['ratingsAverage'] || row['Rating Average']);
-        if (isNaN(ratingsAverage)) ratingsAverage = 4.8;
+        if (isNaN(ratingsAverage)) ratingsAverage = 0;
 
         let ratingsCount = parseInt(row['Rating Count'] || row['ratingsCount'] || row['Reviews Count'] || row['Review Count']);
-        if (isNaN(ratingsCount)) ratingsCount = 200;
+        if (isNaN(ratingsCount)) ratingsCount = 0;
 
         const productData = {
           name: title,

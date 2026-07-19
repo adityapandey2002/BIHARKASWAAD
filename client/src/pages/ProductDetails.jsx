@@ -371,7 +371,7 @@ const ProductDetails = () => {
                     {[1, 2, 3, 4, 5].map((star) => (
                       <svg
                         key={star}
-                        className={`w-5 h-5 ${star <= Math.round(product.ratingsAverage || product.ratings?.average || 4.8)
+                        className={`w-5 h-5 ${star <= Math.round(product.ratingsAverage || 0)
                             ? 'text-yellow-400 fill-current'
                             : 'text-gray-300'
                           }`}
@@ -382,10 +382,10 @@ const ProductDetails = () => {
                     ))}
                   </div>
                   <span className="ml-2 text-sm font-semibold text-gray-700">
-                    {product.ratingsAverage ? parseFloat(product.ratingsAverage).toFixed(1) : '4.8'}
+                    {product.ratingsAverage ? parseFloat(product.ratingsAverage).toFixed(1) : '0.0'}
                   </span>
                   <span className="ml-1 text-sm text-gray-500">
-                    ({product.ratingsCount || product.ratings?.count || 200}+ reviews)
+                    ({product.ratingsCount || 0} reviews)
                   </span>
                 </div>
                 {/* Veg/Non-Veg Mark moved here */}
@@ -444,19 +444,19 @@ const ProductDetails = () => {
                 </div>
               )}
 
-              {/* Stock Status */}
-              <div className="mb-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-700">Availability:</span>
-                  {currentStock > 10 ? (
-                    <span className="text-green-600 font-semibold">In Stock</span>
-                  ) : currentStock > 0 ? (
-                    <span className="text-amber-600 font-semibold">Only {currentStock} items left in stock!</span>
-                  ) : (
-                    <span className="text-red-600 font-semibold">Out of Stock</span>
-                  )}
+              {/* Stock Status - Hidden if 10 or more */}
+              {currentStock < 10 && (
+                <div className="mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-gray-700">Availability:</span>
+                    {currentStock > 0 ? (
+                      <span className="text-amber-600 font-semibold">Only {currentStock} items left in stock!</span>
+                    ) : (
+                      <span className="text-red-600 font-semibold">Out of Stock</span>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
 
 
               {/* Quantity Selector */}
