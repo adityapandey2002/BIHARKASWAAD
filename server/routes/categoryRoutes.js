@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const categoryController = require('../controllers/categoryController');
-const authMiddleware = require('../middleware/authMiddleware');
+const { protect, restrictTo } = require('../controllers/authController');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 router.get('/', categoryController.getAllCategories);
-router.post('/', authMiddleware.protect, authMiddleware.restrictTo('admin'), upload.single('image'), categoryController.createCategory);
-router.delete('/:id', authMiddleware.protect, authMiddleware.restrictTo('admin'), categoryController.deleteCategory);
+router.post('/', protect, restrictTo('admin'), upload.single('image'), categoryController.createCategory);
+router.delete('/:id', protect, restrictTo('admin'), categoryController.deleteCategory);
 
 module.exports = router;
