@@ -32,6 +32,8 @@ import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Wishlist from './pages/Wishlist';
 import Orders from './pages/Orders';
+import RefundPolicy from './pages/RefundPolicy';
+import TermsConditions from './pages/TermsConditions';
 
 // Auth
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -71,9 +73,14 @@ function App() {
               <Route path="products" element={<ProductListing />} />
               <Route path="products/:id" element={<ProductDetails />} />
               <Route path="blogs" element={<Blogs />} />
+              <Route path="cart" element={<Cart />} />
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="refunds" element={<RefundPolicy />} />
+              <Route path="terms" element={<TermsConditions />} />
+              
               <Route path="login" element={<Login />} />
               <Route path="signup" element={<Signup />} />
-
+              
               {/* Protected Routes */}
               <Route
                 path="wishlist"
