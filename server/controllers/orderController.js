@@ -42,9 +42,28 @@ exports.createOrder = async (req, res) => {
     }));
     await OrderItem.bulkCreate(orderItemsData);
 
-    // Only clear cart for COD. For online payments (handled by paymentController), 
+    // Only clear cart and deduct stock for COD. For online payments (handled by paymentController), 
     // we clear it after verification. Assuming this route is for COD or non-Razorpay.
     if (paymentMethod === 'cod') {
+      // Deduct stock for each purchased item
+      for (const item of orderItemsData) {
+        const product = await Product.findByPk(item.productId);
+        if (product) {
+          product.stock = Math.max(0, product.stock - item.quantity);
+
+          if (item.variantWeight && product.variants && product.variants.length > 0) {
+            const updatedVariants = product.variants.map(v => {
+              if (v.weight === item.variantWeight && v.stock !== undefined) {
+                return { ...v, stock: Math.max(0, parseInt(v.stock) - item.quantity) };
+              }
+              return v;
+            });
+            product.variants = updatedVariants;
+          }
+          await product.save();
+        }
+      }
+
       await CartItem.destroy({ where: { cartId: cart.id } });
       cart.totalAmount = 0;
       await cart.save();

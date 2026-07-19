@@ -281,12 +281,12 @@ const HomeSection = () => {
 {/* ── Our Story ─────────────────────────────────────────────────────── */ }
 <section className="story" id="story">
   <div className="wrap">
-    <img src="https://picsum.photos/seed/artisan-kitchen/600/500" alt="Women artisans preparing Thekua" />
+    <img src="https://picsum.photos/seed/artisan-kitchen/600/500" alt="Farmers preparing Thekua" />
     <div>
       <div className="eyebrow" style={{ color: 'var(--haldi)' }}>Our story</div>
       <h2>From <em>Bihar's kitchens</em><br />to your doorstep.</h2>
       <p>BiharKaSwaad began in a small kitchen in Kumharar, Patna — where recipes passed down through generations are still followed by hand, one batch at a time.</p>
-      <p>Every jar of Sattu, every piece of Thekua, is prepared by women artisans from across Bihar, using pure ghee, freshly milled atta, and zero preservatives.</p>
+      <p>Every jar of Sattu, every piece of Thekua, is prepared by farmers from across Bihar, using pure ghee, freshly milled atta, and zero preservatives.</p>
       <div className="story-sig">— Team BiharKaSwaad</div>
     </div>
   </div>
@@ -301,7 +301,7 @@ const HomeSection = () => {
     </div>
     <div className="trust-tag">
       <i className="fa-solid fa-hands-holding-circle"></i>
-      <div><strong>Handmade with love</strong><span>By women artisans of Bihar</span></div>
+      <div><strong>Handmade with love</strong><span>By farmers of Bihar</span></div>
     </div>
     <div className="trust-tag">
       <i className="fa-solid fa-award"></i>
@@ -320,10 +320,12 @@ const HomeSection = () => {
     </div>
     <div className="faq-list">
       {[
-        { q: 'How fresh are the products when they arrive?', a: 'Everything is prepared in small batches only after your order is placed, and shipped within 24-48 hours to keep it as fresh as possible.' },
-        { q: 'Do you deliver across India?', a: 'Yes, we deliver pan-India to over 19,000 pincodes, with free shipping on all orders.' },
-        { q: 'What is the shelf life of Thekua and Tilkut?', a: 'Thekua stays fresh for about 45 days and Tilkut for around 60 days when stored in an airtight container in a cool, dry place.' },
-        { q: 'Can I return or exchange a product?', a: 'Since these are perishable food items, we don\'t accept returns, but if a package arrives damaged or incorrect, we\'ll replace it free of cost.' },
+        { q: "What makes BiharKaSwaad products unique?", a: "We bring you the authentic taste of Bihar through traditional recipes rooted in rural villages. Our specialty is our traditional, homemade Thekua, crafted with love. Along with it, our Bhuja, Makhana, Pure Mustard Oil, Tilkut, Sattu, pure honey, multigrain flour and traditional pickles are all proudly made by our empowered group of local farmers." },
+        { q: "Are your products freshly made?", a: "Yes! We prepare and pack our items in small batches to ensure maximum freshness, hygiene, and authentic flavor before they are shipped out to you." },
+        { q: "How long does it take to process and ship my food order?", a: "Standard orders are carefully packaged and processed within 1–2 business days. Once shipped, standard delivery takes 3–7 business days depending on your location across India." },
+        { q: "Do you offer faster delivery options if I need the products urgently?", a: "Yes, we offer a fast-tracked Air Shipping option at checkout for quicker delivery. Opting for this premium service adds an additional charge of 70 INR per Kg to your order total." },
+        { q: "What should I do if my food packet arrives damaged or tampered with?", a: "Since our products are food items, safety is our priority. If the package appears visibly damaged or opened at delivery, please refuse to accept it from the courier and immediately contact our support team with photographic proof within 24 hours." },
+        { q: "How can I reach out for bulk orders or customer support?", a: "For any questions, order updates, or grievance resolution, you can easily reach our team by emailing us directly at biharkaswaadfood@gmail.com or through our website's official contact page." }
       ].map(({ q, a }) => (
         <details key={q} className="faq-item" style={{ cursor: 'pointer' }}>
           <summary className="faq-q" style={{ listStyle: 'none', display: 'flex', justifyContent: 'space-between' }}>

@@ -84,6 +84,15 @@ const ProductDetails = () => {
     return parseFloat(product.price);
   }, [product, selectedVariantWeight]);
 
+  const currentStock = useMemo(() => {
+    if (!product) return 0;
+    if (selectedVariantWeight && product.variants && product.variants.length > 0) {
+      const v = product.variants.find(v => v.weight === selectedVariantWeight);
+      if (v && v.stock !== undefined) return parseInt(v.stock);
+    }
+    return product.stock || 0;
+  }, [product, selectedVariantWeight]);
+
   // Center thumbnail when selected
   useEffect(() => {
     if (activeThumbnailRef.current && thumbnailContainerRef.current) {
@@ -111,7 +120,7 @@ const ProductDetails = () => {
 
   // Quantity handlers
   const increaseQuantity = () => {
-    if (quantity < (product?.stock || 0)) {
+    if (quantity < currentStock) {
       setQuantity(quantity + 1);
     }
   };
@@ -124,7 +133,7 @@ const ProductDetails = () => {
 
   const handleQuantityInput = (e) => {
     const value = parseInt(e.target.value) || 1;
-    if (value >= 1 && value <= (product?.stock || 0)) {
+    if (value >= 1 && value <= currentStock) {
       setQuantity(value);
     }
   };
@@ -137,7 +146,7 @@ const ProductDetails = () => {
       return;
     }
 
-    if (product.stock === 0) {
+    if (currentStock === 0) {
       alert('❌ Product is out of stock');
       return;
     }
@@ -275,13 +284,13 @@ const ProductDetails = () => {
                 </button>
 
                 {/* Stock Badge */}
-                {product.stock === 0 && (
+                {currentStock === 0 && (
                   <div className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded-full text-sm font-semibold">
                     Out of Stock
                   </div>
                 )}
 
-                {product.featured && product.stock > 0 && (
+                {product.featured && currentStock > 0 && (
                   <div className="absolute top-4 left-4 bg-orange-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
                     Featured
                   </div>
@@ -424,9 +433,9 @@ const ProductDetails = () => {
               <div className="mb-6">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-gray-700">Availability:</span>
-                  {product.stock > 0 ? (
+                  {currentStock > 0 ? (
                     <span className="text-green-600 font-semibold">
-                      In Stock ({product.stock} units available)
+                      In Stock ({currentStock} units available)
                     </span>
                   ) : (
                     <span className="text-red-600 font-semibold">Out of Stock</span>
@@ -436,7 +445,7 @@ const ProductDetails = () => {
 
 
               {/* Quantity Selector */}
-              {product.stock > 0 && (
+              {currentStock > 0 && (
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Quantity
@@ -455,14 +464,14 @@ const ProductDetails = () => {
                       <input
                         type="number"
                         min="1"
-                        max={product.stock}
+                        max={currentStock}
                         value={quantity}
                         onChange={handleQuantityInput}
                         className="w-20 text-center py-2 border-x-2 border-gray-300 focus:outline-none font-semibold"
                       />
                       <button
                         onClick={increaseQuantity}
-                        disabled={quantity >= product.stock}
+                        disabled={quantity >= currentStock}
                         className="px-4 py-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -471,7 +480,7 @@ const ProductDetails = () => {
                       </button>
                     </div>
                     <span className="text-sm text-gray-600">
-                      Max {product.stock} units
+                      Max {currentStock} units
                     </span>
                   </div>
                 </div>
@@ -481,7 +490,7 @@ const ProductDetails = () => {
               <div className="flex flex-col sm:flex-row gap-4 mb-4">
                 <button
                   onClick={handleAddToCart}
-                  disabled={product.stock === 0}
+                  disabled={currentStock === 0}
                   className="flex-1 bg-orange-600 text-white px-8 py-4 rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200 font-semibold text-lg flex items-center justify-center gap-2"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -491,7 +500,7 @@ const ProductDetails = () => {
                 </button>
                 <button
                   onClick={handleBuyNow}
-                  disabled={product.stock === 0}
+                  disabled={currentStock === 0}
                   className="flex-1 bg-green-600 text-white px-8 py-4 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200 font-semibold text-lg flex items-center justify-center gap-2"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

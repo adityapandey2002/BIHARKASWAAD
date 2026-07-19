@@ -113,6 +113,28 @@ exports.verifyPayment = async (req, res) => {
       order.orderStatus = 'processing';
       await order.save();
 
+      // Deduct stock for each purchased item
+      const orderItems = await OrderItem.findAll({ where: { orderId: order.id } });
+      for (const item of orderItems) {
+        const product = await Product.findByPk(item.productId);
+        if (product) {
+          // Reduce parent stock
+          product.stock = Math.max(0, product.stock - item.quantity);
+
+          // If variant was purchased, reduce variant stock
+          if (item.variantWeight && product.variants && product.variants.length > 0) {
+            const updatedVariants = product.variants.map(v => {
+              if (v.weight === item.variantWeight && v.stock !== undefined) {
+                return { ...v, stock: Math.max(0, parseInt(v.stock) - item.quantity) };
+              }
+              return v;
+            });
+            product.variants = updatedVariants;
+          }
+          await product.save();
+        }
+      }
+
       // Clear the user's cart now that payment is successful
       const cart = await Cart.findOne({ where: { userId: order.userId } });
       if (cart) {

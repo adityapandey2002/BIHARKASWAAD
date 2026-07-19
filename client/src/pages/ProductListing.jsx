@@ -278,7 +278,7 @@ const ProductListing = () => {
               const id = product.id || product._id;
               const imageUrl = getImageUrl(product);
               const isAdded = addedIds[id];
-              const stockLeft = 3 + ((i * 7) % 12);
+              const stockLeft = product.stock || 0;
               const viewers = 4 + ((i * 5) % 20);
               const mrp = Math.round(product.price * 1.4);
               const off = Math.round((1 - product.price / mrp) * 100);
@@ -340,19 +340,27 @@ const ProductListing = () => {
                     <div className="stock-bar">
                       <div className="stock-bar-fill" style={{ width: `${stockPct}%` }}></div>
                     </div>
-                    <div className="urgency"><i className="fa-solid fa-fire"></i> Only {stockLeft} left in stock</div>
+                    {stockLeft > 0 ? (
+                      <div className="urgency"><i className="fa-solid fa-fire"></i> Only {stockLeft} left in stock</div>
+                    ) : (
+                      <div className="urgency" style={{ color: '#DC2626' }}><i className="fa-solid fa-ban"></i> Out of stock</div>
+                    )}
                     <div className="viewers"><i className="fa-solid fa-eye"></i> {viewers} people viewing this</div>
 
-                    <button
-                      className={`add-btn ${isAdded ? 'added' : ''}`}
-                      onClick={() => handleAddToCart(product)}
-                    >
-                      {isAdded ? (
-                        <><i className="fa-solid fa-check"></i> Added!</>
-                      ) : (
-                        <><i className="fa-solid fa-basket-shopping"></i> Add to cart</>
-                      )}
-                    </button>
+                    <div className="mt-auto pt-3">
+                      <button
+                        className={`add-btn ${isAdded ? 'added' : ''}`}
+                        onClick={() => handleAddToCart(product)}
+                        disabled={stockLeft === 0}
+                        style={stockLeft === 0 ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                      >
+                        {isAdded ? (
+                          <><i className="fa-solid fa-check"></i> Added!</>
+                        ) : (
+                          <><i className="fa-solid fa-basket-shopping"></i> Add to cart</>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               );

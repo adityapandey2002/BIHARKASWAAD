@@ -351,15 +351,20 @@ exports.bulkUploadProducts = async (req, res) => {
           publishedValue = (p !== 'no' && p !== 'false' && p !== '0');
         }
 
-        // Parse Variants (e.g., "250g=150, 500g=280, 1kg=500")
+        // Parse Variants (e.g., "250g=150:5, 500g=280:10, 1kg=500")
         const variantsData = [];
         if (row['Variants']) {
           const variantsStr = String(row['Variants']);
           const pairs = variantsStr.split(',');
           for (let pair of pairs) {
-            const [w, p] = pair.split('=');
-            if (w && p) {
-              variantsData.push({ weight: w.trim(), price: p.trim() });
+            const [w, rest] = pair.split('=');
+            if (w && rest) {
+              const [p, s] = rest.split(':');
+              variantsData.push({ 
+                weight: w.trim(), 
+                price: p.trim(),
+                stock: s ? parseInt(s.trim()) : stockValue 
+              });
             }
           }
         }
