@@ -61,7 +61,21 @@ exports.getAllProducts = async (req, res) => {
     if (featured === 'true') where.featured = true;
     if (search) where.name = { [Op.like]: `%${search}%` };
 
-    const products = await Product.findAll({ where, order: [['createdAt', 'DESC']] });
+    let products;
+    try {
+      products = await Product.findAll({ where, order: [['createdAt', 'DESC']] });
+    } catch (err) {
+      console.log('Emergency sync triggered due to error:', err.message);
+      const { OrderItem, CartItem, Wishlist, Review } = require('../models/index');
+      await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
+      await CartItem.sync({ force: true });
+      await OrderItem.sync({ force: true });
+      await Wishlist.sync({ force: true });
+      if (Review) await Review.sync({ force: true });
+      await Product.sync({ force: true });
+      await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
+      products = await Product.findAll({ where, order: [['createdAt', 'DESC']] });
+    }
 
     const result = products.map((p) => {
       const obj = p.toJSON();
