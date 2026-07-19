@@ -40,7 +40,8 @@ const Dashboard = () => {
       alert('✅ Product deleted');
       fetchProducts();
     } catch (error) {
-      alert('❌ Failed to delete product');
+      console.error('Error deleting product:', error);
+      alert('❌ Failed to delete product: ' + (error.response?.data?.message || error.message));
     }
   };
 

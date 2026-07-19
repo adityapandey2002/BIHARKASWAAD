@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
 exports.sendContactNotification = async (contactData, recipients) => {
   try {
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"BiharKaSwaad Support" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
       to: recipients.join(', '),
       subject: `New Contact Inquiry: ${contactData.subject}`,
       html: `
@@ -74,7 +74,7 @@ exports.sendContactNotification = async (contactData, recipients) => {
 exports.sendCustomerConfirmation = async (contactData) => {
   try {
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"BiharKaSwaad Support" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
       to: contactData.email,
       subject: 'We received your message - Bihar Ka Swaad',
       html: `

@@ -98,7 +98,7 @@ exports.getProductById = async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id);
 
-    if (!product || !product.published) {
+    if (!product) {
       return res.status(404).json({ status: 'error', message: 'Product not found' });
     }
 
@@ -109,7 +109,8 @@ exports.getProductById = async (req, res) => {
 
     res.status(200).json({ status: 'success', data: obj });
   } catch (error) {
-    res.status(400).json({ status: 'error', message: 'Invalid product ID' });
+    console.error('❌ Error fetching product:', error);
+    res.status(400).json({ status: 'error', message: error.message });
   }
 };
 
@@ -274,25 +275,28 @@ exports.deleteProduct = async (req, res) => {
     if (product.imagePath && !product.imagePath.startsWith('http')) {
        deleteImageFile(product.imagePath);
     }
-    if (product.images) {
-       product.images.forEach(img => {
-          if (img && !img.startsWith('http')) deleteImageFile(img);
+    
+    // Safely parse images array
+    const imagesList = safeParseJSON(product.images, []);
+    if (Array.isArray(imagesList)) {
+       imagesList.forEach(img => {
+          if (img && typeof img === 'string' && !img.startsWith('http')) deleteImageFile(img);
        });
     }
 
     // Delete dependent items first to prevent foreign key constraint errors
-    const { CartItem, Wishlist, OrderItem } = require('../models');
+    const { CartItem, Wishlist, OrderItem, Review } = require('../models/index');
     await CartItem.destroy({ where: { productId: product.id } });
     await Wishlist.destroy({ where: { productId: product.id } });
-    
-    // Set productId to null for OrderItems to preserve order history but remove product link
-    await OrderItem.update({ productId: null }, { where: { productId: product.id } });
+    if (Review) await Review.destroy({ where: { productId: product.id } });
+    await OrderItem.destroy({ where: { productId: product.id } });
 
     await product.destroy();
 
     console.log('🗑️ Product deleted:', req.params.id);
     res.status(200).json({ status: 'success', message: 'Product deleted successfully' });
   } catch (error) {
+    console.error('❌ Error deleting product:', error);
     res.status(400).json({ status: 'error', message: error.message });
   }
 };
