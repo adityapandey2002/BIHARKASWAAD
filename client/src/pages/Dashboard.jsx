@@ -60,8 +60,8 @@ const Dashboard = () => {
             <button
               onClick={() => setActiveTab('products')}
               className={`pb-4 px-1 font-semibold whitespace-nowrap transition-all ${activeTab === 'products'
-                  ? 'border-b-2 border-orange-600 text-orange-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                ? 'border-b-2 border-orange-600 text-orange-600'
+                : 'text-gray-500 hover:text-gray-700'
                 }`}
             >
               <i className="fa-solid fa-box mr-2"></i> Products
@@ -70,8 +70,8 @@ const Dashboard = () => {
             <button
               onClick={() => setActiveTab('categories')}
               className={`pb-4 px-1 font-semibold whitespace-nowrap transition-all ${activeTab === 'categories'
-                  ? 'border-b-2 border-orange-600 text-orange-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                ? 'border-b-2 border-orange-600 text-orange-600'
+                : 'text-gray-500 hover:text-gray-700'
                 }`}
             >
               <i className="fa-solid fa-list mr-2"></i> Categories
@@ -80,8 +80,8 @@ const Dashboard = () => {
             <button
               onClick={() => setActiveTab('site-assets')}
               className={`pb-4 px-1 font-semibold whitespace-nowrap transition-all ${activeTab === 'site-assets'
-                  ? 'border-b-2 border-orange-600 text-orange-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                ? 'border-b-2 border-orange-600 text-orange-600'
+                : 'text-gray-500 hover:text-gray-700'
                 }`}
             >
               <i className="fa-solid fa-image mr-2"></i> Logo & Slideshow
@@ -90,8 +90,8 @@ const Dashboard = () => {
             <button
               onClick={() => setActiveTab('contacts')}
               className={`pb-4 px-1 font-semibold whitespace-nowrap transition-all ${activeTab === 'contacts'
-                  ? 'border-b-2 border-orange-600 text-orange-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                ? 'border-b-2 border-orange-600 text-orange-600'
+                : 'text-gray-500 hover:text-gray-700'
                 }`}
             >
               <i className="fa-solid fa-envelope mr-2"></i> Inquiries
@@ -100,8 +100,8 @@ const Dashboard = () => {
             <button
               onClick={() => setActiveTab('blogs')}
               className={`pb-4 px-1 font-semibold whitespace-nowrap transition-all ${activeTab === 'blogs'
-                  ? 'border-b-2 border-orange-600 text-orange-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                ? 'border-b-2 border-orange-600 text-orange-600'
+                : 'text-gray-500 hover:text-gray-700'
                 }`}
             >
               <i className="fa-solid fa-newspaper mr-2"></i> Blogs
@@ -123,12 +123,12 @@ const Dashboard = () => {
               ) : (
                 <div className="prod-grid">
                   {products.map((product) => {
-                    const imageUrl = product.imagePath && product.imagePath.startsWith('http') 
-                      ? product.imagePath 
-                      : product.imagePath 
-                        ? `${API_URL.replace('/api', '')}${product.imagePath}` 
+                    const imageUrl = product.imagePath && product.imagePath.startsWith('http')
+                      ? product.imagePath
+                      : product.imagePath
+                        ? `${API_URL.replace('/api', '')}${product.imagePath}`
                         : product.image ? `${API_URL.replace('/api', '')}${product.image}` : 'https://placehold.co/400x400?text=No+Image';
-                    
+
                     const mrp = product.mrp || Math.round(product.price * 1.4);
                     const off = Math.round((1 - product.price / mrp) * 100);
 
@@ -163,10 +163,10 @@ const Dashboard = () => {
                           </div>
                         </div>
                         <div className="card-body">
-                          <div className="card-title">
+                          <div className="card-title line-clamp-2">
                             {product.name || 'Unnamed Product'}
                           </div>
-                          
+
                           {(product.variants && product.variants.length > 0) ? (
                             <div className="text-xs text-gray-500 mt-1 mb-1 font-medium">
                               Available in: {product.variants.map(v => v.weight).join(', ')}
