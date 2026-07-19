@@ -116,7 +116,11 @@ const ProductListing = () => {
 
   // Check if product is in wishlist
   const isInWishlist = (productId) => {
-    return wishlistItems.some(item => (item.productId === productId || item.product?.id === productId || item.product?._id === productId));
+    return wishlistItems.some(item => (
+      String(item.productId) === String(productId) || 
+      String(item.product?.id) === String(productId) || 
+      String(item.product?._id) === String(productId)
+    ));
   };
 
   const handleWishlistToggle = (productId, e) => {

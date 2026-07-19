@@ -45,7 +45,10 @@ const ProductDetails = () => {
         // Fetch related products (same category)
         if (data.data.category) {
           const relatedRes = await axios.get(`${API_URL}/products?category=${data.data.category}`);
-          const related = relatedRes.data.data.filter(p => p.id !== parseInt(id)).slice(0, 4);
+          const related = relatedRes.data.data
+            .filter(p => p.id !== parseInt(id))
+            .sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0))
+            .slice(0, 4);
           setRelatedProducts(related);
         }
 

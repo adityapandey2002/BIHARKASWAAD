@@ -113,8 +113,8 @@ const Orders = () => {
                       fontSize: '13px', 
                       fontWeight: '600',
                       textTransform: 'capitalize',
-                      background: order.orderStatus === 'delivered' ? '#ECFDF5' : order.orderStatus === 'shipped' ? '#EFF6FF' : '#FFFBEB',
-                      color: order.orderStatus === 'delivered' ? '#059669' : order.orderStatus === 'shipped' ? '#2563EB' : '#D97706'
+                      background: order.orderStatus === 'delivered' ? '#ECFDF5' : order.orderStatus === 'shipped' ? '#EFF6FF' : (order.orderStatus === 'cancelled' || order.orderStatus === 'returned' || order.orderStatus === 'refunded') ? '#FEF2F2' : '#FFFBEB',
+                      color: order.orderStatus === 'delivered' ? '#059669' : order.orderStatus === 'shipped' ? '#2563EB' : (order.orderStatus === 'cancelled' || order.orderStatus === 'returned' || order.orderStatus === 'refunded') ? '#DC2626' : '#D97706'
                     }}>
                       {order.orderStatus}
                     </span>

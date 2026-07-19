@@ -13,14 +13,96 @@ const Cart = () => {
   const API_BASE = (process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api').replace('/api', '');
 
   const [initialLoad, setInitialLoad] = useState(true);
+  const [failedOrders, setFailedOrders] = useState([]);
+  const [retryLoading, setRetryLoading] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
       dispatch(getCart()).finally(() => setInitialLoad(false));
+      fetchFailedOrders();
     } else {
       setInitialLoad(false);
     }
   }, [dispatch, isAuthenticated]);
+
+  const fetchFailedOrders = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
+      const { data } = await import('axios').then(axios => axios.default.get(`${API_URL}/orders/mine/failed`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }));
+      setFailedOrders(data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch failed orders", err);
+    }
+  };
+
+  const handleRetryPayment = async (order) => {
+    try {
+      setRetryLoading(true);
+      const token = localStorage.getItem('token');
+      const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
+      const axios = (await import('axios')).default;
+      
+      // Get razorpay key
+      const { data: configData } = await axios.get(`${API_URL}/payment/config`);
+      const keyId = configData.data.keyId;
+
+      // The order already has a razorpayOrderId. We can just invoke Razorpay checkout again.
+      // But wait, Razorpay order IDs might expire. 
+      // Safe approach: create a new Razorpay order for this DB order, or just retry with the existing one.
+      // Actually, standard Razorpay flow is fine with retrying the existing razorpayOrderId if it hasn't succeeded yet.
+      
+      const options = {
+        key: keyId,
+        amount: Math.round(order.totalAmount * 100),
+        currency: 'INR',
+        name: 'Bihar Ka Swaad',
+        description: 'Order Payment Retry',
+        order_id: order.razorpayOrderId, // Existing Razorpay order ID
+        handler: async function (response) {
+          try {
+            const verifyRes = await axios.post(
+              `${API_URL}/payment/verify`,
+              {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                dbOrderId: order.id,
+              },
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            if (verifyRes.data.status === 'success') {
+              alert('✅ Payment successful!');
+              // Remove this order from failed orders list
+              setFailedOrders(prev => prev.filter(o => o.id !== order.id));
+              navigate('/orders');
+            }
+          } catch (err) {
+            alert('❌ Payment verification failed: ' + (err.response?.data?.message || err.message));
+          }
+        },
+        prefill: {
+          name: order.shippingName,
+          contact: order.shippingPhone,
+        },
+        theme: { color: '#E06B26' },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (response) {
+        alert('❌ Payment failed again: ' + response.error.description);
+      });
+      rzp.open();
+    } catch (err) {
+      alert('❌ Failed to initiate payment: ' + err.message);
+    } finally {
+      setRetryLoading(false);
+    }
+  };
 
   const getImageUrl = (item) => {
     const p = item.product;
@@ -108,7 +190,7 @@ const Cart = () => {
                       {name}
                     </h3>
                     <div style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '4px', display: 'flex', gap: '8px' }}>
-                      {item.variantWeight ? <span><i className="fa-solid fa-weight-scale" style={{marginRight: '4px'}}></i>{item.variantWeight}</span> : null}
+                      {(item.variantWeight || product.packet) ? <span><i className="fa-solid fa-weight-scale" style={{marginRight: '4px'}}></i>{item.variantWeight || product.packet}</span> : null}
                       <span><i className="fa-solid fa-layer-group" style={{marginRight: '4px'}}></i>Qty: {item.quantity}</span>
                     </div>
                     <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--sindoor)', fontWeight: '700', fontSize: '15px', marginBottom: '8px' }}>
@@ -151,9 +233,10 @@ const Cart = () => {
               {items.map((item) => {
                 const price = item.price || item.product?.price || 0;
                 const name = item.name || item.product?.name || 'Product';
+                const weightLabel = item.variantWeight || item.product?.packet || '';
                 return (
                   <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '14px' }}>
-                    <span style={{ color: 'var(--ink)' }}>{name} {item.variantWeight ? `(${item.variantWeight})` : ''} × {item.quantity}</span>
+                    <span style={{ color: 'var(--ink)' }}>{name} {weightLabel ? `(${weightLabel})` : ''} × {item.quantity}</span>
                     <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--indigo)', fontWeight: '600' }}>₹{(price * item.quantity).toLocaleString('en-IN')}</span>
                   </div>
                 );
@@ -182,6 +265,36 @@ const Cart = () => {
             </Link>
           </div>
         </div>
+        
+        {/* Failed Orders Retry Section */}
+        {failedOrders.length > 0 && (
+          <div className="wrap mt-12 mb-8">
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--indigo)', marginBottom: '16px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <i className="fa-solid fa-circle-exclamation text-red-500"></i> Pending / Failed Payments
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {failedOrders.map(order => (
+                <div key={order.id} style={{ border: '1px solid #FECACA', borderRadius: '12px', padding: '20px', background: '#FEF2F2', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                  <div>
+                    <div style={{ fontSize: '14px', color: '#991B1B', fontWeight: '600', marginBottom: '4px' }}>Order #{order.id}</div>
+                    <div style={{ fontSize: '13px', color: '#B91C1C' }}>{order.items?.length || 0} items • Placed on {new Date(order.createdAt).toLocaleDateString()}</div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontWeight: '700', fontSize: '18px', color: '#991B1B' }}>₹{order.totalAmount}</div>
+                    <button 
+                      onClick={() => handleRetryPayment(order)}
+                      disabled={retryLoading}
+                      className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg shadow-sm transition"
+                    >
+                      {retryLoading ? 'Wait...' : 'Retry Payment'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
       </section>
     </>
   );

@@ -336,6 +336,21 @@ exports.bulkUploadProducts = async (req, res) => {
           }
         }
 
+        let stockValue = parseInt(row['Stock']);
+        if (isNaN(stockValue)) stockValue = 100;
+
+        let featuredValue = false;
+        if (row['Featured']) {
+          const f = String(row['Featured']).toLowerCase().trim();
+          featuredValue = (f === 'yes' || f === 'true' || f === '1');
+        }
+
+        let publishedValue = true;
+        if (row['Published']) {
+          const p = String(row['Published']).toLowerCase().trim();
+          publishedValue = (p !== 'no' && p !== 'false' && p !== '0');
+        }
+
         const productData = {
           name: title,
           description: row['Description'] || title,
@@ -347,11 +362,12 @@ exports.bulkUploadProducts = async (req, res) => {
           sku: sku,
           packet: packet,
           flipkartLink: flipkartLink,
-          stock: 100, // Default stock if not provided
+          stock: stockValue,
+          featured: featuredValue,
           images: images,
           imagePath: images.length > 0 ? images[0] : null,
           imageContentType: 'url',
-          published: true
+          published: publishedValue
         };
 
         // If SKU exists, try to update. Otherwise, create new.

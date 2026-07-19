@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const Razorpay = require('razorpay');
-const { Order, OrderItem } = require('../models/index');
+const { Order, OrderItem, Cart, CartItem } = require('../models/index');
 
 let razorpay;
 try {
@@ -112,6 +112,14 @@ exports.verifyPayment = async (req, res) => {
       order.paymentStatus = 'completed';
       order.orderStatus = 'processing';
       await order.save();
+
+      // Clear the user's cart now that payment is successful
+      const cart = await Cart.findOne({ where: { userId: order.userId } });
+      if (cart) {
+        await CartItem.destroy({ where: { cartId: cart.id } });
+        cart.totalAmount = 0;
+        await cart.save();
+      }
 
       console.log('✅ Payment verified:', razorpay_payment_id);
       res.status(200).json({ status: 'success', message: 'Payment verified successfully', data: order });

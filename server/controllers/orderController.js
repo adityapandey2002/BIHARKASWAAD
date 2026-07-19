@@ -28,6 +28,7 @@ exports.createOrder = async (req, res) => {
       shippingState: shippingAddress?.state,
       shippingPincode: shippingAddress?.pincode,
       orderStatus: 'pending',
+      paymentStatus: paymentMethod === 'cod' ? 'pending' : 'pending' // Just to be explicit
     });
 
     // Create order items (snapshot product details at purchase time)
@@ -37,13 +38,17 @@ exports.createOrder = async (req, res) => {
       productName: item.product?.name || 'Unknown Product',
       quantity: item.quantity,
       price: item.price,
+      variantWeight: item.variantWeight || null
     }));
     await OrderItem.bulkCreate(orderItemsData);
 
-    // Clear cart
-    await CartItem.destroy({ where: { cartId: cart.id } });
-    cart.totalAmount = 0;
-    await cart.save();
+    // Only clear cart for COD. For online payments (handled by paymentController), 
+    // we clear it after verification. Assuming this route is for COD or non-Razorpay.
+    if (paymentMethod === 'cod') {
+      await CartItem.destroy({ where: { cartId: cart.id } });
+      cart.totalAmount = 0;
+      await cart.save();
+    }
 
     res.status(201).json({ status: 'success', data: order });
   } catch (error) {
@@ -55,7 +60,31 @@ exports.createOrder = async (req, res) => {
 exports.getMyOrders = async (req, res) => {
   try {
     const orders = await Order.findAll({
-      where: { userId: req.user.id },
+      where: { 
+        userId: req.user.id,
+        paymentStatus: 'completed' 
+      },
+      include: [{ model: OrderItem, as: 'items', include: [{ model: Product, as: 'product' }] }],
+      order: [['createdAt', 'DESC']],
+    });
+
+    res.status(200).json({ status: 'success', data: orders });
+  } catch (error) {
+    res.status(400).json({ status: 'error', message: error.message });
+  }
+};
+
+// ── GET My Failed Orders ──────────────────────────────────────────────────────
+exports.getMyFailedOrders = async (req, res) => {
+  try {
+    const { Op } = require('sequelize');
+    const orders = await Order.findAll({
+      where: { 
+        userId: req.user.id,
+        paymentStatus: {
+          [Op.in]: ['failed', 'pending']
+        }
+      },
       include: [{ model: OrderItem, as: 'items', include: [{ model: Product, as: 'product' }] }],
       order: [['createdAt', 'DESC']],
     });

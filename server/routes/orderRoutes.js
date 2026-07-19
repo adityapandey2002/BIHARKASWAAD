@@ -1,6 +1,6 @@
 const express = require('express');
 const { protect, restrictTo } = require('../controllers/authController');
-const { createOrder, getMyOrders, getOrderById, updateOrderStatus, trackOrder } = require('../controllers/orderController');
+const { createOrder, getMyOrders, getMyFailedOrders, getOrderById, updateOrderStatus, trackOrder } = require('../controllers/orderController');
 
 const router = express.Router();
 
@@ -12,6 +12,7 @@ router.use(protect);
 
 router.post('/', createOrder);
 router.get('/mine', getMyOrders);
+router.get('/mine/failed', getMyFailedOrders);
 router.get('/:id', getOrderById);
 
 // Admin: update status/pay/deliver
