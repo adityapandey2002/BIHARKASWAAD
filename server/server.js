@@ -1,5 +1,15 @@
 // Load environment variables FIRST
 require('dotenv').config();
+const fs = require('fs');
+// Removed duplicate path require
+
+// Global error catcher to write to file
+process.on('uncaughtException', (err) => {
+  fs.appendFileSync('startup-error.log', `Uncaught Exception: ${err.message}\n${err.stack}\n\n`);
+});
+process.on('unhandledRejection', (err) => {
+  fs.appendFileSync('startup-error.log', `Unhandled Rejection: ${err.message}\n${err.stack}\n\n`);
+});
 
 const express = require('express');
 const cors = require('cors');
@@ -208,7 +218,8 @@ sequelize
     });
   })
   .catch((err) => {
-    console.error('❌ MySQL connection failed:', err.message);
-    console.error('   Check DB_HOST, DB_NAME, DB_USER, DB_PASSWORD in .env');
+    const errorMsg = `❌ MySQL connection failed: ${err.message}\n   Check DB_HOST, DB_NAME, DB_USER, DB_PASSWORD in .env\nStack: ${err.stack}\n\n`;
+    console.error(errorMsg);
+    fs.appendFileSync('startup-error.log', errorMsg);
     process.exit(1);
   });
