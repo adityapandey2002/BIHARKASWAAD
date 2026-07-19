@@ -261,37 +261,20 @@ const HomeSection = () => {
 </section>
 
 {/* ── Festival Banner ───────────────────────────────────────────────── */ }
-<section className="festival" id="festival">
-  <h3>Chhath Puja Special is Live</h3>
-  <p>Fresh Thekua, made in small batches, packed with prasad-grade purity — order before stock runs out.</p>
+<section className="festival" id="festival" style={{ padding: '20px 0' }}>
+  <h3 style={{ marginBottom: '4px' }}>Chhath Puja Special is Live</h3>
+  <p style={{ marginBottom: '10px' }}>Fresh Thekua, made in small batches, packed with prasad-grade purity — order before stock runs out.</p>
   <div style={{
     fontFamily: 'var(--font-mono)', background: 'rgba(0,0,0,.2)',
-    display: 'inline-block', padding: '10px 20px', borderRadius: '6px',
-    marginBottom: '18px', fontSize: '18px', fontWeight: '700', letterSpacing: '2px',
+    display: 'inline-block', padding: '6px 12px', borderRadius: '6px',
+    marginBottom: '12px', fontSize: '16px', fontWeight: '700', letterSpacing: '2px',
   }}>
     {pad(timeLeft.days)}d : {pad(timeLeft.hours)}h : {pad(timeLeft.minutes)}m : {pad(timeLeft.seconds)}s
   </div>
   <div>
-    <Link to="/products" className="btn btn-primary">
+    <Link to="/products" className="btn btn-primary" style={{ padding: '8px 16px' }}>
       <i className="fa-solid fa-bolt"></i> Shop festival specials
     </Link>
-  </div>
-</section>
-
-{/* ── Referral ──────────────────────────────────────────────────────── */ }
-<section className="referral">
-  <div className="wrap">
-    <div>
-      <div className="eyebrow">Refer &amp; earn</div>
-      <h2>Bihar ka swaad, apno tak pahunchao.</h2>
-      <p>Apne dost ko refer karo — unhe milega ₹100 off unke pehle order par, aur aapko milenge ₹100 reward points jab unka order deliver ho jaye.</p>
-      <button className="btn btn-primary"><i className="fa-solid fa-share-nodes"></i> Get my referral link</button>
-    </div>
-    <div className="ref-stats">
-      <div className="ref-card"><strong>₹100</strong><span>For you, per referral</span></div>
-      <div className="ref-card"><strong>₹100</strong><span>For your friend</span></div>
-      <div className="ref-card"><strong>2,400+</strong><span>Referrals sent</span></div>
-    </div>
   </div>
 </section>
 

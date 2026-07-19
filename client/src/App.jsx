@@ -34,6 +34,7 @@ import Wishlist from './pages/Wishlist';
 import Orders from './pages/Orders';
 import RefundPolicy from './pages/RefundPolicy';
 import TermsConditions from './pages/TermsConditions';
+import FAQ from './pages/FAQ';
 
 // Auth
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -75,8 +76,11 @@ function App() {
               <Route path="blogs" element={<Blogs />} />
               <Route path="cart" element={<Cart />} />
               <Route path="checkout" element={<Checkout />} />
-              <Route path="refunds" element={<RefundPolicy />} />
-              <Route path="terms" element={<TermsConditions />} />
+              
+              {/* Content Pages */}
+              <Route path="/refund-policy" element={<RefundPolicy />} />
+              <Route path="/terms-conditions" element={<TermsConditions />} />
+              <Route path="/faq" element={<FAQ />} />
               
               <Route path="login" element={<Login />} />
               <Route path="signup" element={<Signup />} />

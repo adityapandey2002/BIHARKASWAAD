@@ -303,7 +303,16 @@ const ProductListing = () => {
                   </div>
                   <div className="card-body">
                     <div className="card-title line-clamp-2">
-                      <Link to={`/products/${id}`} style={{ color: '#2A2118' }}>
+                      <Link to={`/products/${id}`} style={{ color: '#2A2118', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        {product.dietaryPreference === 'Non-Veg' ? (
+                          <span title="Non-Vegetarian" style={{ display: 'inline-block', width: '12px', height: '12px', border: '1px solid #DC2626', borderRadius: '2px', padding: '1px', flexShrink: 0 }}>
+                            <span style={{ display: 'block', width: '100%', height: '100%', backgroundColor: '#DC2626', borderRadius: '50%' }}></span>
+                          </span>
+                        ) : (
+                          <span title="Vegetarian" style={{ display: 'inline-block', width: '12px', height: '12px', border: '1px solid #16A34A', borderRadius: '2px', padding: '1px', flexShrink: 0 }}>
+                            <span style={{ display: 'block', width: '100%', height: '100%', backgroundColor: '#16A34A', borderRadius: '50%' }}></span>
+                          </span>
+                        )}
                         {product.name || 'Unnamed Product'}
                       </Link>
                     </div>

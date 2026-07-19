@@ -335,9 +335,23 @@ const ProductDetails = () => {
                     SKU: {product.sku}
                   </span>
                 )}
+                {product.shelfLife && (
+                  <span className="inline-block bg-teal-100 text-teal-800 text-xs font-semibold px-3 py-1 rounded-full">
+                    <i className="fa-regular fa-clock mr-1"></i> Shelf Life: {product.shelfLife}
+                  </span>
+                )}
               </div>
 
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                {product.dietaryPreference === 'Non-Veg' ? (
+                  <span title="Non-Vegetarian" style={{ display: 'inline-block', width: '20px', height: '20px', border: '2px solid #DC2626', borderRadius: '4px', padding: '2px', flexShrink: 0 }}>
+                    <span style={{ display: 'block', width: '100%', height: '100%', backgroundColor: '#DC2626', borderRadius: '50%' }}></span>
+                  </span>
+                ) : (
+                  <span title="Vegetarian" style={{ display: 'inline-block', width: '20px', height: '20px', border: '2px solid #16A34A', borderRadius: '4px', padding: '2px', flexShrink: 0 }}>
+                    <span style={{ display: 'block', width: '100%', height: '100%', backgroundColor: '#16A34A', borderRadius: '50%' }}></span>
+                  </span>
+                )}
                 {product.name}
               </h1>
 

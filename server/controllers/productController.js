@@ -364,6 +364,12 @@ exports.bulkUploadProducts = async (req, res) => {
           }
         }
 
+        let dietaryPreference = 'Veg';
+        if (row['Dietary Preference']) {
+          const pref = String(row['Dietary Preference']).toLowerCase().trim();
+          if (pref === 'non-veg' || pref === 'non veg') dietaryPreference = 'Non-Veg';
+        }
+
         const productData = {
           name: title,
           description: row['Description'] || title,
@@ -378,6 +384,9 @@ exports.bulkUploadProducts = async (req, res) => {
           stock: stockValue,
           featured: featuredValue,
           variants: variantsData,
+          shelfLife: row['Shelf Life'] ? String(row['Shelf Life']).trim() : null,
+          dietaryPreference: dietaryPreference,
+          tags: row['Tags'] ? String(row['Tags']).trim() : null,
           images: images,
           imagePath: images.length > 0 ? images[0] : null,
           imageContentType: 'url',
