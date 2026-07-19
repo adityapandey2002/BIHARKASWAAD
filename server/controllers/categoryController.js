@@ -13,8 +13,8 @@ exports.getAllCategories = async (req, res) => {
 
 exports.createCategory = async (req, res) => {
   try {
-    const { name } = req.body;
-    let imagePath = null;
+    const { name, imageUrl } = req.body;
+    let imagePath = imageUrl || null;
     if (req.file) {
       imagePath = `/uploads/categories/${req.file.filename}`;
     }

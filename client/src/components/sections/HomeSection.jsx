@@ -141,7 +141,7 @@ const HomeSection = () => {
               <Link to={`/products?category=${encodeURIComponent(cat.name)}`} key={cat.id} className="block text-center group snap-start flex-shrink-0 w-24 md:w-28">
                 <div className="w-20 h-20 md:w-24 md:h-24 mx-auto mb-3 rounded-full overflow-hidden border-4 border-gray-100 shadow-sm transition-transform duration-150 group-hover:scale-110 group-hover:border-orange-500">
                   {cat.imagePath ? (
-                    <img src={`https://biharkaswaad.in${cat.imagePath}`} alt={cat.name} className="w-full h-full object-cover" />
+                    <img src={cat.imagePath.startsWith('http') ? cat.imagePath : `https://biharkaswaad.in${cat.imagePath}`} alt={cat.name} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-2xl font-bold">{cat.name[0]}</div>
                   )}

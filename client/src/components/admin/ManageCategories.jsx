@@ -4,7 +4,7 @@ import axios from 'axios';
 const ManageCategories = () => {
   const [categories, setCategories] = useState([]);
   const [newCatName, setNewCatName] = useState('');
-  const [newCatImage, setNewCatImage] = useState(null);
+  const [newCatImage, setNewCatImage] = useState('');
   const [loading, setLoading] = useState(false);
   const API_URL = process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api';
 
@@ -29,7 +29,7 @@ const ManageCategories = () => {
     const token = localStorage.getItem('token');
     const formData = new FormData();
     formData.append('name', newCatName);
-    if (newCatImage) formData.append('image', newCatImage);
+    if (newCatImage) formData.append('imageUrl', newCatImage);
 
     try {
       await axios.post(`${API_URL}/categories`, formData, {
@@ -40,7 +40,7 @@ const ManageCategories = () => {
       });
       alert('Category added successfully!');
       setNewCatName('');
-      setNewCatImage(null);
+      setNewCatImage('');
       fetchCategories();
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to add category');
@@ -81,12 +81,13 @@ const ManageCategories = () => {
             />
           </div>
           <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Category Image</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Category Image Link (URL)</label>
             <input 
-              type="file" 
-              accept="image/*"
-              onChange={(e) => setNewCatImage(e.target.files[0])}
-              className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+              type="text" 
+              value={newCatImage}
+              onChange={(e) => setNewCatImage(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md"
+              placeholder="https://example.com/image.jpg"
             />
           </div>
           <button 
