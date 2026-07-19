@@ -159,6 +159,18 @@ try { contactRoutes = require('./routes/contactRoutes'); console.log('✅ Contac
 catch (err) { console.warn('⚠️  Contact routes not found'); }
 
 if (authRoutes) app.use('/api/auth', authRoutes);
+
+// Emergency route to recreate dropped tables
+app.get('/api/sync-db', async (req, res) => {
+  try {
+    const syncOpts = { alter: true };
+    await sequelize.sync(syncOpts);
+    res.status(200).send('<h1>SUCCESS!</h1><p>All database tables have been perfectly recreated with the new features.</p><p>You can now close this tab and try your bulk upload again.</p>');
+  } catch (err) {
+    res.status(500).send(`<h1>ERROR</h1><p>${err.message}</p>`);
+  }
+});
+
 if (productRoutes) app.use('/api/products', productRoutes);
 if (cartRoutes) app.use('/api/cart', cartRoutes);
 if (orderRoutes) app.use('/api/orders', orderRoutes);
