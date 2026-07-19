@@ -121,26 +121,85 @@ const Dashboard = () => {
               ) : products.length === 0 ? (
                 <p className="text-gray-500">No products yet. Add your first product above!</p>
               ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {products.map((product) => (
-                    <div key={product.id || product._id} className="border rounded-lg p-4 hover:shadow-lg transition">
-                      {product.image && (
-                        <img
-                          src={`${API_URL.replace('/api', '')}${product.image}`}
-                          alt={product.name}
-                          className="w-full h-40 object-cover rounded-lg mb-4"
-                        />
-                      )}
-                      <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
-                      <p className="text-green-600 font-bold mb-2">₹{product.price}</p>
-                      <button
-                        onClick={() => handleDelete(product.id || product._id)}
-                        className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 font-bold mt-2"
-                      >
-                        Delete Product
-                      </button>
-                    </div>
-                  ))}
+                <div className="product-grid">
+                  {products.map((product) => {
+                    const imageUrl = product.imagePath && product.imagePath.startsWith('http') 
+                      ? product.imagePath 
+                      : product.imagePath 
+                        ? `${API_URL.replace('/api', '')}${product.imagePath}` 
+                        : product.image ? `${API_URL.replace('/api', '')}${product.image}` : 'https://placehold.co/400x400?text=No+Image';
+                    
+                    const mrp = product.mrp || Math.round(product.price * 1.4);
+                    const off = Math.round((1 - product.price / mrp) * 100);
+
+                    return (
+                      <div className="card" key={product.id || product._id}>
+                        <div className="card-img">
+                          <div style={{ position: 'absolute', top: '12px', left: '6px', zIndex: 10, display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            {product.featured ? (
+                              <span className="kraft-tag" style={{ background: '#d32f2f', color: '#fff', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                <i className="fa-solid fa-star" style={{ fontSize: '10px' }}></i>
+                                <span>Bestseller</span>
+                              </span>
+                            ) : (
+                              product.category && <span className="kraft-tag">{product.category}</span>
+                            )}
+                          </div>
+                          {/* Right-side Action Column */}
+                          <div style={{ position: 'absolute', top: '10px', bottom: '10px', right: '10px', zIndex: 10, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center' }}>
+                            {product.dietaryPreference === 'Non-Veg' ? (
+                              <span title="Non-Vegetarian" style={{ display: 'inline-block', width: '14px', height: '14px', border: '1px solid #DC2626', borderRadius: '2px', padding: '1px', backgroundColor: 'rgba(255,255,255,0.92)' }}>
+                                <span style={{ display: 'block', width: '100%', height: '100%', backgroundColor: '#DC2626', borderRadius: '50%' }}></span>
+                              </span>
+                            ) : (
+                              <span title="Vegetarian" style={{ display: 'inline-block', width: '14px', height: '14px', border: '1px solid #16A34A', borderRadius: '2px', padding: '1px', backgroundColor: 'rgba(255,255,255,0.92)' }}>
+                                <span style={{ display: 'block', width: '100%', height: '100%', backgroundColor: '#16A34A', borderRadius: '50%' }}></span>
+                              </span>
+                            )}
+                          </div>
+
+                          <div style={{ display: 'block', height: '100%' }}>
+                            <img src={imageUrl} alt={product.name} loading="lazy" style={{ objectFit: 'contain', backgroundColor: '#fff' }} />
+                          </div>
+                        </div>
+                        <div className="card-body">
+                          <div className="card-title">
+                            {product.name || 'Unnamed Product'}
+                          </div>
+                          
+                          {(product.variants && product.variants.length > 0) ? (
+                            <div className="text-xs text-gray-500 mt-1 mb-1 font-medium">
+                              Available in: {product.variants.map(v => v.weight).join(', ')}
+                            </div>
+                          ) : product.packet ? (
+                            <div className="text-xs text-gray-500 mt-1 mb-1 font-medium">
+                              Size: {product.packet}
+                            </div>
+                          ) : null}
+
+                          <div className="rating">
+                            <i className="fa-solid fa-star" style={{ color: 'var(--haldi)' }}></i> {product.ratingsAverage ? parseFloat(product.ratingsAverage).toFixed(1) : '0.0'}
+                            <span>({product.ratingsCount ? `${product.ratingsCount} reviews` : '0 reviews'})</span>
+                          </div>
+                          <div className="price-row">
+                            <span className="price">₹{product.price}</span>
+                            <span className="mrp">₹{mrp}</span>
+                            <span style={{ fontSize: '11px', color: 'var(--neem)', fontWeight: '600' }}>{off}% off</span>
+                          </div>
+
+                          <div className="mt-auto pt-3 flex gap-2">
+                            <button
+                              className="add-btn flex-1"
+                              onClick={() => handleDelete(product.id || product._id)}
+                              style={{ backgroundColor: '#DC2626', borderColor: '#B91C1C' }}
+                            >
+                              <i className="fa-solid fa-trash-can mr-2"></i> Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

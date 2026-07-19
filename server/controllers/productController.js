@@ -405,6 +405,14 @@ exports.bulkUploadProducts = async (req, res) => {
         let ratingsCount = parseInt(row['Rating Count'] || row['ratingsCount'] || row['Reviews Count'] || row['Review Count']);
         if (isNaN(ratingsCount)) ratingsCount = 0;
 
+        // Auto-create category if it doesn't exist
+        if (category) {
+          const { Category } = require('../models/index');
+          if (Category) {
+            await Category.findOrCreate({ where: { name: category } });
+          }
+        }
+
         const productData = {
           name: title,
           description: row['Description'] || title,
