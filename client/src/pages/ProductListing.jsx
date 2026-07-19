@@ -290,15 +290,26 @@ const ProductListing = () => {
                   <div className="card-img">
                     <div style={{ position: 'absolute', top: '12px', left: '12px', zIndex: 10, display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                       {product.featured ? (
-                        <span className="kraft-tag" style={{ background: '#d32f2f', color: '#fff', border: 'none' }}>
-                          <i className="fa-solid fa-star" style={{ fontSize: '10px', marginRight: '4px' }}></i>
-                          Bestseller
+                        <span className="kraft-tag" style={{ background: '#d32f2f', color: '#fff', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <i className="fa-solid fa-star" style={{ fontSize: '10px' }}></i>
+                          <span>Bestseller</span>
                         </span>
                       ) : (
                         product.category && <span className="kraft-tag">{product.category}</span>
                       )}
                     </div>
-                    <div style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 10, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    
+                    <button
+                      className="fav"
+                      aria-label="Add to wishlist"
+                      onClick={(e) => handleWishlistToggle(id, e)}
+                      style={{ color: isWished ? 'var(--sindoor)' : '' }}
+                    >
+                      {isWished ? <i className="fa-solid fa-heart"></i> : <i className="fa-regular fa-heart"></i>}
+                    </button>
+
+                    {/* Veg / Non-Veg Mark on Bottom-Right Corner of Image Area */}
+                    <div style={{ position: 'absolute', bottom: '10px', right: '10px', zIndex: 10 }}>
                       {product.dietaryPreference === 'Non-Veg' ? (
                         <span title="Non-Vegetarian" style={{ display: 'inline-block', width: '14px', height: '14px', border: '1px solid #DC2626', borderRadius: '2px', padding: '1px', backgroundColor: 'rgba(255,255,255,0.92)' }}>
                           <span style={{ display: 'block', width: '100%', height: '100%', backgroundColor: '#DC2626', borderRadius: '50%' }}></span>
@@ -308,15 +319,8 @@ const ProductListing = () => {
                           <span style={{ display: 'block', width: '100%', height: '100%', backgroundColor: '#16A34A', borderRadius: '50%' }}></span>
                         </span>
                       )}
-                      <button
-                        className="fav"
-                        aria-label="Add to wishlist"
-                        onClick={(e) => handleWishlistToggle(id, e)}
-                        style={{ position: 'static', color: isWished ? 'var(--sindoor)' : '' }}
-                      >
-                        {isWished ? <i className="fa-solid fa-heart"></i> : <i className="fa-regular fa-heart"></i>}
-                      </button>
                     </div>
+
                     <Link to={`/products/${id}`} style={{ display: 'block', height: '100%' }}>
                       <img src={imageUrl} alt={product.name} loading="lazy" style={{ objectFit: 'contain', backgroundColor: '#fff' }} />
                     </Link>

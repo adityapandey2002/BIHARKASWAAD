@@ -489,9 +489,6 @@ const ProductDetails = () => {
                         </svg>
                       </button>
                     </div>
-                    <span className="text-sm text-gray-600">
-                      Max {currentStock} units
-                    </span>
                   </div>
                 </div>
               )}
