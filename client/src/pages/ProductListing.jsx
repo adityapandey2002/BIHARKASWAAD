@@ -298,18 +298,18 @@ const ProductListing = () => {
                         product.category && <span className="kraft-tag">{product.category}</span>
                       )}
                     </div>
-                    
-                    <button
-                      className="fav"
-                      aria-label="Add to wishlist"
-                      onClick={(e) => handleWishlistToggle(id, e)}
-                      style={{ color: isWished ? 'var(--sindoor)' : '' }}
-                    >
-                      {isWished ? <i className="fa-solid fa-heart"></i> : <i className="fa-regular fa-heart"></i>}
-                    </button>
+                    {/* Right-side Action Column */}
+                    <div style={{ position: 'absolute', top: '10px', bottom: '10px', right: '10px', zIndex: 10, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <button
+                        className="fav"
+                        aria-label="Add to wishlist"
+                        onClick={(e) => handleWishlistToggle(id, e)}
+                        style={{ position: 'static', color: isWished ? 'var(--sindoor)' : '' }}
+                      >
+                        {isWished ? <i className="fa-solid fa-heart"></i> : <i className="fa-regular fa-heart"></i>}
+                      </button>
 
-                    {/* Veg / Non-Veg Mark on Bottom-Right Corner of Image Area */}
-                    <div style={{ position: 'absolute', bottom: '10px', right: '10px', zIndex: 10 }}>
+                      {/* Veg / Non-Veg Mark on Bottom */}
                       {product.dietaryPreference === 'Non-Veg' ? (
                         <span title="Non-Vegetarian" style={{ display: 'inline-block', width: '14px', height: '14px', border: '1px solid #DC2626', borderRadius: '2px', padding: '1px', backgroundColor: 'rgba(255,255,255,0.92)' }}>
                           <span style={{ display: 'block', width: '100%', height: '100%', backgroundColor: '#DC2626', borderRadius: '50%' }}></span>

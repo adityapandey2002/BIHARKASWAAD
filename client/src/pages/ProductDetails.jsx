@@ -21,6 +21,7 @@ const ProductDetails = () => {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [selectedVariantWeight, setSelectedVariantWeight] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [isDescExpanded, setIsDescExpanded] = useState(false);
 
   const thumbnailContainerRef = useRef(null);
   const activeThumbnailRef = useRef(null);
@@ -32,7 +33,8 @@ const ProductDetails = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.get(`${API_URL}/products/${id}`);
+        const numericId = parseInt(id, 10) || id;
+        const { data } = await axios.get(`${API_URL}/products/${numericId}`);
         setProduct(data.data);
         setSelectedImage(data.data.imageUrl);
 
@@ -46,7 +48,7 @@ const ProductDetails = () => {
         if (data.data.category) {
           const relatedRes = await axios.get(`${API_URL}/products?category=${data.data.category}`);
           const related = relatedRes.data.data
-            .filter(p => p.id !== parseInt(id))
+            .filter(p => p.id !== parseInt(numericId))
             .sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0))
             .slice(0, 4);
           setRelatedProducts(related);
@@ -54,7 +56,7 @@ const ProductDetails = () => {
 
         // Fetch reviews
         try {
-          const revRes = await axios.get(`${API_URL}/reviews/product/${id}`);
+          const revRes = await axios.get(`${API_URL}/reviews/product/${numericId}`);
           if (revRes.data && revRes.data.data) {
             setReviews(revRes.data.data);
           }
@@ -396,7 +398,7 @@ const ProductDetails = () => {
               </div>
 
               {/* Price */}
-              <div className="mb-6">
+              <div className="mb-4">
                 <div className="flex items-baseline gap-3">
                   <span className="text-4xl font-bold text-green-600">
                     ₹{displayPrice}
@@ -419,9 +421,9 @@ const ProductDetails = () => {
 
               {/* Variants Selector */}
               {product.variants && product.variants.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Available Variants</h3>
-                  <div className="flex flex-wrap gap-3">
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Available Variants</h3>
+                  <div className="flex flex-wrap gap-2">
                     {product.variants.map((v, index) => (
                       <button
                         key={index}
@@ -440,7 +442,7 @@ const ProductDetails = () => {
               )}
 
               {/* Stock Status */}
-              <div className="mb-6">
+              <div className="mb-4">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-gray-700">Availability:</span>
                   {currentStock > 10 ? (
@@ -456,7 +458,7 @@ const ProductDetails = () => {
 
               {/* Quantity Selector */}
               {currentStock > 0 && (
-                <div className="mb-6">
+                <div className="mb-4">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Quantity
                   </label>
@@ -536,9 +538,22 @@ const ProductDetails = () => {
               {/* Description */}
               <div className="mb-6 border-t pt-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Description</h3>
-                <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
-                  {product.description}
-                </p>
+                <div className="relative">
+                  <p className={`text-gray-600 leading-relaxed whitespace-pre-wrap ${!isDescExpanded ? 'line-clamp-4' : ''}`}>
+                    {product.description}
+                  </p>
+                  {product.description && product.description.length > 200 && (
+                    <button
+                      onClick={() => setIsDescExpanded(!isDescExpanded)}
+                      className="text-orange-600 font-semibold text-sm hover:text-orange-700 mt-2 flex items-center gap-1"
+                    >
+                      {isDescExpanded ? 'Show Less' : 'Show More'}
+                      <svg className={`w-4 h-4 transition-transform ${isDescExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Additional Info */}
