@@ -130,12 +130,12 @@ const HomeSection = () => {
       <div className="stitch"></div>
 
       {/* ── Categories ───────────────────────────────────────────────────── */}
-      <section className="section" id="categories" style={{ paddingTop: '20px', paddingBottom: '20px' }}>
+      <section className="section" id="categories" style={{ paddingTop: '10px', paddingBottom: '0px' }}>
         <div className="wrap">
-          <div className="section-head mb-4">
-            <h2 className="font-display text-2xl font-bold text-indigo-900">Categories</h2>
+          <div className="section-head mb-2 mt-0">
+            <h2 className="font-display text-2xl font-bold text-indigo-900 mb-0">Categories</h2>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 pt-2 snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <div className="flex gap-4 overflow-x-auto pb-2 pt-1 snap-x justify-between" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             <style>{`.flex.gap-4.overflow-x-auto::-webkit-scrollbar { display: none; }`}</style>
             {categories.map((cat) => (
               <Link to={`/products?category=${encodeURIComponent(cat.name)}`} key={cat.id} className="block text-center group snap-start flex-shrink-0 w-24 md:w-28">
@@ -204,7 +204,19 @@ const HomeSection = () => {
                 </Link>
               </div>
               <div className="card-body">
-                <div className="card-title line-clamp-2">
+                <div 
+                  className="card-title" 
+                  style={{ 
+                    display: '-webkit-box', 
+                    WebkitLineClamp: 2, 
+                    WebkitBoxOrient: 'vertical', 
+                    overflow: 'hidden', 
+                    textOverflow: 'ellipsis',
+                    lineHeight: '1.4em',
+                    maxHeight: '2.8em',
+                    fontWeight: '600'
+                  }}
+                >
                   <Link to={`/products/${id}`} style={{ color: '#2A2118' }}>
                     {product.name || 'Unnamed Product'}
                   </Link>
@@ -214,7 +226,7 @@ const HomeSection = () => {
                   <span>(200+ reviews)</span>
                 </div>
                 <div className="price-row">
-                  <span className="price">₹{product.price}</span>
+                  <span className="price" style={{ color: '#000', fontWeight: '700' }}>₹{product.price}</span>
                   <span className="mrp">₹{mrp}</span>
                   <span style={{ fontSize: '11px', color: 'var(--neem)', fontWeight: '600' }}>{off}% off</span>
                 </div>

@@ -20,6 +20,7 @@ const ProductDetails = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [selectedVariantWeight, setSelectedVariantWeight] = useState(null);
+  const [reviews, setReviews] = useState([]);
 
   const thumbnailContainerRef = useRef(null);
   const activeThumbnailRef = useRef(null);
@@ -46,6 +47,16 @@ const ProductDetails = () => {
           const relatedRes = await axios.get(`${API_URL}/products?category=${data.data.category}`);
           const related = relatedRes.data.data.filter(p => p.id !== parseInt(id)).slice(0, 4);
           setRelatedProducts(related);
+        }
+
+        // Fetch reviews
+        try {
+          const revRes = await axios.get(`${API_URL}/reviews/product/${id}`);
+          if (revRes.data && revRes.data.data) {
+            setReviews(revRes.data.data);
+          }
+        } catch(e) {
+          console.error("Error fetching reviews", e);
         }
 
         setError(null);
@@ -178,7 +189,7 @@ const ProductDetails = () => {
   if (error || !product) {
     return (
       <div className="min-h-screen py-12">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-5xl mx-auto px-4">
           <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
             <svg className="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -199,7 +210,7 @@ const ProductDetails = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <nav className="flex mb-8 text-sm" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-2">
@@ -514,11 +525,37 @@ const ProductDetails = () => {
               </div>
             </div>
           </div>
-        </div>
+      </div>
 
-        {/* Related Products */}
+      {/* Reviews Section */}
+      <div className="max-w-5xl mx-auto px-4 mt-8">
+        <h3 className="text-2xl font-bold text-gray-900 mb-6">Customer Reviews</h3>
+        {reviews.length === 0 ? (
+          <p className="text-gray-500 italic">No reviews yet for this product. Customers who have bought this product can leave a review from their dashboard.</p>
+        ) : (
+          <div className="space-y-4">
+            {reviews.map(review => (
+              <div key={review.id} className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                <div className="flex items-center mb-2">
+                  <div className="flex text-yellow-400 mr-3">
+                    {[1,2,3,4,5].map(star => (
+                      <i key={star} className={`fa-${star <= review.rating ? 'solid' : 'regular'} fa-star`}></i>
+                    ))}
+                  </div>
+                  <span className="font-semibold text-gray-700">{review.user?.name || 'Verified Buyer'}</span>
+                  <span className="text-xs text-gray-400 ml-auto">{new Date(review.createdAt).toLocaleDateString()}</span>
+                </div>
+                {review.comment && <p className="text-gray-600 mt-2">{review.comment}</p>}
+                {review.isVerified && <span className="text-xs text-green-600 font-medium flex items-center mt-2"><i className="fa-solid fa-circle-check mr-1"></i> Verified Purchase</span>}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Related Products Section */}
         {relatedProducts.length > 0 && (
-          <div className="mt-16">
+          <div className="mt-16 max-w-5xl mx-auto px-4">
             <h2 className="text-3xl font-bold text-gray-900 mb-8">Related Products</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedProducts.map((relatedProduct) => (

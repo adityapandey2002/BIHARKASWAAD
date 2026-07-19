@@ -167,24 +167,24 @@ const ProductListing = () => {
     <div className="min-h-screen py-6 md:py-12 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
-        <div className="mb-4">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-1">Our Products</h1>
-          <p className="text-sm md:text-base text-gray-600">Discover authentic flavors from Bihar</p>
+        <div className="mb-2">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-0">Our Products</h1>
+          <p className="text-xs text-gray-600">Discover authentic flavors from Bihar</p>
         </div>
 
         {/* Search Bar */}
-        <form onSubmit={handleSearch} className="mb-3">
+        <form onSubmit={handleSearch} className="mb-2">
           <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search products..."
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <button 
               type="submit"
-              className="bg-blue-600 text-white px-4 md:px-8 py-3 rounded-lg hover:bg-blue-700 transition duration-200 flex justify-center items-center gap-2"
+              className="bg-blue-600 text-white px-4 py-2 text-sm rounded-lg hover:bg-blue-700 transition duration-200 flex justify-center items-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -196,16 +196,15 @@ const ProductListing = () => {
 
         {/* Category Filter */}
         <div className="mb-2">
-          <p className="text-[10px] md:text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Main Categories</p>
-          <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <div className="flex flex-nowrap overflow-x-auto gap-2 pb-1 snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             <style>{`.flex.flex-nowrap::-webkit-scrollbar { display: none; }`}</style>
             {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => handleCategoryFilter(category)}
-                className={`flex-1 text-center px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap snap-start flex-shrink-0 transition-all duration-200 ${
+                className={`flex-1 text-center px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap snap-start flex-shrink-0 transition-all duration-200 ${
                   selectedCategory === category
-                    ? 'bg-blue-600 text-white shadow-lg'
+                    ? 'bg-blue-600 text-white shadow-md'
                     : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
                 }`}
               >
@@ -217,16 +216,15 @@ const ProductListing = () => {
 
         {/* Sub-Category Filter */}
         {subCategories.length > 0 && (
-          <div className="mb-4 pb-2 border-b border-gray-200">
-            <p className="text-[10px] md:text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Sub Categories</p>
-            <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <div className="mb-2 pb-2 border-b border-gray-200">
+            <div className="flex flex-nowrap overflow-x-auto gap-2 pb-1 snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               {subCategories.map((subCat) => (
                 <button
                   key={subCat}
                   onClick={() => handleSubCategoryFilter(subCat)}
-                  className={`flex-1 text-center px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap snap-start flex-shrink-0 transition-all duration-200 ${
+                  className={`flex-1 text-center px-3 py-1 rounded-full text-[11px] font-medium whitespace-nowrap snap-start flex-shrink-0 transition-all duration-200 ${
                     selectedSubCategory === subCat
-                      ? 'bg-orange-600 text-white shadow-md'
+                      ? 'bg-orange-600 text-white shadow-sm'
                       : 'bg-white text-gray-600 hover:bg-orange-50 border border-orange-200'
                   }`}
                 >
@@ -238,8 +236,8 @@ const ProductListing = () => {
         )}
 
         {/* Products Count */}
-        <div className="mb-6">
-          <p className="text-gray-600">
+        <div className="mb-4 text-xs">
+          <p className="text-gray-500">
             Showing <span className="font-semibold text-blue-600">{displayedProducts.length}</span> products
           </p>
         </div>

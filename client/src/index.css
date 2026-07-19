@@ -235,7 +235,7 @@
   .drawer-foot{padding:20px; border-top:1px solid var(--border); background:var(--paper);}
 
   /* Cart Page Responsive */
-  .cart-page-layout { display: grid; grid-template-columns: 1fr 340px; gap: 30px; align-items: start; }
+  .cart-page-layout { display: grid; grid-template-columns: 1fr 340px; gap: 30px; align-items: start; max-width: 1000px; margin: 0 auto; }
   .cart-item-card { 
     display: flex; gap: 18px; padding: 20px; background: var(--paper); 
     border: 1px solid var(--border); border-radius: 10px; margin-bottom: 14px; 

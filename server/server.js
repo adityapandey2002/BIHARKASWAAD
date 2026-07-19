@@ -6,7 +6,6 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const mongoSanitize = require('express-mongo-sanitize');
 const path = require('path');
 
 const sequelize = require('./config/database');
@@ -79,7 +78,6 @@ app.use(
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
-app.use(mongoSanitize());
 
 // ─── Serve Uploaded Files as Static ──────────────────────────────────────────
 // Custom handler to bypass express.static quirks and check both possible paths
