@@ -190,7 +190,7 @@ const HomeSection = () => {
                 return (
                   <div className="card" key={id}>
                     <div className="card-img">
-                      <div style={{ position: 'absolute', top: '12px', left: '6px', zIndex: 10, display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <div style={{ position: 'absolute', top: '8px', left: '6px', zIndex: 10, display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                         {product.featured ? (
                           <span className="kraft-tag" style={{ background: '#d32f2f', color: '#fff', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                             <i className="fa-solid fa-star" style={{ fontSize: '10px' }}></i>

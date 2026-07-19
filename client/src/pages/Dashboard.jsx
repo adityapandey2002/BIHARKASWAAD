@@ -121,7 +121,7 @@ const Dashboard = () => {
               ) : products.length === 0 ? (
                 <p className="text-gray-500">No products yet. Add your first product above!</p>
               ) : (
-                <div className="product-grid">
+                <div className="prod-grid">
                   {products.map((product) => {
                     const imageUrl = product.imagePath && product.imagePath.startsWith('http') 
                       ? product.imagePath 
@@ -135,7 +135,7 @@ const Dashboard = () => {
                     return (
                       <div className="card" key={product.id || product._id}>
                         <div className="card-img">
-                          <div style={{ position: 'absolute', top: '12px', left: '6px', zIndex: 10, display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          <div style={{ position: 'absolute', top: '8px', left: '6px', zIndex: 10, display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                             {product.featured ? (
                               <span className="kraft-tag" style={{ background: '#d32f2f', color: '#fff', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                                 <i className="fa-solid fa-star" style={{ fontSize: '10px' }}></i>
