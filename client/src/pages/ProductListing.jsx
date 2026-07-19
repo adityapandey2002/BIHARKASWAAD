@@ -307,6 +307,18 @@ const ProductListing = () => {
                         {product.name || 'Unnamed Product'}
                       </Link>
                     </div>
+                    
+                    {/* Display Variants or Packet info if available */}
+                    {(product.variants && product.variants.length > 0) ? (
+                      <div className="text-xs text-gray-500 mt-1 mb-1 font-medium">
+                        Available in: {product.variants.map(v => v.weight).join(', ')}
+                      </div>
+                    ) : product.packet ? (
+                      <div className="text-xs text-gray-500 mt-1 mb-1 font-medium">
+                        Size: {product.packet}
+                      </div>
+                    ) : null}
+
                     <div className="rating">
                       <i className="fa-solid fa-star" style={{ color: 'var(--haldi)' }}></i> 4.8
                       <span>(200+ reviews)</span>

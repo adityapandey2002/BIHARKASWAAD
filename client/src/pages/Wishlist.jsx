@@ -27,9 +27,7 @@ const Wishlist = () => {
   }, [dispatch]);
 
   const handleRemove = (productId) => {
-    if (window.confirm('Remove from wishlist?')) {
-      dispatch(removeFromWishlist(productId));
-    }
+    dispatch(removeFromWishlist(productId));
   };
 
   const handleClearAll = () => {

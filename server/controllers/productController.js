@@ -351,6 +351,19 @@ exports.bulkUploadProducts = async (req, res) => {
           publishedValue = (p !== 'no' && p !== 'false' && p !== '0');
         }
 
+        // Parse Variants (e.g., "250g=150, 500g=280, 1kg=500")
+        const variantsData = [];
+        if (row['Variants']) {
+          const variantsStr = String(row['Variants']);
+          const pairs = variantsStr.split(',');
+          for (let pair of pairs) {
+            const [w, p] = pair.split('=');
+            if (w && p) {
+              variantsData.push({ weight: w.trim(), price: p.trim() });
+            }
+          }
+        }
+
         const productData = {
           name: title,
           description: row['Description'] || title,
@@ -364,6 +377,7 @@ exports.bulkUploadProducts = async (req, res) => {
           flipkartLink: flipkartLink,
           stock: stockValue,
           featured: featuredValue,
+          variants: variantsData,
           images: images,
           imagePath: images.length > 0 ? images[0] : null,
           imageContentType: 'url',
