@@ -44,6 +44,13 @@ export const SiteAssetsProvider = ({ children }) => {
           error: null
         });
 
+        if (data.data.logoUrl) {
+          const link = document.getElementById('favicon');
+          if (link) {
+            link.href = data.data.logoUrl;
+          }
+        }
+
         console.log('✅ Site assets loaded successfully');
       } catch (error) {
         console.error('❌ Error fetching site assets:', error);

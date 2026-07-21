@@ -259,10 +259,10 @@ const ProductDetails = () => {
                   <img
                     src={selectedImage}
                     alt={product.name}
-                    className="w-full h-[500px] object-cover rounded-lg"
+                    className="w-full h-[400px] object-cover rounded-lg"
                   />
                 ) : (
-                  <div className="w-full h-[500px] bg-gray-200 rounded-lg flex items-center justify-center">
+                  <div className="w-full h-[400px] bg-gray-200 rounded-lg flex items-center justify-center">
                     <svg className="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
@@ -360,7 +360,7 @@ const ProductDetails = () => {
                 )}
               </div>
 
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">
                 {product.name}
               </h1>
 
@@ -404,15 +404,15 @@ const ProductDetails = () => {
               <div className="mb-1 flex items-baseline gap-3">
                 {baseMrp > basePrice && (
                   <>
-                    <span className="text-xl font-bold text-green-600">
+                    <span className="text-lg font-bold text-green-600">
                       📉 {Math.round(((baseMrp - basePrice) / baseMrp) * 100)}%
                     </span>
-                    <span className="text-xl text-gray-500 line-through">
+                    <span className="text-lg text-gray-500 line-through">
                       ₹{displayMrp.toLocaleString('en-IN')}
                     </span>
                   </>
                 )}
-                <span className="text-3xl font-bold text-gray-900">
+                <span className="text-2xl font-bold text-gray-900">
                   ₹{displayPrice.toLocaleString('en-IN')}
                 </span>
               </div>
