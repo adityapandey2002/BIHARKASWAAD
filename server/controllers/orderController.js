@@ -1,4 +1,4 @@
-const { Order, OrderItem, Cart, CartItem, Product } = require('../models/index');
+const { Order, OrderItem, Cart, CartItem, Product, User } = require('../models/index');
 const { pushOrderToShipmojo } = require('../services/shipmojoService');
 
 // ── CREATE Order ──────────────────────────────────────────────────────────────
@@ -69,11 +69,26 @@ exports.createOrder = async (req, res) => {
       cart.totalAmount = 0;
       await cart.save();
 
+      // Fetch user email for Shipmojo and email notifications
+      const user = await User.findByPk(req.user.id);
+      const userEmail = user ? user.email : null;
+
       // Push COD order to Shipmojo
       try {
-        await pushOrderToShipmojo(order, cart.items);
+        await pushOrderToShipmojo(order, cart.items, userEmail);
       } catch (err) {
         console.error('Shipmojo integration error:', err);
+      }
+
+      // Send COD order confirmation email
+      try {
+        const { sendOrderConfirmation } = require('../services/emailService');
+        if (userEmail) {
+          await sendOrderConfirmation(order, orderItemsData, userEmail, user.name);
+          console.log('📧 COD Order confirmation email sent to:', userEmail);
+        }
+      } catch (emailErr) {
+        console.error('⚠️ Failed to send COD order confirmation email:', emailErr.message);
       }
     }
 
@@ -86,10 +101,13 @@ exports.createOrder = async (req, res) => {
 // ── GET My Orders ─────────────────────────────────────────────────────────────
 exports.getMyOrders = async (req, res) => {
   try {
+    const { Op } = require('sequelize');
     const orders = await Order.findAll({
       where: { 
         userId: req.user.id,
-        paymentStatus: 'completed' 
+        paymentStatus: {
+          [Op.in]: ['completed', 'pending']  // Show both prepaid (completed) and COD (pending) orders
+        }
       },
       include: [{ model: OrderItem, as: 'items', required: false, include: [{ model: Product, as: 'product', required: false }] }],
       order: [['createdAt', 'DESC']],
@@ -151,6 +169,8 @@ exports.updateOrderStatus = async (req, res) => {
     const order = await Order.findByPk(req.params.id);
     if (!order) return res.status(404).json({ status: 'error', message: 'Order not found' });
 
+    const oldStatus = order.orderStatus;
+
     if (status) order.orderStatus = status;
     if (deliveredAt) order.deliveredAt = deliveredAt;
     if (paymentStatus) order.paymentStatus = paymentStatus;
@@ -158,6 +178,24 @@ exports.updateOrderStatus = async (req, res) => {
     if (courierName !== undefined) order.courierName = courierName;
 
     await order.save();
+
+    // Send emails on status change
+    try {
+      if (status && status !== oldStatus) {
+        const user = await User.findByPk(order.userId);
+        if (user && user.email) {
+          const { sendShippingNotification, sendDeliveryConfirmation } = require('../services/emailService');
+          if (status === 'shipped') {
+            await sendShippingNotification(order, user.email, user.name);
+          } else if (status === 'delivered') {
+            await sendDeliveryConfirmation(order, user.email, user.name);
+          }
+        }
+      }
+    } catch (emailErr) {
+      console.error('Failed to send status update email:', emailErr);
+    }
+
     res.status(200).json({ status: 'success', data: order });
   } catch (error) {
     res.status(400).json({ status: 'error', message: error.message });

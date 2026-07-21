@@ -1,7 +1,8 @@
 const crypto = require('crypto');
 const Razorpay = require('razorpay');
-const { Order, OrderItem, Product, Cart, CartItem } = require('../models/index');
+const { Order, OrderItem, Product, Cart, CartItem, User } = require('../models/index');
 const { pushOrderToShipmojo } = require('../services/shipmojoService');
+const { sendOrderConfirmation, sendShippingNotification, sendDeliveryConfirmation } = require('../services/emailService');
 
 let razorpay;
 try {
@@ -144,11 +145,25 @@ exports.verifyPayment = async (req, res) => {
         await cart.save();
       }
 
+      // Fetch user email for Shipmojo and email notifications
+      const user = await User.findByPk(order.userId);
+      const userEmail = user ? user.email : null;
+
       // Push Prepaid order to Shipmojo
       try {
-        await pushOrderToShipmojo(order, orderItems);
+        await pushOrderToShipmojo(order, orderItems, userEmail);
       } catch (err) {
         console.error('Shipmojo integration error:', err);
+      }
+
+      // Send order confirmation email to customer
+      try {
+        if (userEmail) {
+          await sendOrderConfirmation(order, orderItems, userEmail, user.name);
+          console.log('📧 Order confirmation email sent to:', userEmail);
+        }
+      } catch (emailErr) {
+        console.error('⚠️ Failed to send order confirmation email:', emailErr.message);
       }
 
       console.log('✅ Payment verified:', razorpay_payment_id);

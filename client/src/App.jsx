@@ -32,6 +32,7 @@ import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Wishlist from './pages/Wishlist';
 import Orders from './pages/Orders';
+import TrackOrder from './pages/TrackOrder';
 import RefundPolicy from './pages/RefundPolicy';
 import TermsConditions from './pages/TermsConditions';
 import FAQ from './pages/FAQ';
@@ -68,7 +69,7 @@ function App() {
               <Route path="about" element={<AboutSection />} />
               <Route path="contact" element={<Contact />} />
               <Route path="blog" element={<BlogSection />} />
-              <Route path="track-order" element={<TrackOrderSection />} />
+              <Route path="track-order" element={<TrackOrder />} />
 
               {/* Other Pages */}
               <Route path="products" element={<ProductListing />} />

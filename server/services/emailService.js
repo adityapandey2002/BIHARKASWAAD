@@ -166,3 +166,141 @@ exports.sendCustomerReply = async (contactData, replyMessage) => {
     return false;
   }
 };
+
+// Send Order Confirmation Email
+exports.sendOrderConfirmation = async (order, items, userEmail, userName) => {
+  try {
+    const itemsList = items.map(i => `
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${i.productName}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${i.quantity}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #ddd;">₹${i.price}</td>
+      </tr>
+    `).join('');
+
+    const mailOptions = {
+      from: `"BiharKaSwaad Support" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
+      to: userEmail,
+      subject: `Order Confirmation - BKS-${order.id}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <h2 style="color: #ea580c; border-bottom: 2px solid #ea580c; padding-bottom: 10px;">
+            Order Confirmed! 🎉
+          </h2>
+          <p>Dear ${userName || 'Customer'},</p>
+          <p>Thank you for shopping with Bihar Ka Swaad! Your order <strong>BKS-${order.id}</strong> has been confirmed.</p>
+          
+          <h3 style="color: #333;">Order Summary:</h3>
+          <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+              <tr style="background: #f5f5f5;">
+                <th style="padding: 8px; border-bottom: 1px solid #ddd;">Item</th>
+                <th style="padding: 8px; border-bottom: 1px solid #ddd;">Qty</th>
+                <th style="padding: 8px; border-bottom: 1px solid #ddd;">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsList}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2" style="padding: 8px; font-weight: bold; text-align: right;">Total Amount:</td>
+                <td style="padding: 8px; font-weight: bold;">₹${order.totalAmount}</td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <h3 style="color: #333; margin-top: 20px;">Shipping Address:</h3>
+          <p style="background: #f9f9f9; padding: 10px; border-radius: 5px;">
+            ${order.shippingName}<br/>
+            ${order.shippingAddress}, ${order.shippingCity}<br/>
+            ${order.shippingState} - ${order.shippingPincode}
+          </p>
+
+          <p>We'll send you another email when your order ships.</p>
+          
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666;">
+            <p>Best regards,<br><strong>Bihar Ka Swaad Team</strong></p>
+          </div>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error('❌ Error sending order confirmation email:', error);
+    return false;
+  }
+};
+
+// Send Shipping Notification Email
+exports.sendShippingNotification = async (order, userEmail, userName) => {
+  try {
+    const trackingHtml = order.trackingKey ? 
+      `<p>Your tracking number is: <strong>${order.trackingKey}</strong> (Courier: ${order.courierName || 'Partner'})</p>` :
+      `<p>Your order is on the way!</p>`;
+
+    const mailOptions = {
+      from: `"BiharKaSwaad Support" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
+      to: userEmail,
+      subject: `Your Order BKS-${order.id} has Shipped! 🚚`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <h2 style="color: #ea580c; border-bottom: 2px solid #ea580c; padding-bottom: 10px;">
+            Order Shipped! 🚚
+          </h2>
+          <p>Dear ${userName || 'Customer'},</p>
+          <p>Great news! Your order <strong>BKS-${order.id}</strong> has been shipped and is on its way to you.</p>
+          
+          <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #ea580c; border-radius: 5px; margin: 20px 0;">
+            ${trackingHtml}
+            <p>You can track your order using the tracking page on our website.</p>
+          </div>
+          
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666;">
+            <p>Best regards,<br><strong>Bihar Ka Swaad Team</strong></p>
+          </div>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error('❌ Error sending shipping email:', error);
+    return false;
+  }
+};
+
+// Send Delivery Confirmation Email
+exports.sendDeliveryConfirmation = async (order, userEmail, userName) => {
+  try {
+    const mailOptions = {
+      from: `"BiharKaSwaad Support" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
+      to: userEmail,
+      subject: `Order BKS-${order.id} Delivered Successfully! ✅`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <h2 style="color: #22c55e; border-bottom: 2px solid #22c55e; padding-bottom: 10px;">
+            Order Delivered! ✅
+          </h2>
+          <p>Dear ${userName || 'Customer'},</p>
+          <p>Your order <strong>BKS-${order.id}</strong> has been successfully delivered.</p>
+          
+          <p>We hope you enjoy the authentic taste of Bihar! If you have any feedback or concerns, please don't hesitate to reach out to us.</p>
+          
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666;">
+            <p>Best regards,<br><strong>Bihar Ka Swaad Team</strong></p>
+          </div>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error('❌ Error sending delivery email:', error);
+    return false;
+  }
+};

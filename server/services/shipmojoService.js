@@ -6,7 +6,7 @@
  * Requires SHIPMOJO_API_KEY in .env
  */
 
-const pushOrderToShipmojo = async (order, cartItems) => {
+const pushOrderToShipmojo = async (order, cartItems, userEmail = null) => {
   const API_KEY = process.env.SHIPMOJO_API_KEY;
 
   if (!API_KEY) {
@@ -16,9 +16,6 @@ const pushOrderToShipmojo = async (order, cartItems) => {
 
   try {
     // Map our order data to Shipmojo's required format
-    // Note: Shipmojo API structure depends on their specific docs. 
-    // This is a standard aggregator schema (similar to Shiprocket).
-    
     const orderItems = cartItems.map(item => ({
       name: item.product?.name || item.productName || 'BiharKaSwaad Product',
       sku: item.product?.sku || `BKS-${item.productId}`,
@@ -37,7 +34,7 @@ const pushOrderToShipmojo = async (order, cartItems) => {
       billing_pincode: order.shippingPincode,
       billing_state: order.shippingState,
       billing_country: "India",
-      billing_email: "customer@example.com", // Add email to order schema if you have it
+      billing_email: userEmail || process.env.SMTP_USER || "support@biharkaswaad.in",
       billing_phone: order.shippingPhone,
       shipping_is_billing: true,
       order_items: orderItems,
@@ -46,7 +43,7 @@ const pushOrderToShipmojo = async (order, cartItems) => {
       length: 10,
       breadth: 10,
       height: 10,
-      weight: 1 // Default 1kg as discussed
+      weight: 1 // Default 1kg
     };
 
     console.log(`📦 Pushing Order ${order.id} to Shipmojo...`);
@@ -66,7 +63,23 @@ const pushOrderToShipmojo = async (order, cartItems) => {
       throw new Error(`Shipmojo API Error: ${JSON.stringify(data)}`);
     }
 
-    console.log(`✅ Successfully pushed Order ${order.id} to Shipmojo. Shipmojo Order ID: ${data.order_id}`);
+    console.log(`✅ Successfully pushed Order ${order.id} to Shipmojo. Response:`, JSON.stringify(data));
+
+    // Store tracking info in the Order record if returned by Shipmojo
+    try {
+      const trackingKey = data.awb_code || data.tracking_id || data.shipment_id || null;
+      const courierName = data.courier_name || data.courier_company_id || null;
+
+      if (trackingKey || courierName) {
+        order.trackingKey = trackingKey || order.trackingKey;
+        order.courierName = courierName || order.courierName;
+        await order.save();
+        console.log(`📋 Tracking info saved: AWB=${trackingKey}, Courier=${courierName}`);
+      }
+    } catch (saveErr) {
+      console.error('⚠️ Could not save tracking info to DB:', saveErr.message);
+    }
+
     return data;
 
   } catch (error) {
