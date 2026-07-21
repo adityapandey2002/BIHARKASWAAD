@@ -79,12 +79,19 @@ export const SiteAssetsProvider = ({ children }) => {
           img.onerror = () => {
             console.error('❌ Failed to load logo for favicon canvas crop. CORS issue or invalid URL.');
           };
-          // Use relative URL to guarantee same-origin and avoid tainted canvas issues (e.g. www vs non-www)
+          // Use relative URL to guarantee same-origin and avoid tainted canvas issues
           let relativeSrc = data.data.logoUrl;
           try {
-            const parsedUrl = new URL(data.data.logoUrl);
+            // Using window.location.origin as base handles both relative and absolute URLs properly
+            const parsedUrl = new URL(data.data.logoUrl, window.location.origin);
             relativeSrc = parsedUrl.pathname;
           } catch(e) {}
+          
+          // Ensure it has a leading slash so it resolves from domain root, not current path
+          if (relativeSrc && !relativeSrc.startsWith('/')) {
+            relativeSrc = '/' + relativeSrc;
+          }
+          
           img.src = relativeSrc + '?c=' + new Date().getTime();
         }
 

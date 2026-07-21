@@ -18,6 +18,7 @@ const ProductListing = () => {
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [addedIds, setAddedIds] = useState({});
+  const [quantities, setQuantities] = useState({});
   const navigate = useNavigate();
 
   const API_BASE = (process.env.REACT_APP_API_URL || 'https://biharkaswaad.in/api').replace('/api', '');
@@ -26,6 +27,17 @@ const ProductListing = () => {
     if (product.imageUrl) return product.imageUrl;
     if (product.imagePath) return `${API_BASE}/${product.imagePath}`;
     return `https://picsum.photos/seed/${product.id || product._id}/300/300`;
+  };
+
+  const handleQuantityChange = (productId, delta, stockLimit) => {
+    setQuantities(prev => {
+      const current = prev[productId] || 1;
+      const next = current + delta;
+      if (next >= 1 && next <= stockLimit) {
+        return { ...prev, [productId]: next };
+      }
+      return prev;
+    });
   };
 
   const handleAddToCart = async (product) => {
@@ -41,8 +53,10 @@ const ProductListing = () => {
       variantWeight = product.variants[0].weight;
     }
 
+    const quantityToSet = quantities[id] || 1;
+
     try {
-      await dispatch(addToCart({ productId: id, quantity: 1, variantWeight })).unwrap();
+      await dispatch(addToCart({ productId: id, quantity: quantityToSet, variantWeight })).unwrap();
     } catch (err) {
       console.error('Failed to add to cart:', err);
       setAddedIds(prev => ({ ...prev, [id]: false }));
@@ -368,17 +382,38 @@ const ProductListing = () => {
                     ) : null}
                     <div className="viewers"><i className="fa-solid fa-eye"></i> {viewers} people viewing this</div>
 
-                    <div className="mt-auto pt-3">
+                    <div className="mt-auto pt-3 flex gap-2">
+                      <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white">
+                        <button
+                          type="button"
+                          className="px-3 py-1 text-gray-600 hover:bg-gray-100 transition-colors h-full"
+                          onClick={() => handleQuantityChange(id, -1, stockLeft)}
+                          disabled={stockLeft === 0 || (quantities[id] || 1) <= 1}
+                        >
+                          -
+                        </button>
+                        <span className="px-3 py-1 text-sm font-medium text-gray-800 border-x border-gray-300 min-w-[2.5rem] text-center">
+                          {quantities[id] || 1}
+                        </span>
+                        <button
+                          type="button"
+                          className="px-3 py-1 text-gray-600 hover:bg-gray-100 transition-colors h-full"
+                          onClick={() => handleQuantityChange(id, 1, stockLeft)}
+                          disabled={stockLeft === 0 || (quantities[id] || 1) >= stockLeft}
+                        >
+                          +
+                        </button>
+                      </div>
                       <button
-                        className={`add-btn ${isAdded ? 'added' : ''}`}
+                        className={`add-btn flex-1 ${isAdded ? 'added' : ''}`}
                         onClick={() => handleAddToCart(product)}
                         disabled={stockLeft === 0}
                         style={stockLeft === 0 ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
                       >
                         {isAdded ? (
-                          <><i className="fa-solid fa-check"></i> Added!</>
+                          <><i className="fa-solid fa-check"></i> Added</>
                         ) : (
-                          <><i className="fa-solid fa-basket-shopping"></i> Add to cart</>
+                          <><i className="fa-solid fa-basket-shopping"></i> Add</>
                         )}
                       </button>
                     </div>
