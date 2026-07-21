@@ -1,17 +1,27 @@
 const nodemailer = require('nodemailer');
 
-// Create transporter (Supports Hostinger SMTP or fallback to previous env vars)
+// Create transporter using Hostinger SMTP
 const portNum = parseInt(process.env.SMTP_PORT || '465');
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || (process.env.EMAIL_USER?.includes('gmail') ? 'smtp.gmail.com' : 'smtp.hostinger.com'),
+  host: process.env.SMTP_HOST || 'smtp.hostinger.com',
   port: portNum,
-  secure: portNum === 465,
+  secure: portNum === 465, // true for 465 (SSL), false for 587 (TLS)
   auth: {
-    user: process.env.SMTP_USER || process.env.EMAIL_USER,
-    pass: process.env.SMTP_PASS || process.env.EMAIL_PASSWORD
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
   },
   tls: {
     rejectUnauthorized: false
+  }
+});
+
+// Verify connection on startup
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('❌ SMTP connection failed:', error.message);
+    console.error('   Check SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS in .env');
+  } else {
+    console.log('✅ SMTP connection verified — ready to send emails');
   }
 });
 

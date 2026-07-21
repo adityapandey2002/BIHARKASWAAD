@@ -11,13 +11,14 @@ exports.submitContact = async (req, res) => {
 
     console.log('✅ Contact inquiry created:', contact.id);
 
-    // Notify admins and support staff
+    // Notify admins — always include the SMTP_USER as a guaranteed fallback
     const staff = await User.findAll({ where: { role: { [Op.in]: ['admin', 'support'] } } });
-    const recipients = staff.map((u) => u.email);
+    const recipients = [...new Set([
+      ...staff.map((u) => u.email),
+      process.env.SMTP_USER  // guaranteed fallback
+    ].filter(Boolean))];
 
-    if (recipients.length > 0) {
-      await sendContactNotification({ name, email, phone, subject, message }, recipients);
-    }
+    await sendContactNotification({ name, email, phone, subject, message }, recipients);
     await sendCustomerConfirmation({ name, email, subject, message });
 
     res.status(201).json({
