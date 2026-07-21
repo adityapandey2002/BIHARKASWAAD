@@ -46,7 +46,6 @@ export const SiteAssetsProvider = ({ children }) => {
 
         if (data.data.logoUrl) {
           const img = new Image();
-          img.crossOrigin = 'Anonymous';
           img.onload = () => {
             const canvas = document.createElement('canvas');
             const size = Math.min(img.width, img.height);
@@ -80,8 +79,13 @@ export const SiteAssetsProvider = ({ children }) => {
           img.onerror = () => {
             console.error('❌ Failed to load logo for favicon canvas crop. CORS issue or invalid URL.');
           };
-          // Try fetching with cache busting to avoid tainted canvas if cached without CORS
-          img.src = data.data.logoUrl + '?c=' + new Date().getTime();
+          // Use relative URL to guarantee same-origin and avoid tainted canvas issues (e.g. www vs non-www)
+          let relativeSrc = data.data.logoUrl;
+          try {
+            const parsedUrl = new URL(data.data.logoUrl);
+            relativeSrc = parsedUrl.pathname;
+          } catch(e) {}
+          img.src = relativeSrc + '?c=' + new Date().getTime();
         }
 
         console.log('✅ Site assets loaded successfully');
