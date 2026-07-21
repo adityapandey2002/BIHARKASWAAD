@@ -112,7 +112,7 @@ const ManageCategories = () => {
                 &times;
               </button>
               {c.imagePath ? (
-                <img src={`https://biharkaswaad.in${c.imagePath}`} alt={c.name} className="w-16 h-16 object-cover rounded-full mb-2" />
+                <img src={c.imagePath.startsWith('http') ? c.imagePath : `https://biharkaswaad.in${c.imagePath}`} alt={c.name} className="w-16 h-16 object-cover rounded-full mb-2" />
               ) : (
                 <div className="w-16 h-16 bg-gray-200 rounded-full mb-2 flex items-center justify-center text-gray-400">
                   <i className="fa-solid fa-image"></i>

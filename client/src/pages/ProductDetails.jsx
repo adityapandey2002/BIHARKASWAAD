@@ -179,7 +179,12 @@ const ProductDetails = () => {
   };
 
   // Wishlist toggle
-  const handleWishlistToggle = () => {
+  const handleWishlistToggle = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     if (!isAuthenticated) {
       alert('Please login to add to wishlist');
       navigate('/login');
@@ -188,8 +193,10 @@ const ProductDetails = () => {
 
     if (isInWishlist) {
       dispatch(removeFromWishlist(product.id || product._id));
+      alert('❌ Removed from wishlist');
     } else {
       dispatch(addToWishlist(product.id || product._id));
+      alert('❤️ Added to wishlist');
     }
   };
 

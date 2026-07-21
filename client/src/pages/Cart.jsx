@@ -177,6 +177,12 @@ const Cart = () => {
               const price = item.price || product.price || 0;
               const name = item.name || product.name || 'Product';
               const productId = item.productId || product.id;
+              
+              let parsedVariants = [];
+              try {
+                parsedVariants = typeof product.variants === 'string' ? JSON.parse(product.variants) : (product.variants || []);
+              } catch(e) {}
+              const displayWeight = item.variantWeight || product.packet || (parsedVariants.length > 0 ? parsedVariants[0].weight : '');
 
               return (
                 <div key={item.id || productId} className="cart-item-card">
@@ -190,7 +196,7 @@ const Cart = () => {
                       {name}
                     </h3>
                     <div style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '4px', display: 'flex', gap: '8px' }}>
-                      {(item.variantWeight || product.packet) ? <span><i className="fa-solid fa-weight-scale" style={{marginRight: '4px'}}></i>{item.variantWeight || product.packet}</span> : null}
+                      {displayWeight ? <span><i className="fa-solid fa-weight-scale" style={{marginRight: '4px'}}></i>{displayWeight}</span> : null}
                       <span><i className="fa-solid fa-layer-group" style={{marginRight: '4px'}}></i>Qty: {item.quantity}</span>
                     </div>
                     <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--sindoor)', fontWeight: '700', fontSize: '15px', marginBottom: '8px' }}>
@@ -233,7 +239,13 @@ const Cart = () => {
               {items.map((item) => {
                 const price = item.price || item.product?.price || 0;
                 const name = item.name || item.product?.name || 'Product';
-                const weightLabel = item.variantWeight || item.product?.packet || '';
+                
+                let sumParsedVariants = [];
+                try {
+                  sumParsedVariants = typeof item.product?.variants === 'string' ? JSON.parse(item.product.variants) : (item.product?.variants || []);
+                } catch(e) {}
+                const weightLabel = item.variantWeight || item.product?.packet || (sumParsedVariants.length > 0 ? sumParsedVariants[0].weight : '');
+                
                 return (
                   <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '14px' }}>
                     <span style={{ color: 'var(--ink)' }}>{name} {weightLabel ? `(${weightLabel})` : ''} × {item.quantity}</span>

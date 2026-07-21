@@ -45,10 +45,43 @@ export const SiteAssetsProvider = ({ children }) => {
         });
 
         if (data.data.logoUrl) {
-          const link = document.getElementById('favicon');
-          if (link) {
-            link.href = data.data.logoUrl;
-          }
+          const img = new Image();
+          img.crossOrigin = 'Anonymous';
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const size = Math.min(img.width, img.height);
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Draw circular mask
+            ctx.beginPath();
+            ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.clip();
+            
+            // Draw image centered and covering the circle
+            const scale = Math.max(size / img.width, size / img.height);
+            const x = (size / 2) - (img.width / 2) * scale;
+            const y = (size / 2) - (img.height / 2) * scale;
+            ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+            
+            // Completely replace the link element to force browser refresh
+            const oldLink = document.getElementById('favicon');
+            if (oldLink) document.head.removeChild(oldLink);
+            
+            const newLink = document.createElement('link');
+            newLink.id = 'favicon';
+            newLink.rel = 'icon';
+            newLink.type = 'image/png';
+            newLink.href = canvas.toDataURL('image/png');
+            document.head.appendChild(newLink);
+          };
+          img.onerror = () => {
+            console.error('❌ Failed to load logo for favicon canvas crop. CORS issue or invalid URL.');
+          };
+          // Try fetching with cache busting to avoid tainted canvas if cached without CORS
+          img.src = data.data.logoUrl + '?c=' + new Date().getTime();
         }
 
         console.log('✅ Site assets loaded successfully');
