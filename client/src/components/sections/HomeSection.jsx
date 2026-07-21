@@ -68,8 +68,14 @@ const HomeSection = () => {
       return;
     }
     const productId = product.id || product._id;
+    
+    let variantWeight = null;
+    if (product.variants && product.variants.length > 0) {
+      variantWeight = product.variants[0].weight;
+    }
+
     try {
-      await dispatch(addToCart({ productId, quantity: 1 })).unwrap();
+      await dispatch(addToCart({ productId, quantity: 1, variantWeight })).unwrap();
       setAddedIds((prev) => ({ ...prev, [productId]: true }));
       setTimeout(() => setAddedIds((prev) => { const n = { ...prev }; delete n[productId]; return n; }), 1500);
     } catch (err) {

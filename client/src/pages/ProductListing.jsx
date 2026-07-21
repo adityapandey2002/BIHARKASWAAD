@@ -35,8 +35,14 @@ const ProductListing = () => {
     }
     const id = product.id || product._id;
     setAddedIds(prev => ({ ...prev, [id]: true }));
+    
+    let variantWeight = null;
+    if (product.variants && product.variants.length > 0) {
+      variantWeight = product.variants[0].weight;
+    }
+
     try {
-      await dispatch(addToCart({ productId: id, quantity: 1 })).unwrap();
+      await dispatch(addToCart({ productId: id, quantity: 1, variantWeight })).unwrap();
     } catch (err) {
       console.error('Failed to add to cart:', err);
       setAddedIds(prev => ({ ...prev, [id]: false }));

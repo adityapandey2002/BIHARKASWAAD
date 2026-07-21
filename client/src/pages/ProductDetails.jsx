@@ -77,7 +77,7 @@ const ProductDetails = () => {
     window.scrollTo(0, 0);
   }, [id, API_URL]);
 
-  const displayPrice = useMemo(() => {
+  const basePrice = useMemo(() => {
     if (!product) return 0;
     if (selectedVariantWeight && product.variants && product.variants.length > 0) {
       const v = product.variants.find(v => v.weight === selectedVariantWeight);
@@ -85,6 +85,10 @@ const ProductDetails = () => {
     }
     return parseFloat(product.price);
   }, [product, selectedVariantWeight]);
+
+  const displayPrice = basePrice * quantity;
+  const baseMrp = product?.mrp ? parseFloat(product.mrp) : 0;
+  const displayMrp = baseMrp * quantity;
 
   const currentStock = useMemo(() => {
     if (!product) return 0;
@@ -348,11 +352,7 @@ const ProductDetails = () => {
                     Size: {selectedVariantWeight || product.packet}
                   </span>
                 )}
-                {product.sku && (
-                  <span className="inline-block bg-purple-100 text-purple-800 text-xs font-semibold px-3 py-1 rounded-full">
-                    SKU: {product.sku}
-                  </span>
-                )}
+
                 {product.shelfLife && (
                   <span className="inline-block bg-teal-100 text-teal-800 text-xs font-semibold px-3 py-1 rounded-full">
                     <i className="fa-regular fa-clock mr-1"></i> Shelf Life: {product.shelfLife}
@@ -406,18 +406,18 @@ const ProductDetails = () => {
                   <span className="text-3xl font-bold text-green-600">
                     ₹{displayPrice}
                   </span>
-                  {product.mrp && product.mrp > displayPrice && (
+                  {baseMrp > basePrice && (
                     <span className="text-lg text-gray-400 line-through">
-                      ₹{product.mrp}
+                      ₹{displayMrp}
                     </span>
                   )}
                   <span className="text-sm text-gray-500">
                     (Inclusive of all taxes)
                   </span>
                 </div>
-                {product.mrp && product.mrp > displayPrice && (
+                {baseMrp > basePrice && (
                   <div className="text-sm text-green-600 font-semibold mt-1">
-                    You save ₹{(product.mrp - displayPrice).toFixed(2)} ({Math.round(((product.mrp - displayPrice) / product.mrp) * 100)}%)
+                    You save ₹{(displayMrp - displayPrice).toFixed(2)} ({Math.round(((baseMrp - basePrice) / baseMrp) * 100)}%)
                   </div>
                 )}
               </div>
