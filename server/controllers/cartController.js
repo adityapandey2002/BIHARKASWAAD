@@ -52,8 +52,13 @@ exports.addToCart = async (req, res) => {
     let [cart] = await Cart.findOrCreate({ where: { userId: req.user.id }, defaults: { totalAmount: 0 } });
 
     let itemPrice = parseFloat(product.price);
-    if (variantWeight && product.variants && product.variants.length > 0) {
-      const variant = product.variants.find(v => v.weight === variantWeight);
+    let parsedVariants = [];
+    try {
+      parsedVariants = typeof product.variants === 'string' ? JSON.parse(product.variants) : (product.variants || []);
+    } catch(e) {}
+    
+    if (variantWeight && parsedVariants.length > 0) {
+      const variant = parsedVariants.find(v => v.weight === variantWeight);
       if (variant && variant.price) itemPrice = parseFloat(variant.price);
     }
 
