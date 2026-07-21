@@ -401,25 +401,23 @@ const ProductDetails = () => {
               </div>
 
               {/* Price */}
-              <div className="mb-3">
-                <div className="flex items-baseline gap-3">
-                  <span className="text-3xl font-bold text-green-600">
-                    ₹{displayPrice}
-                  </span>
-                  {baseMrp > basePrice && (
-                    <span className="text-lg text-gray-400 line-through">
-                      ₹{displayMrp}
-                    </span>
-                  )}
-                  <span className="text-sm text-gray-500">
-                    (Inclusive of all taxes)
-                  </span>
-                </div>
+              <div className="mb-1 flex items-baseline gap-3">
                 {baseMrp > basePrice && (
-                  <div className="text-sm text-green-600 font-semibold mt-1">
-                    You save ₹{(displayMrp - displayPrice).toFixed(2)} ({Math.round(((baseMrp - basePrice) / baseMrp) * 100)}%)
-                  </div>
+                  <>
+                    <span className="text-xl font-bold text-green-600">
+                      📉 {Math.round(((baseMrp - basePrice) / baseMrp) * 100)}%
+                    </span>
+                    <span className="text-xl text-gray-500 line-through">
+                      ₹{displayMrp.toLocaleString('en-IN')}
+                    </span>
+                  </>
                 )}
+                <span className="text-3xl font-bold text-gray-900">
+                  ₹{displayPrice.toLocaleString('en-IN')}
+                </span>
+              </div>
+              <div className="text-sm text-gray-500 mb-4">
+                (Inclusive of all taxes)
               </div>
 
               {/* Variants Selector */}
